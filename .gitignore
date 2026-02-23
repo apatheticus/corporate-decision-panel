@@ -1,1 +1,42 @@
+# macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Environment
+.env
+.env.*
+
+# CDP output and context
+.cdp-output/
+.cdp-context/
+
+# Editors and IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.settings/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# OS files
+Thumbs.db
+Desktop.ini
