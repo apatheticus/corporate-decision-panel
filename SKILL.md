@@ -27,12 +27,17 @@ and why.
 
 ## Setup Check
 
+> **Preferred install method:** Run `python3 install.py` from the skill
+> directory before starting Claude Code. This ensures slash commands are
+> discoverable on first session launch. The auto-setup below is a fallback
+> for users who skip the installer.
+
 Before executing any command, verify that CDP agent definitions and slash
 commands are installed in the project's `.claude/` directory.
 
 **Check:** Does `.claude/agents/ceo.md` exist in the project root?
 
-**If NO (first run):**
+**If NO (first run -- auto-setup fallback):**
 1. Copy all files from this skill's `agents/` directory to `.claude/agents/`,
    preserving the directory structure (`c-suite/`, `team-leads/`)
 2. Copy all files from this skill's `commands/` directory to `.claude/commands/`,
@@ -43,11 +48,14 @@ commands are installed in the project's `.claude/` directory.
 4. Create `.cdp-context/` directory if it doesn't exist
 5. Print setup confirmation:
    ```
-   CDP installed successfully.
+   CDP auto-setup complete.
    - Agent definitions copied to .claude/agents/
    - Slash commands copied to .claude/commands/cdp/
 
-   Quick start:
+   NOTE: Slash commands (/cdp:consult, /cdp:panel, etc.) require a
+   Claude Code restart to become available. Start a new session to use them.
+
+   Quick start (after restart):
      /cdp:consult cfo: Can we afford to hire this quarter?
      /cdp:panel finance tech: Should we build or buy?
      /cdp:deliberate: Should we pivot to a platform model?

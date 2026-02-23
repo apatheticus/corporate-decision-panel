@@ -10,19 +10,20 @@ Runs as a [Claude Code](https://docs.anthropic.com/en/docs/claude-code) agent sk
 
 ## Install
 
-Clone into your project's `.claude/skills/` directory:
+Clone into your project's `.claude/skills/` directory and run the installer:
 
 ```bash
 mkdir -p .claude/skills
 git clone https://github.com/apatheticus/corporate-decision-panel .claude/skills/corporate-decision-panel
+python3 .claude/skills/corporate-decision-panel/install.py
 ```
 
-On first use, CDP automatically installs agent definitions and slash commands into your project's `.claude/` directory.
+The installer copies agent definitions and slash commands into your project's `.claude/` directory so they're available immediately when you start Claude Code. If you skip the installer, CDP will auto-setup on first use -- but slash commands won't be available until you restart the session.
 
 ### Update
 
 ```bash
-cd .claude/skills/corporate-decision-panel && git pull
+cd .claude/skills/corporate-decision-panel && git pull && python3 install.py
 ```
 
 ### Global install (all projects)
@@ -30,6 +31,7 @@ cd .claude/skills/corporate-decision-panel && git pull
 ```bash
 mkdir -p ~/.claude/skills
 git clone https://github.com/apatheticus/corporate-decision-panel ~/.claude/skills/corporate-decision-panel
+python3 ~/.claude/skills/corporate-decision-panel/install.py
 ```
 
 ---
