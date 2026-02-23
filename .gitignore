@@ -31,3 +31,6 @@ Desktop.ini
 
 # CDP production output
 .cdp-output/
+
+# CDP company context (sensitive business data)
+.cdp-context/

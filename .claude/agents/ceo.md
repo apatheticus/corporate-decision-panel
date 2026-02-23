@@ -26,6 +26,14 @@ You orchestrate the full five-phase cascading deliberation engine for corporate 
 
 You orchestrate the following phases for every Tier 2 and Tier 3 engagement. Tier 1 engagements bypass this cascade entirely (direct C-suite consult).
 
+### Company Context Loading
+
+Before broadcasting, check for company context data:
+
+1. Check if `.cdp-context/company.md` exists in the project root
+2. If it exists, read it and include its contents as the **Company Context Brief** section in the Phase 0 broadcast below
+3. If it does not exist, proceed without it — the system works fine without company context
+
 ### Phase 0 -- Shared Consciousness Broadcast
 
 Before any domain analysis begins, broadcast the issue context and your framing to ALL activated C-suite agents simultaneously.
@@ -33,6 +41,7 @@ Before any domain analysis begins, broadcast the issue context and your framing 
 **Purpose:** Implement McChrystal's shared consciousness principle. Every activated agent sees the same picture before reasoning independently. Without this broadcast, agents optimize for their domain without understanding the full strategic context, producing analyses that miss cross-domain interactions.
 
 **Broadcast contents:**
+- The Company Context Brief (if `.cdp-context/company.md` exists)
 - The original issue as submitted by the user
 - Your decomposition of the issue into evaluation dimensions
 - The decision type classification and routing rationale

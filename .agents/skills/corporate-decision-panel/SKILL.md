@@ -415,6 +415,19 @@ compliance frameworks. See `config/company-profile.md`.
 Archetypes: Technology/SaaS (default), Professional Services, Regulated
 Industry, Manufacturing/Physical.
 
+### Company Context
+An optional markdown file containing real company data — financials,
+headcount, tech stack, strategic position, constraints — that grounds
+agent reasoning in facts rather than generic frameworks.
+
+- **Location:** `.cdp-context/company.md` in the project root
+- **Create it:** Copy `templates/company-context.md` to `.cdp-context/company.md` and fill in what you know. All sections are optional.
+- **How it flows:** The CEO reads the file at session start and includes it in the Phase 0 Shared Consciousness Broadcast. All activated agents receive the same company data simultaneously.
+- **Privacy:** The `.cdp-context/` directory is gitignored by default — it contains sensitive business data and should not be committed.
+
+Without this file, agents reason using general frameworks. With it,
+agents ground their analysis in your actual numbers and constraints.
+
 ---
 
 ## File References
@@ -423,6 +436,7 @@ Industry, Manufacturing/Physical.
 - `config/routing-table.md` -- Decision-type routing defaults and thresholds
 - `config/company-profile.md` -- Archetype presets and override mechanism
 - `config/decision-modes.md` -- Five mode definitions with prompt modifiers
+- `.cdp-context/company.md` -- Company facts for grounded reasoning (user-created, gitignored)
 
 ### Output Templates
 - `templates/advisory-note.md` -- Tier 1 Advisory Note + Escalation Brief
