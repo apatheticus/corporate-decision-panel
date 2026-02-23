@@ -25,6 +25,40 @@ and why.
 
 ---
 
+## Setup Check
+
+Before executing any command, verify that CDP agent definitions and slash
+commands are installed in the project's `.claude/` directory.
+
+**Check:** Does `.claude/agents/ceo.md` exist in the project root?
+
+**If NO (first run):**
+1. Copy all files from this skill's `agents/` directory to `.claude/agents/`,
+   preserving the directory structure (`c-suite/`, `team-leads/`)
+2. Copy all files from this skill's `commands/` directory to `.claude/commands/`,
+   preserving the directory structure (`cdp/`)
+3. Append these entries to the project root `.gitignore` if not already present:
+   - `.cdp-output/`
+   - `.cdp-context/`
+4. Create `.cdp-context/` directory if it doesn't exist
+5. Print setup confirmation:
+   ```
+   CDP installed successfully.
+   - Agent definitions copied to .claude/agents/
+   - Slash commands copied to .claude/commands/cdp/
+
+   Quick start:
+     /cdp:consult cfo: Can we afford to hire this quarter?
+     /cdp:panel finance tech: Should we build or buy?
+     /cdp:deliberate: Should we pivot to a platform model?
+     /cdp:evaluate: Should we acquire CompetitorX?
+   ```
+6. If the user provided a command with this invocation, proceed to execute it
+
+**If YES:** Proceed directly to command execution.
+
+---
+
 ## Invocation Grammar
 
 ### Tier 1 -- Hallway Question
@@ -450,10 +484,10 @@ agents ground their analysis in your actual numbers and constraints.
 - `templates/production/board-document.md` -- DOCX document structure
 - `templates/production/capsule-structure.md` -- Capsule PDF layers
 
-### Agent Definitions
-- `.claude/agents/ceo.md` -- CEO with five-phase cascade protocol
-- `.claude/agents/c-suite/*.md` -- 8 C-suite agent definitions (COO, CFO, CTO, CISO, CAO, VP Sales, VP Delivery, CSO)
-- `.claude/agents/team-leads/{domain}/*.md` -- 34 team lead subagent definitions across 8 domains
+### Agent Definitions (installed to `.claude/agents/` by auto-setup)
+- `agents/ceo.md` -- CEO with five-phase cascade protocol
+- `agents/c-suite/*.md` -- 8 C-suite agent definitions (COO, CFO, CTO, CISO, CAO, VP Sales, VP Delivery, CSO)
+- `agents/team-leads/{domain}/*.md` -- 34 team lead subagent definitions across 8 domains
 
 ---
 
