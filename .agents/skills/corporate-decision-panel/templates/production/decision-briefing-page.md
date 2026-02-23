@@ -6,6 +6,8 @@ The interactive decision briefing page is the **primary distribution artifact** 
 
 **Filename:** `{session-output}/index.html`
 
+> `{session-output}` and `<issue-slug>` are provided by the CEO in your task description. Use them directly.
+
 **Blocked until:** Image Agent (Task A), Presentation Agent (Task B), AND Document Agent (Task C) complete. The page needs infographic images from Task A and download links to PPTX (Task B) and DOCX (Task C).
 
 ---

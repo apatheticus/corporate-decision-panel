@@ -10,10 +10,10 @@ description: >
   board meeting) and five synthesis modes (Guardian, Pioneer, Architect,
   Analyst, Sentinel).
 invocation:
-  - /consult
-  - /panel
-  - /deliberate
-  - /evaluate
+  - /cdp:consult
+  - /cdp:panel
+  - /cdp:deliberate
+  - /cdp:evaluate
 ---
 
 # Corporate Decision Panel
@@ -29,29 +29,29 @@ and why.
 
 ### Tier 1 -- Hallway Question
 ```
-/consult [role] [mode?]: [question]
+/cdp:consult [role] [mode?]: [question]
 ```
 Quick, opinionated consult with one C-suite agent. No CEO, no routing,
 no team leads. Produces an **Advisory Note** (3-5 sentences).
 
-- `/consult cfo: Can we afford to hire 15 engineers this quarter?`
-- `/consult ciso guardian: What are the risks of this vendor integration?`
-- `/consult vp-sales pioneer: How does this feature help us sell more?`
+- `/cdp:consult cfo: Can we afford to hire 15 engineers this quarter?`
+- `/cdp:consult ciso guardian: What are the risks of this vendor integration?`
+- `/cdp:consult vp-sales pioneer: How does this feature help us sell more?`
 
 **Roles:** `ceo`, `coo`, `cfo`, `cto`, `ciso`, `cao`, `vp-sales`,
 `vp-delivery`, `cso`
 
 ### Tier 2 -- Working Session
 ```
-/panel [roles] [mode?]: [issue]
+/cdp:panel [roles] [mode?]: [issue]
 ```
 CEO frames and routes to 2-4 C-suite members. Full domain analysis with
 team lead delegation. CEO produces lightweight synthesis. Produces a
 **Panel Assessment** (~1 page).
 
-- `/panel finance tech: Should we build this feature in-house?`
-- `/panel pioneer finance tech sales: Should we acquire CompetitorX?`
-- `/panel --produce operations delivery: Should we restructure the PMO?`
+- `/cdp:panel finance tech: Should we build this feature in-house?`
+- `/cdp:panel pioneer finance tech sales: Should we acquire CompetitorX?`
+- `/cdp:panel --produce operations delivery: Should we restructure the PMO?`
 
 The `--produce` flag triggers the production pipeline (HTML, PPTX, DOCX,
 Results PDF, Capsule PDF). Without it, only the Panel Assessment text
@@ -59,19 +59,19 @@ is produced.
 
 ### Tier 3 -- Board Meeting
 ```
-/deliberate [mode?]: [issue]
+/cdp:deliberate [mode?]: [issue]
 ```
 Full five-phase cascade. All relevant C-suite activated via routing table.
 Full team lead analysis. Pre-mortem challenge. Complete CEO deliberation.
 Produces a **Decision Record** (3-5 pages). Production always triggered.
 
-- `/deliberate: Should we pivot to a platform model?`
-- `/deliberate guardian: Should we take on $10M in debt for expansion?`
-- `/deliberate sentinel: Should we acquire CompetitorX?`
+- `/cdp:deliberate: Should we pivot to a platform model?`
+- `/cdp:deliberate guardian: Should we take on $10M in debt for expansion?`
+- `/cdp:deliberate sentinel: Should we acquire CompetitorX?`
 
 ### Auto-Triage
 ```
-/evaluate: [issue]
+/cdp:evaluate: [issue]
 ```
 CEO assesses the issue and recommends a tier, mode, and routing. The user
 accepts, overrides, or selects a different configuration.
@@ -95,11 +95,11 @@ Domain analysis runs once. CEO synthesis runs per mode. Cost: ~1.1x for
 up to 5x the strategic insight.
 
 ```
-/deliberate guardian vs pioneer: [issue]       # Two-mode comparison
-/deliberate guardian vs analyst vs sentinel: [issue]  # Three modes
-/deliberate all-modes: [issue]                 # All five modes
-/consult cfo guardian: [question]              # Tier 1 with mode
-/panel pioneer finance tech: [issue]           # Tier 2 with mode
+/cdp:deliberate guardian vs pioneer: [issue]       # Two-mode comparison
+/cdp:deliberate guardian vs analyst vs sentinel: [issue]  # Three modes
+/cdp:deliberate all-modes: [issue]                 # All five modes
+/cdp:consult cfo guardian: [question]              # Tier 1 with mode
+/cdp:panel pioneer finance tech: [issue]           # Tier 2 with mode
 ```
 
 Multi-mode produces a **Comparative Decision Record** with shared analysis,
@@ -127,7 +127,7 @@ inputs. See `config/decision-modes.md` for full specifications.
 
 ### Tier 1: Hallway Question
 
-1. User invokes `/consult [role] [mode?]: [question]`
+1. User invokes `/cdp:consult [role] [mode?]: [question]`
 2. Spawn the specified C-suite agent as Agent Team teammate (Sonnet)
 3. Agent runs **Mode A** (direct consult):
    - Runs internal checklist (considers each team lead perspective)
@@ -140,7 +140,7 @@ Output template: `templates/advisory-note.md`
 
 ### Tier 2: Working Session
 
-1. User invokes `/panel [roles] [mode?]: [issue]`
+1. User invokes `/cdp:panel [roles] [mode?]: [issue]`
 2. Create Agent Team. Spawn CEO (Opus)
 3. CEO runs **Phase 1** (frame and route):
    - Decomposes issue into evaluation dimensions
@@ -277,8 +277,33 @@ blind spots.
 | Tier | Production | Notes |
 |------|-----------|-------|
 | Tier 1 | Never | Advisory Notes are lightweight by design |
-| Tier 2 | `--produce` flag | Optional: `/panel --produce ...` |
+| Tier 2 | `--produce` flag | Optional: `/cdp:panel --produce ...` |
 | Tier 3 | Always | Automatic after CEO produces Decision Record |
+
+### Session Output Directory
+
+All production artifacts are written to a per-session directory under `.cdp-output/` in the project working directory:
+
+```
+.cdp-output/YYYY-MM-DD_<issue-slug>/
+```
+
+The **issue slug** is derived from the Issue Title produced in CEO Phase 1: lowercase, replace non-alphanumeric characters (except hyphens) with hyphens, collapse consecutive hyphens, trim to 50 characters, and strip leading/trailing hyphens.
+
+**Directory structure:**
+
+```
+.cdp-output/2026-02-22_should-we-acquire-competitor-x/
+├── index.html                          # Decision briefing page
+├── PRESENTATION_should-we-acquire-competitor-x.pptx
+├── REPORT_should-we-acquire-competitor-x.docx
+├── RESULTS_should-we-acquire-competitor-x.pdf
+├── CAPSULE_should-we-acquire-competitor-x.pdf
+├── images/                             # Infographic PNGs
+└── build/                              # Rerunnable build scripts
+```
+
+The placeholder `{session-output}` used throughout this section and in production templates refers to this resolved path.
 
 ### Dependency Pipeline
 
@@ -423,7 +448,7 @@ Industry, Manufacturing/Physical.
 The skill defaults to lightweight engagement. Most SMB decisions are fast,
 informal, and made by one or two people. The skill matches that tempo:
 
-- `/evaluate` auto-triage leans toward Tier 1 unless clear multi-domain
+- `/cdp:evaluate` auto-triage leans toward Tier 1 unless clear multi-domain
   signals are present
 - Tier 1 is the daily habit; Tier 3 is the deliberate escalation
 - A skill that defaults to the full board meeting for every question will

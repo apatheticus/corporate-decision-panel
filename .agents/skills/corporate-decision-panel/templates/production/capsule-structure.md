@@ -11,6 +11,8 @@ The Archivist produces two PDF artifacts:
 **Capsule PDF filename:** `{session-output}/CAPSULE_<issue-slug>.pdf`
 **Build script:** `{session-output}/build/build_capsule.py`
 
+> `{session-output}` and `<issue-slug>` are provided by the CEO in your task description. Use them directly.
+
 **Blocked until:** Web Page Agent (Task D) completes. The Results PDF is a direct rendering of `index.html`, so the finished page must exist before the Archivist can start.
 
 ---

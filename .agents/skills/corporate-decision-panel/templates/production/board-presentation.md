@@ -7,6 +7,8 @@ The board presentation structures the decision briefing for live presentation --
 **Filename:** `{session-output}/PRESENTATION_<issue-slug>.pptx`
 **Build script:** `{session-output}/build/build_presentation.js`
 
+> `{session-output}` and `<issue-slug>` are provided by the CEO in your task description. Use them directly.
+
 **Runs in parallel** with Image Agent (Task A) and Document Agent (Task C) -- no dependencies on other production agents.
 
 ---

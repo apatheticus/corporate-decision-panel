@@ -7,6 +7,8 @@ The board document is the editable artifact designed for executive review workfl
 **Filename:** `{session-output}/REPORT_<issue-slug>.docx`
 **Build script:** `{session-output}/build/build_report.js`
 
+> `{session-output}` and `<issue-slug>` are provided by the CEO in your task description. Use them directly.
+
 **Runs in parallel** with Image Agent (Task A) and Presentation Agent (Task B) -- no dependencies on other production agents.
 
 ---

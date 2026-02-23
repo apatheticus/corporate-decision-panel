@@ -28,3 +28,6 @@ venv/
 # Windows
 Thumbs.db
 Desktop.ini
+
+# CDP production output
+.cdp-output/

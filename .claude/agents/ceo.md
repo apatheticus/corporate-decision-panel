@@ -551,6 +551,20 @@ When the user invokes Tier 2 with the `--produce` flag (e.g., `/panel --produce 
 
 Tier 1 Advisory Notes are lightweight by design. Formatting them as board-ready documents would undermine the Tier 1 value proposition of speed and simplicity.
 
+### Session Output Setup
+
+Before spawning any production agents, create the session output directory:
+
+1. **Derive the issue slug** from the Issue Title (produced in Phase 1): lowercase, replace non-alphanumeric characters (except hyphens) with hyphens, collapse consecutive hyphens, trim to 50 characters, strip leading/trailing hyphens.
+2. **Construct the path:** `.cdp-output/YYYY-MM-DD_<issue-slug>/` using today's date.
+3. **Create the directory tree:**
+   ```bash
+   mkdir -p .cdp-output/YYYY-MM-DD_<issue-slug>/images
+   mkdir -p .cdp-output/YYYY-MM-DD_<issue-slug>/build
+   ```
+4. **Resolve to absolute path** so production agents receive an unambiguous location.
+5. **Include the resolved path and issue slug in every production TaskCreate** description so each agent knows exactly where to write and what filename stem to use.
+
 ### Production Spawn Sequence
 
 The production phase creates five artifacts through five production agents with explicit dependencies:
@@ -568,11 +582,16 @@ Task E: Archivist (Results PDF + Capsule PDF)  <-- blocked by D
 **Spawn commands:**
 
 ```
-TaskCreate: "Generate analytical infographics"                -> Task A
-TaskCreate: "Create board presentation (PPTX)"               -> Task B
-TaskCreate: "Create board document (DOCX)"                    -> Task C
-TaskCreate: "Create interactive decision briefing page"       -> Task D
-TaskCreate: "Produce Results PDF and Deliberation Capsule"    -> Task E
+TaskCreate: "Generate analytical infographics
+  Session output: <absolute-path>  Issue slug: <issue-slug>"            -> Task A
+TaskCreate: "Create board presentation (PPTX)
+  Session output: <absolute-path>  Issue slug: <issue-slug>"            -> Task B
+TaskCreate: "Create board document (DOCX)
+  Session output: <absolute-path>  Issue slug: <issue-slug>"            -> Task C
+TaskCreate: "Create interactive decision briefing page
+  Session output: <absolute-path>  Issue slug: <issue-slug>"            -> Task D
+TaskCreate: "Produce Results PDF and Deliberation Capsule
+  Session output: <absolute-path>  Issue slug: <issue-slug>"            -> Task E
 
 TaskUpdate: { taskId: D, addBlockedBy: [A, B, C] }
 TaskUpdate: { taskId: E, addBlockedBy: [D] }
