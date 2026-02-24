@@ -8,7 +8,7 @@ This is the skill's most lightweight engagement. It should feel like pulling asi
 
 ## Production
 
-No production artifacts are generated for Tier 1. Advisory Notes are lightweight by design -- formatting them as board-ready documents would undermine the value proposition of speed and simplicity.
+After the Advisory Note is produced, the orchestrator spawns a Document Agent to produce an Advisory Document DOCX. This is a lightweight memo-format document, not a full board document. See `templates/production/advisory-document.md` for the document specification.
 
 ## Agent Execution
 

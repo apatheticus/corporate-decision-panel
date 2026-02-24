@@ -8,7 +8,7 @@ The Panel Assessment sits between the Advisory Note (quick, single-domain) and t
 
 ## Production
 
-Optional. Triggered by the `--produce` flag on invocation (e.g., `/panel --produce finance tech: should we build this feature?`). Without the flag, the Panel Assessment text is the only output. When `--produce` is triggered, the same five-artifact production pipeline runs with lighter content.
+Always triggered after the Panel Assessment is produced. The same five-artifact production pipeline runs as Tier 3, with proportionally lighter content.
 
 ## Agent Execution
 
@@ -150,20 +150,18 @@ The CEO should recommend Tier 3 escalation when:
 
 4. **Confidence is uniformly low**: Multiple domains report low confidence, suggesting the issue needs the CSO's research investigation (Phase 1.5) before meaningful analysis is possible.
 
-5. **Production artifacts needed**: If the decision warrants formal documentation (board presentation, editable document, archival record), Tier 3 triggers the production pipeline automatically.
+5. **Comprehensive institutional record needed**: If the decision warrants the full 5-layer Capsule with pre-mortem findings and complete team lead detail, Tier 3 produces a more thorough archival record.
 
 ---
 
-## Production Variant (`--produce` flag)
+## Production Artifacts
 
-When invoked with `--produce`, the Panel Assessment serves as the source document for the production pipeline, analogous to how the Decision Record serves Tier 3 production. The production artifacts are lighter:
+The Panel Assessment serves as the source document for the production pipeline, analogous to how the Decision Record serves Tier 3 production. The production artifacts are lighter:
 
 - **Content scope**: Only the activated domains are covered (not full roster).
 - **Capsule PDF**: Layers 3 and 4 have less content (fewer domain analyses, no pre-mortem findings).
 - **Infographics**: Routing diagram and domain scorecard are generated. Fault line map may be simpler with fewer domains. Risk-opportunity matrix and action plan timeline are generated as normal.
 - **All five artifacts** are still produced -- the format is identical, the content is proportionally lighter.
-
-The `--produce` flag does not change the Panel Assessment itself -- it only triggers the production pipeline after the assessment is complete.
 
 ---
 
@@ -177,4 +175,4 @@ The `--produce` flag does not change the Panel Assessment itself -- it only trig
 | Pre-mortem | No | No | Yes (Phase 4.5) |
 | CSO research | No | Only if CSO activated | Conditional (Phase 1.5) |
 | Output length | 3-5 sentences | ~1 page | 3-5 pages |
-| Production | Never | Optional (`--produce`) | Always |
+| Production | Always (DOCX) | Always (all 5 artifacts) | Always (all 5 artifacts) |
