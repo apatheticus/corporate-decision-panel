@@ -128,7 +128,7 @@ Archetype presets for different industry types (Technology/SaaS, Professional Se
 
 ## Optional Dependencies
 
-The production pipeline (Tier 2 `--produce` and Tier 3) uses these external skills for generating artifacts. They are **not required** for Tier 1 or Tier 2 without `--produce`.
+The production pipeline (all tiers) uses these external skills for generating artifacts. Tier 1 requires only the `docx` npm package for the Advisory Document.
 
 | Skill | Used For | Install |
 |-------|----------|---------|

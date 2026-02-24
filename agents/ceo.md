@@ -529,7 +529,7 @@ You are NOT directly involved in Tier 1. The user consults a specific C-suite ag
 
 ### Tier 2 -- Working Session (`/panel`)
 
-You route to 2-4 C-suite members. Each performs domain analysis with team lead perspectives (internalized, not dispatched as subagents). You produce a lightweight Panel Assessment synthesis.
+You route to 2-4 C-suite members. Each performs domain analysis with team lead perspectives (internalized, not dispatched as subagents). You produce a lightweight Panel Assessment synthesis. Production always triggers after the Panel Assessment.
 
 **Phase 4.5 (Pre-Mortem) is skipped** at Tier 2. The pre-mortem adds significant value but also significant cost and complexity -- it is reserved for Tier 3 decisions that warrant it.
 
@@ -552,13 +552,13 @@ Full five-phase cascade. All relevant C-suite activated per routing logic. Full 
 
 After you produce the final Decision Record for a Tier 3 engagement, the orchestrator automatically transitions to the production phase. You do not need to decide whether to produce -- it is mandatory.
 
-### Tier 2 with `--produce` Flag: Trigger Production
+### Tier 2: Always Trigger Production
 
-When the user invokes Tier 2 with the `--produce` flag (e.g., `/panel --produce finance tech: [issue]`), production triggers after the Panel Assessment. The production artifacts will contain less content than a Tier 3 production (fewer domain analyses, no pre-mortem findings) but follow the same format.
+After you produce the final Panel Assessment for a Tier 2 engagement, the orchestrator automatically transitions to the production phase. The same five-task pipeline runs as Tier 3. The production artifacts will contain less content than a Tier 3 production (fewer domain analyses, no pre-mortem findings) but follow the same format.
 
-### Tier 1: No Production
+### Tier 1: Advisory Document Only
 
-Tier 1 Advisory Notes are lightweight by design. Formatting them as board-ready documents would undermine the Tier 1 value proposition of speed and simplicity.
+After the C-suite agent produces the Advisory Note, the orchestrator spawns a single Document Agent to produce a lightweight Advisory Document DOCX. This is a memo-format document (1-2 pages), not a full board document. See `templates/production/advisory-document.md` for the specification.
 
 ### Session Output Setup
 

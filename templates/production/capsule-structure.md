@@ -158,7 +158,7 @@ The Results PDF content is identical to the HTML distribution page. The Archivis
 
 - **Dual-audience Overview** -- Layer 1 is readable by a human scanning for content AND parseable by an AI agent looking for structured metadata. Use consistent formatting that serves both audiences.
 
-- **Handle variable content gracefully** -- Tier 2 `--produce` runs have less content than Tier 3 full cascades. Some runs activate 3 C-suite domains, others activate all 7+. The layout accommodates variability without breaking or looking sparse. Use conditional sections that appear only when content exists.
+- **Handle variable content gracefully** -- Tier 2 runs have less content than Tier 3 full cascades. Some runs activate 3 C-suite domains, others activate all 7+. The layout accommodates variability without breaking or looking sparse. Use conditional sections that appear only when content exists.
 
 ### Structure: Cover + 5 Layers
 
@@ -368,7 +368,7 @@ The `build_capsule.py` script must:
 
 1. **Produce both PDFs** in a single run (Results PDF + Capsule PDF)
 2. **Be rerunnable**: Running `python3 build_capsule.py` from the `build/` directory regenerates both PDFs from current artifacts without side effects
-3. **Handle missing content gracefully**: If a Tier 2 `--produce` run has fewer domain analyses or no pre-mortem data, the capsule should omit those sections cleanly rather than showing empty sections or breaking
+3. **Handle missing content gracefully**: If a Tier 2 run has fewer domain analyses or no pre-mortem data, the capsule should omit those sections cleanly rather than showing empty sections or breaking
 4. **Convert all images to base64**: For complete self-containment of both PDFs
 5. **Report output**: Print the filenames and sizes of both PDFs on completion
 6. **Fallback gracefully**: If weasyprint is unavailable, attempt pdfkit/wkhtmltopdf with a clear warning about potential rendering differences
@@ -417,6 +417,6 @@ except ImportError:
 
 3. **The Overview (Layer 1) must be dual-audience.** A human scanning for "where is the CSO research?" and an AI agent looking for structured metadata should both find what they need in the content inventory.
 
-4. **Variable content must be handled gracefully.** A capsule from a Tier 2 `--produce` run with 3 domains should look intentional, not incomplete. A capsule from a Tier 3 full cascade with all 8 domains and CSO research should not overflow or break layout.
+4. **Variable content must be handled gracefully.** A capsule from a Tier 2 run with 3 domains should look intentional, not incomplete. A capsule from a Tier 3 full cascade with all 8 domains and CSO research should not overflow or break layout.
 
 5. **The Results PDF must faithfully reproduce the HTML page.** No invisible elements from scroll-reveal animations, no missing interactive content, no broken layouts from unsupported CSS. The Archivist's print CSS injection must neutralize all browser-dependent rendering.

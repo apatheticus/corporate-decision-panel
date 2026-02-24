@@ -326,7 +326,7 @@ new TableOfContents("Table of Contents", {
 | Per-domain subsections | Heading 2 per C-suite domain, Heading 3 per team lead |
 | Team lead detail | Full analytical output including framework-specific artifacts (scenario models, compliance assessments, stress tests, etc.) |
 | Formatting | Structured tables and lists matching each team lead's output template |
-| Note | This appendix is optional for Tier 2 `--produce` runs (less team lead detail available) |
+| Note | This appendix is optional for Tier 2 runs (less team lead detail available) |
 
 ---
 

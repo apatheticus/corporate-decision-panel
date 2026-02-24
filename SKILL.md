@@ -74,7 +74,8 @@ commands are installed in the project's `.claude/` directory.
 /cdp:consult [role] [mode?]: [question]
 ```
 Quick, opinionated consult with one C-suite agent. No CEO, no routing,
-no team leads. Produces an **Advisory Note** (3-5 sentences).
+no team leads. Produces an **Advisory Note** (3-5 sentences) and an
+**Advisory Document** (DOCX memo).
 
 - `/cdp:consult cfo: Can we afford to hire 15 engineers this quarter?`
 - `/cdp:consult ciso guardian: What are the risks of this vendor integration?`
@@ -93,11 +94,10 @@ team lead delegation. CEO produces lightweight synthesis. Produces a
 
 - `/cdp:panel finance tech: Should we build this feature in-house?`
 - `/cdp:panel pioneer finance tech sales: Should we acquire CompetitorX?`
-- `/cdp:panel --produce operations delivery: Should we restructure the PMO?`
 
-The `--produce` flag triggers the production pipeline (HTML, PPTX, DOCX,
-Results PDF, Capsule PDF). Without it, only the Panel Assessment text
-is produced.
+Production always triggers after the Panel Assessment, producing the same
+five artifacts as Tier 3 (HTML, PPTX, DOCX, Results PDF, Capsule PDF)
+with proportionally lighter content.
 
 ### Tier 3 -- Board Meeting
 ```
@@ -176,9 +176,13 @@ inputs. See `config/decision-modes.md` for full specifications.
    - Produces Advisory Note (3-5 sentences)
    - If cross-domain implications detected: appends Escalation Brief
 4. Return Advisory Note to user
-5. **No CEO. No team leads. No production.**
+5. Derive issue slug from the user's question (lowercase, replace non-alphanumeric
+   with hyphens, collapse consecutive hyphens, trim to 50 chars, strip leading/trailing hyphens)
+6. Create session output directory: `.cdp-output/YYYY-MM-DD_<issue-slug>/build/`
+7. Spawn Document Agent to produce Advisory Document DOCX
 
 Output template: `templates/advisory-note.md`
+Output spec: `templates/production/advisory-document.md`
 
 ### Tier 2: Working Session
 
@@ -198,7 +202,7 @@ Output template: `templates/advisory-note.md`
    - Collects domain recommendations
    - Applies Decision Mode
    - Produces Panel Assessment
-7. If `--produce` flag: trigger production pipeline
+7. Trigger production pipeline
 8. Return Panel Assessment to user
 
 Output template: `templates/panel-assessment.md`
@@ -316,11 +320,11 @@ blind spots.
 
 ### Trigger Logic
 
-| Tier | Production | Notes |
-|------|-----------|-------|
-| Tier 1 | Never | Advisory Notes are lightweight by design |
-| Tier 2 | `--produce` flag | Optional: `/cdp:panel --produce ...` |
-| Tier 3 | Always | Automatic after CEO produces Decision Record |
+| Tier | Production | Artifacts |
+|------|-----------|-----------|
+| Tier 1 | Always | DOCX |
+| Tier 2 | Always | HTML, PPTX, DOCX, Results PDF, Capsule PDF |
+| Tier 3 | Always | HTML, PPTX, DOCX, Results PDF, Capsule PDF |
 
 ### Session Output Directory
 
@@ -332,7 +336,7 @@ All production artifacts are written to a per-session directory under `.cdp-outp
 
 The **issue slug** is derived from the Issue Title produced in CEO Phase 1: lowercase, replace non-alphanumeric characters (except hyphens) with hyphens, collapse consecutive hyphens, trim to 50 characters, and strip leading/trailing hyphens.
 
-**Directory structure:**
+**Directory structure (Tier 2 and Tier 3):**
 
 ```
 .cdp-output/2026-02-22_should-we-acquire-competitor-x/
@@ -343,6 +347,15 @@ The **issue slug** is derived from the Issue Title produced in CEO Phase 1: lowe
 ├── CAPSULE_should-we-acquire-competitor-x.pdf
 ├── images/                             # Infographic PNGs
 └── build/                              # Rerunnable build scripts
+```
+
+**Directory structure (Tier 1):**
+
+```
+.cdp-output/2026-02-22_can-we-afford-to-hire-this-quarter/
+├── ADVISORY_can-we-afford-to-hire-this-quarter.docx
+└── build/
+    └── build_advisory.js
 ```
 
 The placeholder `{session-output}` used throughout this section and in production templates refers to this resolved path.
@@ -393,6 +406,16 @@ Output: `{session-output}/REPORT_<issue-slug>.docx`
 Build: `{session-output}/build/build_report.js`
 Spec: `templates/production/board-document.md`
 
+**Task C' -- Advisory Document Agent** (Tier 1 only, single-task pipeline)
+Produces a lightweight Advisory Document DOCX from the Advisory Note. Memo
+format (1-2 pages): header block with metadata, the user's question, the
+advisory response, and an optional Escalation Brief section if the C-suite
+agent appended one. Technology: `docx` npm package (same as board document).
+
+Output: `{session-output}/ADVISORY_<issue-slug>.docx`
+Build: `{session-output}/build/build_advisory.js`
+Spec: `templates/production/advisory-document.md`
+
 **Task D -- Web Page Agent** (blocked by A + B + C)
 Creates self-contained interactive HTML briefing page. Hero, Executive
 Summary, Problem Context, Analytical Framework, Domain Analysis cards,
@@ -423,6 +446,12 @@ TaskCreate: "Produce Results PDF and Deliberation Capsule"   -> task E
 
 TaskUpdate: { taskId: D, addBlockedBy: [A, B, C] }
 TaskUpdate: { taskId: E, addBlockedBy: [D] }
+```
+
+**Tier 1 Spawn Sequence:** Single TaskCreate for the Advisory Document DOCX. No dependencies, no blocking — one agent, one artifact.
+```
+TaskCreate: "Create advisory document (DOCX)
+  Session output: <absolute-path>  Issue slug: <issue-slug>"            -> Task C'
 ```
 
 ---
@@ -487,6 +516,7 @@ agents ground their analysis in your actual numbers and constraints.
 - `templates/comparative-decision-record.md` -- Multi-mode comparison format
 
 ### Production Templates
+- `templates/production/advisory-document.md` -- Tier 1 Advisory Document DOCX
 - `templates/production/decision-briefing-page.md` -- HTML page spec
 - `templates/production/board-presentation.md` -- PPTX slide structure
 - `templates/production/board-document.md` -- DOCX document structure
