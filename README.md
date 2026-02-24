@@ -703,4 +703,6 @@ For detailed specifications, see the config and template files:
 
 Made with 💨 by the Zerø Effort
 
+Copyright 2026
+
 </div>
