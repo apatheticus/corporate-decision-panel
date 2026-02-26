@@ -247,9 +247,9 @@ flowchart LR
     T1 -->|"Cross-domain implications\ndetected (Escalation Brief)"| T2
     T2 -->|"Deep disagreements\nStakes higher than expected\nMissing critical domains"| T3
 
-    style T1 fill:#e8f5e9,stroke:#2e7d32
-    style T2 fill:#fff3e0,stroke:#ef6c00
-    style T3 fill:#fce4ec,stroke:#c62828
+    style T1 fill:#e8f5e9,stroke:#2e7d32,color:#1a1a1a
+    style T2 fill:#fff3e0,stroke:#ef6c00,color:#1a1a1a
+    style T3 fill:#fce4ec,stroke:#c62828,color:#1a1a1a
 ```
 
 The skill defaults to lightweight engagement. Most SMB decisions are fast, informal, and made by one or two people. Tier 1 is the daily habit; Tier 3 is the deliberate escalation.
@@ -295,14 +295,14 @@ flowchart TD
     style CAO fill:#1565c0,color:#fff
     style CSO fill:#e65100,color:#fff
 
-    style COO_TL fill:#ffebee,stroke:#c62828
-    style CFO_TL fill:#ffebee,stroke:#c62828
-    style CISO_TL fill:#ffebee,stroke:#c62828
-    style VPD_TL fill:#ffebee,stroke:#c62828
-    style CTO_TL fill:#e8f5e9,stroke:#2e7d32
-    style VPS_TL fill:#e8f5e9,stroke:#2e7d32
-    style CAO_TL fill:#e3f2fd,stroke:#1565c0
-    style CSO_TL fill:#fff3e0,stroke:#e65100
+    style COO_TL fill:#ffebee,stroke:#c62828,color:#1a1a1a
+    style CFO_TL fill:#ffebee,stroke:#c62828,color:#1a1a1a
+    style CISO_TL fill:#ffebee,stroke:#c62828,color:#1a1a1a
+    style VPD_TL fill:#ffebee,stroke:#c62828,color:#1a1a1a
+    style CTO_TL fill:#e8f5e9,stroke:#2e7d32,color:#1a1a1a
+    style VPS_TL fill:#e8f5e9,stroke:#2e7d32,color:#1a1a1a
+    style CAO_TL fill:#e3f2fd,stroke:#1565c0,color:#1a1a1a
+    style CSO_TL fill:#fff3e0,stroke:#e65100,color:#1a1a1a
 ```
 
 <sub>*Facilities/Office Manager conditionally active based on company archetype.</sub>
@@ -389,18 +389,18 @@ flowchart TD
     PROD -->|Yes| PRODY
     PROD -->|No| END["Done"]
 
-    style P0 fill:#e3f2fd,stroke:#1565c0
+    style P0 fill:#e3f2fd,stroke:#1565c0,color:#1a1a1a
     style P1 fill:#6a1b9a,color:#fff
-    style P15 fill:#fff3e0,stroke:#e65100
-    style P15Y fill:#fff3e0,stroke:#e65100
-    style P2 fill:#e8f5e9,stroke:#2e7d32
-    style P3 fill:#e8f5e9,stroke:#2e7d32
-    style P4 fill:#e8f5e9,stroke:#2e7d32
-    style P45 fill:#fce4ec,stroke:#c62828
-    style P45Y fill:#fce4ec,stroke:#c62828
+    style P15 fill:#fff3e0,stroke:#e65100,color:#1a1a1a
+    style P15Y fill:#fff3e0,stroke:#e65100,color:#1a1a1a
+    style P2 fill:#e8f5e9,stroke:#2e7d32,color:#1a1a1a
+    style P3 fill:#e8f5e9,stroke:#2e7d32,color:#1a1a1a
+    style P4 fill:#e8f5e9,stroke:#2e7d32,color:#1a1a1a
+    style P45 fill:#fce4ec,stroke:#c62828,color:#1a1a1a
+    style P45Y fill:#fce4ec,stroke:#c62828,color:#1a1a1a
     style P5 fill:#6a1b9a,color:#fff
-    style PROD fill:#f3e5f5,stroke:#6a1b9a
-    style PRODY fill:#f3e5f5,stroke:#6a1b9a
+    style PROD fill:#f3e5f5,stroke:#6a1b9a,color:#1a1a1a
+    style PRODY fill:#f3e5f5,stroke:#6a1b9a,color:#1a1a1a
 ```
 
 **Phase 0 -- Shared Consciousness Broadcast:** CEO broadcasts issue context, company data, routing rationale, and active decision mode to all activated C-suite agents simultaneously.
@@ -477,10 +477,10 @@ flowchart LR
 
     User --> CEO_Read --> P0 --> Agents
 
-    style User fill:#e8f5e9,stroke:#2e7d32
+    style User fill:#e8f5e9,stroke:#2e7d32,color:#1a1a1a
     style CEO_Read fill:#6a1b9a,color:#fff
-    style P0 fill:#e3f2fd,stroke:#1565c0
-    style Agents fill:#fff3e0,stroke:#e65100
+    style P0 fill:#e3f2fd,stroke:#1565c0,color:#1a1a1a
+    style Agents fill:#fff3e0,stroke:#e65100,color:#1a1a1a
 ```
 
 Without this file, agents reason using general frameworks. With it, agents ground their analysis in actual numbers and constraints.
@@ -597,11 +597,11 @@ flowchart LR
     C --> D
     D --> E
 
-    style A fill:#e8f5e9,stroke:#2e7d32
-    style B fill:#e8f5e9,stroke:#2e7d32
-    style C fill:#e8f5e9,stroke:#2e7d32
-    style D fill:#fff3e0,stroke:#ef6c00
-    style E fill:#fce4ec,stroke:#c62828
+    style A fill:#e8f5e9,stroke:#2e7d32,color:#1a1a1a
+    style B fill:#e8f5e9,stroke:#2e7d32,color:#1a1a1a
+    style C fill:#e8f5e9,stroke:#2e7d32,color:#1a1a1a
+    style D fill:#fff3e0,stroke:#ef6c00,color:#1a1a1a
+    style E fill:#fce4ec,stroke:#c62828,color:#1a1a1a
 ```
 
 | Task | Artifact | Technology | Description |
