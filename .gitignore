@@ -40,3 +40,6 @@ venv/
 # OS files
 Thumbs.db
 Desktop.ini
+
+# Design/reference docs
+ref/
