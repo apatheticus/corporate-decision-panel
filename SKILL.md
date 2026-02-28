@@ -376,12 +376,13 @@ Task E: Archivist (PDFs)         <-- blocked by D
 
 **Task A -- Image Agent** (parallel, unblocked)
 Generates 5-6 analytical infographics via browser automation targeting
-`gemini.google.com`. Each infographic is produced by populating a JSON
-prompt template (Pauhu schema hybrid) with Decision Record data, applying
-style overrides from `.cdp-context/style.md` (if present), and submitting
-to Gemini with a 3-attempt escalation per image (full prompt → corrective
-feedback → simplified prompt), all within the same Gemini conversation.
-Retries never open a new conversation. A 12-submission session cap applies
+the configured AI platform (Gemini or ChatGPT, set in `.cdp-context/config.md`).
+Each infographic is produced by populating a JSON prompt template (Pauhu
+schema hybrid) with Decision Record data, applying style overrides from
+`.cdp-context/style.md` (if present), and submitting to the platform with
+a 3-attempt escalation per image (full prompt → corrective feedback →
+simplified prompt), all within the same conversation. Retries never open
+a new conversation. A 12-submission session cap applies
 across all infographics. If attempts are exhausted, a placeholder PNG is
 generated and the populated JSON prompt is saved alongside it for manual
 generation.
@@ -450,7 +451,7 @@ Spec: `templates/production/capsule-structure.md`
 
 ### Orchestrator Spawn Sequence
 ```
-TaskCreate: "Generate analytical infographics via Gemini"     -> task A
+TaskCreate: "Generate analytical infographics via browser automation"  -> task A
 TaskCreate: "Create board presentation (PPTX)"               -> task B
 TaskCreate: "Create board document (DOCX)"                   -> task C
 TaskCreate: "Create interactive decision briefing page"      -> task D
@@ -543,7 +544,7 @@ palette and visual preferences.
 - `templates/comparative-decision-record.md` -- Multi-mode comparison format
 
 ### Production Templates
-- `templates/production/infographics.md` -- Image Agent spec (Gemini + JSON prompts)
+- `templates/production/infographics.md` -- Image Agent spec (AI platform + JSON prompts)
 - `templates/production/advisory-document.md` -- Tier 1 Advisory Document DOCX
 - `templates/production/decision-briefing-page.md` -- HTML page spec
 - `templates/production/board-presentation.md` -- PPTX slide structure

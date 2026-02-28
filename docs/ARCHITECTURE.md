@@ -376,7 +376,7 @@ flowchart LR
 
 | Task | Artifact | Technology |
 |------|----------|------------|
-| A -- Image Agent | `images/INFOGRAPHIC_*.png` (5-6 infographics) | Browser automation (Gemini / JSON prompts) |
+| A -- Image Agent | `images/INFOGRAPHIC_*.png` (5-6 infographics) | Browser automation (Gemini or ChatGPT / JSON prompts) |
 | B -- Presentation Agent | `PRESENTATION_<slug>.pptx` (11-slide deck) | pptxgenjs (Node.js) |
 | C -- Document Agent | `REPORT_<slug>.docx` (US Letter, 8 sections + appendices) | docx (Node.js) |
 

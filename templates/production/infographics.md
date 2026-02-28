@@ -21,14 +21,20 @@ analysis scannable.
 
 ## Technology
 
-**Target platform:** Browser automation targeting `gemini.google.com`
-**Required model mode:** Pro (select via the mode picker in the Gemini
-input bar -- Fast mode may not generate images or may produce lower
-structural fidelity)
+**Target platform:** Read from `.cdp-context/config.md` → `Platform` field
+(default: `gemini`). If the file is absent or the field is blank, use `gemini`.
 **Prompt format:** JSON templates following the Pauhu schema hybrid
 convention with six top-level keys: `core`, `style`, `technical`,
 `composition`, `quality_keywords`, `extras`
 **Template directory:** `templates/infographic-prompts/`
+
+### Platform Profiles
+
+| | Gemini | ChatGPT |
+|---|---|---|
+| URL | `gemini.google.com` | `chatgpt.com` |
+| Model selection | Select **Pro** via the mode picker in the input bar | Select **GPT-4o** (or latest) via the model picker dropdown |
+| Fast-mode warning | Fast mode may not generate images from JSON prompts | N/A |
 
 ### Prompt Population Workflow
 
@@ -43,8 +49,8 @@ For each infographic, follow this 5-step workflow:
 4. **Apply style overrides** -- If `.cdp-context/style.md` exists, read
    it and override the corresponding JSON values using the mapping table
    below
-5. **Submit to Gemini** -- Send the populated JSON as the image generation
-   prompt via browser automation
+5. **Submit to AI platform** -- Send the populated JSON as the image
+   generation prompt via browser automation to the configured platform
 
 ### Style Configuration Integration
 
@@ -67,17 +73,17 @@ For each infographic, follow this 5-step workflow:
 
 **Hard limits -- these are not suggestions. Do not exceed them.**
 
-- **Per-infographic limit:** 3 total Gemini submissions maximum.
+- **Per-infographic limit:** 3 total submissions maximum.
   - **Attempt 1:** Submit the fully populated JSON prompt.
   - **Attempt 2:** Send corrective feedback in the **SAME** conversation.
   - **Attempt 3:** Send a simplified prompt (reduce `extras.data` to essential
     fields only) in the **SAME** conversation.
   - **After attempt 3:** STOP. Generate a placeholder. Move to the next
     infographic.
-- **Session-wide limit:** 12 total Gemini submissions across all infographics
+- **Session-wide limit:** 12 total submissions across all infographics
   in a single session. If this limit is reached, generate placeholders (with
   saved prompt files) for all remaining infographics immediately.
-- **Conversation rule:** Retries NEVER open a new Gemini conversation. A new
+- **Conversation rule:** Retries NEVER open a new conversation. A new
   conversation is opened ONLY when moving to the next infographic.
 - **Tracking instruction:** Before each submission, state:
   `"Infographic [N] of [total], attempt [X] of 3, session total [Y] of 12."`
@@ -88,13 +94,13 @@ For each infographic, follow this 5-step workflow:
 
 For each infographic, execute this 8-step cycle:
 
-1. **Navigate** -- Open `gemini.google.com` in a new conversation
-2. **Select mode** -- Ensure the model mode picker (bottom of input
-   bar) is set to **Pro**. Fast mode may not generate images from
-   JSON prompts.
+1. **Navigate** -- Open the configured platform URL in a new conversation
+   (see Platform Profiles table)
+2. **Select mode** -- Select the required model using the platform's
+   model picker (see Platform Profiles table)
 3. **Submit prompt** -- Paste the populated JSON prompt and request
    image generation
-4. **Wait for generation** -- Allow Gemini to process and produce the
+4. **Wait for generation** -- Allow the platform to process and produce the
    image (monitor for completion indicators)
 5. **Inspect output** -- Verify the generated image against these 5
    quality criteria:
@@ -107,10 +113,10 @@ For each infographic, execute this 8-step cycle:
    decision tree:
    - **Attempt 1 failed:** Send corrective feedback describing the specific
      failures in the **SAME** conversation (this is attempt 2). Do NOT open
-     a new Gemini conversation.
+     a new conversation.
    - **Attempt 2 failed:** Send a simplified prompt -- reduce `extras.data`
      to essential fields only -- in the **SAME** conversation (this is
-     attempt 3). Do NOT open a new Gemini conversation.
+     attempt 3). Do NOT open a new conversation.
    - **Attempt 3 failed:** STOP. Do NOT submit again. Proceed to step 7
      for placeholder generation.
 7. **Download or placeholder** -- If an attempt produced an acceptable
@@ -122,12 +128,12 @@ For each infographic, execute this 8-step cycle:
       INFOGRAPHIC_<type-slug>_PROMPT.json to generate manually."`) and
       save it at `{session-output}/images/INFOGRAPHIC_<type-slug>.png`.
    2. Save the fully populated JSON prompt (the final version submitted
-      to Gemini) to
+      to the platform) to
       `{session-output}/images/INFOGRAPHIC_<type-slug>_PROMPT.json` so
-      the user can paste it into Gemini manually.
+      the user can paste it into the AI platform manually.
    A PNG file must exist at the standard path regardless of outcome so
    downstream agents (Tasks B, C, D) are never blocked.
-8. **New conversation for next infographic only** -- Start a fresh Gemini
+8. **New conversation for next infographic only** -- Start a fresh
    conversation for the next infographic to avoid context contamination.
    This step applies only when moving between infographics. Retries within
    the same infographic never trigger this step -- they stay in the same
