@@ -1,0 +1,64 @@
+{
+  "core": {
+    "subject": "Mode Comparison -- divergence tree showing how different synthesis modes produce different decisions from the same analysis",
+    "objects": [
+      "{{MODE_DECISIONS}} -- per-mode decision statement and most determinative perspective",
+      "{{CONVERGENCE_POINTS}} -- decisions all compared modes reached identically",
+      "{{DIVERGENCE_POINTS}} -- pivot points where modes produced different outcomes",
+      "{{KEY_CHOICE}} -- the underlying values/priorities question the user is actually deciding"
+    ],
+    "notes": [
+      "{{MODE_SENSITIVITY}} -- Low (all converge) / Medium (agree on direction, differ on scope) / High (fundamentally different decisions)",
+      "{{MODES_COMPARED}} -- list of modes included in the comparison"
+    ],
+    "constraints": [
+      "All text must be legible at 6.5 inch print width",
+      "No decorative elements -- every visual element conveys data",
+      "White or transparent background"
+    ]
+  },
+  "style": {
+    "primary_style": "editorial",
+    "render_quality": "professional-quality",
+    "lighting": "soft-ambient",
+    "color_profile": "neutral"
+  },
+  "technical": {
+    "resolution": "4k",
+    "anti_aliasing": true,
+    "noise": "low",
+    "color_depth": "high"
+  },
+  "composition": {
+    "perspective": "overhead",
+    "framing": "centered"
+  },
+  "quality_keywords": {
+    "include": [
+      "studio quality",
+      "photographic quality"
+    ],
+    "avoid": [
+      "digital artifacts",
+      "blurry",
+      "oversaturated colors"
+    ]
+  },
+  "extras": {
+    "color_mapping": {
+      "guardian": "#C62828",
+      "pioneer": "#2E7D32",
+      "architect": "#1565C0",
+      "analyst": "#455A64",
+      "sentinel": "#EF6C00",
+      "shared_trunk": "#9E9E9E",
+      "convergence": "#4CAF50",
+      "divergence": "#F44336"
+    },
+    "data": {
+      "modes_compared_count": "{{MODES_COMPARED_COUNT}} -- number of modes in comparison (2-5)",
+      "convergence_count": "{{CONVERGENCE_COUNT}} -- number of convergence points",
+      "divergence_count": "{{DIVERGENCE_COUNT}} -- number of divergence points"
+    }
+  }
+}

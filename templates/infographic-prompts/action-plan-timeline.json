@@ -1,0 +1,62 @@
+{
+  "core": {
+    "subject": "Action Plan Timeline -- Gantt-style next steps with owners, priorities, and review triggers",
+    "objects": [
+      "{{ACTION_ITEMS}} -- specific actions from the Decision Record Next Steps section, each with owner, timeline, and priority",
+      "{{DEPENDENCIES}} -- dependency relationships between action items",
+      "{{REVIEW_TRIGGERS}} -- conditions or dates that trigger decision review",
+      "{{GUARDRAIL_ACTIONS}} -- actions tied to conditions and guardrails from the CEO decision"
+    ],
+    "notes": [
+      "{{TIMELINE_HORIZON}} -- total timeline span covered by the action plan",
+      "{{PRIORITY_DISTRIBUTION}} -- count of high / medium / low priority items"
+    ],
+    "constraints": [
+      "All text must be legible at 6.5 inch print width",
+      "No decorative elements -- every visual element conveys data",
+      "White or transparent background"
+    ]
+  },
+  "style": {
+    "primary_style": "editorial",
+    "render_quality": "professional-quality",
+    "lighting": "soft-ambient",
+    "color_profile": "neutral"
+  },
+  "technical": {
+    "resolution": "4k",
+    "anti_aliasing": true,
+    "noise": "low",
+    "color_depth": "high"
+  },
+  "composition": {
+    "perspective": "natural_human_vision",
+    "framing": "rule_of_thirds"
+  },
+  "quality_keywords": {
+    "include": [
+      "studio quality",
+      "photographic quality"
+    ],
+    "avoid": [
+      "digital artifacts",
+      "blurry",
+      "oversaturated colors"
+    ]
+  },
+  "extras": {
+    "color_mapping": {
+      "priority_high": "#C62828",
+      "priority_medium": "#EF6C00",
+      "priority_low": "#1565C0",
+      "review_trigger": "#6A1B9A",
+      "dependency_arrow": "#757575",
+      "timeline_grid": "#E0E0E0"
+    },
+    "data": {
+      "action_count": "{{ACTION_COUNT}} -- total number of action items",
+      "owner_count": "{{OWNER_COUNT}} -- number of distinct owners/teams assigned",
+      "review_trigger_count": "{{REVIEW_TRIGGER_COUNT}} -- number of review triggers defined"
+    }
+  }
+}

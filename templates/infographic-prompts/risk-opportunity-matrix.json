@@ -1,0 +1,63 @@
+{
+  "core": {
+    "subject": "Risk-Opportunity Matrix -- impact and likelihood grid plotting risks and opportunities from all domains",
+    "objects": [
+      "{{RISKS}} -- risks identified across all domain analyses, plotted by impact (vertical) and likelihood (horizontal)",
+      "{{ACCEPTED_RISKS}} -- risks consciously accepted by the CEO with reasoning",
+      "{{OPPORTUNITIES}} -- opportunities identified across all domain analyses, plotted by impact and likelihood",
+      "{{MITIGATIONS}} -- specific mitigations directed for high-impact risks"
+    ],
+    "notes": [
+      "{{RISK_SOURCES}} -- which domain identified each risk",
+      "{{OPPORTUNITY_SOURCES}} -- which domain identified each opportunity"
+    ],
+    "constraints": [
+      "All text must be legible at 6.5 inch print width",
+      "No decorative elements -- every visual element conveys data",
+      "White or transparent background"
+    ]
+  },
+  "style": {
+    "primary_style": "editorial",
+    "render_quality": "professional-quality",
+    "lighting": "soft-ambient",
+    "color_profile": "neutral"
+  },
+  "technical": {
+    "resolution": "4k",
+    "anti_aliasing": true,
+    "noise": "low",
+    "color_depth": "high"
+  },
+  "composition": {
+    "perspective": "natural_human_vision",
+    "framing": "centered"
+  },
+  "quality_keywords": {
+    "include": [
+      "studio quality",
+      "photographic quality"
+    ],
+    "avoid": [
+      "digital artifacts",
+      "blurry",
+      "oversaturated colors"
+    ]
+  },
+  "extras": {
+    "color_mapping": {
+      "risk_marker": "#C62828",
+      "risk_accepted": "#E57373",
+      "opportunity_marker": "#2E7D32",
+      "grid_line": "#BDBDBD",
+      "zone_high_risk": "#FFEBEE",
+      "zone_high_opportunity": "#E8F5E9",
+      "zone_neutral": "#FAFAFA"
+    },
+    "data": {
+      "risk_count": "{{RISK_COUNT}} -- total number of risks plotted",
+      "opportunity_count": "{{OPPORTUNITY_COUNT}} -- total number of opportunities plotted",
+      "accepted_risk_count": "{{ACCEPTED_RISK_COUNT}} -- number of consciously accepted risks"
+    }
+  }
+}
