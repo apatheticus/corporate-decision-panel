@@ -63,6 +63,27 @@ For each infographic, follow this 5-step workflow:
 
 ---
 
+## Attempt Budget
+
+**Hard limits -- these are not suggestions. Do not exceed them.**
+
+- **Per-infographic limit:** 3 total Gemini submissions maximum.
+  - **Attempt 1:** Submit the fully populated JSON prompt.
+  - **Attempt 2:** Send corrective feedback in the **SAME** conversation.
+  - **Attempt 3:** Send a simplified prompt (reduce `extras.data` to essential
+    fields only) in the **SAME** conversation.
+  - **After attempt 3:** STOP. Generate a placeholder. Move to the next
+    infographic.
+- **Session-wide limit:** 12 total Gemini submissions across all infographics
+  in a single session. If this limit is reached, generate placeholders (with
+  saved prompt files) for all remaining infographics immediately.
+- **Conversation rule:** Retries NEVER open a new Gemini conversation. A new
+  conversation is opened ONLY when moving to the next infographic.
+- **Tracking instruction:** Before each submission, state:
+  `"Infographic [N] of [total], attempt [X] of 3, session total [Y] of 12."`
+
+---
+
 ## Browser Automation Workflow
 
 For each infographic, execute this 8-step cycle:
@@ -82,12 +103,35 @@ For each infographic, execute this 8-step cycle:
    - Background is white or transparent
    - Color mapping matches the template specification
    - All data elements from the prompt are represented
-6. **Iterate if needed** -- If any criterion fails, provide corrective
-   feedback and regenerate (maximum 3 attempts total per infographic)
-7. **Download** -- Save the accepted image as
-   `{session-output}/images/INFOGRAPHIC_<type-slug>.png`
-8. **New conversation** -- Start a fresh Gemini conversation for the
-   next infographic to avoid context contamination
+6. **Iterate if needed** -- If any quality criterion fails, follow this
+   decision tree:
+   - **Attempt 1 failed:** Send corrective feedback describing the specific
+     failures in the **SAME** conversation (this is attempt 2). Do NOT open
+     a new Gemini conversation.
+   - **Attempt 2 failed:** Send a simplified prompt -- reduce `extras.data`
+     to essential fields only -- in the **SAME** conversation (this is
+     attempt 3). Do NOT open a new Gemini conversation.
+   - **Attempt 3 failed:** STOP. Do NOT submit again. Proceed to step 7
+     for placeholder generation.
+7. **Download or placeholder** -- If an attempt produced an acceptable
+   image, save it as
+   `{session-output}/images/INFOGRAPHIC_<type-slug>.png`.
+   If all 3 attempts failed:
+   1. Generate a placeholder PNG (white background, centered text:
+      `"[Infographic type] -- generation failed. See
+      INFOGRAPHIC_<type-slug>_PROMPT.json to generate manually."`) and
+      save it at `{session-output}/images/INFOGRAPHIC_<type-slug>.png`.
+   2. Save the fully populated JSON prompt (the final version submitted
+      to Gemini) to
+      `{session-output}/images/INFOGRAPHIC_<type-slug>_PROMPT.json` so
+      the user can paste it into Gemini manually.
+   A PNG file must exist at the standard path regardless of outcome so
+   downstream agents (Tasks B, C, D) are never blocked.
+8. **New conversation for next infographic only** -- Start a fresh Gemini
+   conversation for the next infographic to avoid context contamination.
+   This step applies only when moving between infographics. Retries within
+   the same infographic never trigger this step -- they stay in the same
+   conversation.
 
 ---
 
@@ -275,15 +319,24 @@ the source is a Comparative Decision Record.
 
 ## Error Handling
 
-1. **Retry once** -- If image generation fails or produces unacceptable
-   output after 3 inspect-iterate cycles, retry with a simplified prompt
-   (reduce `extras.data` to essential fields only)
-2. **Placeholder on failure** -- If retry also fails, generate a
-   placeholder PNG (white background, centered text stating
-   `"[Infographic type] -- generation failed"`) so downstream agents
-   (Tasks B, C, D) have a file to reference
-3. **Log status** -- Report which infographics succeeded and which
-   required placeholder fallback in your task completion message
+1. **Placeholder on exhaustion** -- When all 3 attempts for an infographic
+   are consumed, generate a placeholder PNG immediately (white background,
+   centered text: `"[Infographic type] -- generation failed. See
+   INFOGRAPHIC_<type-slug>_PROMPT.json to generate manually."`). Save the
+   fully populated JSON prompt alongside it as
+   `{session-output}/images/INFOGRAPHIC_<type-slug>_PROMPT.json` so the
+   user can manually generate the graphic. Do not attempt a fourth
+   submission.
+2. **Check session budget** -- Before each submission, verify the session
+   total has not reached 12. If it has, stop and generate placeholders
+   (with saved prompt JSON files) for all remaining infographics
+   immediately.
+3. **Log status** -- In your task completion message, report:
+   - Successes on first attempt
+   - Corrective feedback uses (attempt 2)
+   - Simplified prompt uses (attempt 3)
+   - Placeholder fallbacks (with list of saved prompt files)
+   - Total submissions used out of 12
 4. **Never block the pipeline** -- Task A must complete (with real or
    placeholder images) so Task D can proceed. Do not halt on a single
    infographic failure.
