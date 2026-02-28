@@ -379,7 +379,12 @@ Generates 5-6 analytical infographics via browser automation targeting
 `gemini.google.com`. Each infographic is produced by populating a JSON
 prompt template (Pauhu schema hybrid) with Decision Record data, applying
 style overrides from `.cdp-context/style.md` (if present), and submitting
-to Gemini with a generate-inspect-iterate cycle (max 3 attempts per image).
+to Gemini with a 3-attempt escalation per image (full prompt → corrective
+feedback → simplified prompt), all within the same Gemini conversation.
+Retries never open a new conversation. A 12-submission session cap applies
+across all infographics. If attempts are exhausted, a placeholder PNG is
+generated and the populated JSON prompt is saved alongside it for manual
+generation.
 
 Infographics produced:
 1. Routing Diagram -- which C-suite activated and why
