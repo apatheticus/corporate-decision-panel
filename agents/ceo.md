@@ -572,7 +572,8 @@ Before spawning any production agents, create the session output directory:
    mkdir -p .cdp-output/YYYY-MM-DD_<issue-slug>/build
    ```
 4. **Resolve to absolute path** so production agents receive an unambiguous location.
-5. **Include the resolved path and issue slug in every production TaskCreate** description so each agent knows exactly where to write and what filename stem to use.
+5. **Write the complete record** (Decision Record, Panel Assessment, or Advisory Note) to `{session-output}/RECORD.md` with YAML frontmatter containing session metadata (`type`, `tier`, `decision_mode`, `issue_title`, `issue_slug`, `decision_type`, `date`, `activated_roles`, `invocation`, `production_runs: 1`, `last_production`). Body = complete record text verbatim. This enables `/cdp:production` re-runs.
+6. **Include the resolved path and issue slug in every production TaskCreate** description so each agent knows exactly where to write and what filename stem to use.
 
 ### Production Spawn Sequence
 

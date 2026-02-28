@@ -18,7 +18,7 @@ git clone https://github.com/apatheticus/corporate-decision-panel .claude/skills
 python3 .claude/skills/corporate-decision-panel/install.py
 ```
 
-The installer copies agent definitions and slash commands into your project's `.claude/` directory so they're available immediately when you start Claude Code. If you skip the installer, CDP will auto-setup on first use -- but slash commands won't be available until you restart the session.
+The installer copies agent definitions and slash commands into your project's `.claude/` directory, seeds `.cdp-context/` with starter templates (`company.md`, `style.md`, `config.md`), and updates `.gitignore` -- so everything is available immediately when you start Claude Code. If you skip the installer, CDP will auto-setup on first use -- but slash commands won't be available until you restart the session.
 
 ### Update
 
@@ -49,6 +49,7 @@ python3 ~/.claude/skills/corporate-decision-panel/install.py
     - [`/cdp:panel` -- Tier 2 Working Session](#cdppanel----tier-2-working-session)
     - [`/cdp:deliberate` -- Tier 3 Board Meeting](#cdpdeliberate----tier-3-board-meeting)
     - [`/cdp:evaluate` -- Auto-Triage](#cdpevaluate----auto-triage)
+    - [`/cdp:production` -- Production Re-run](#cdpproduction----production-re-run)
     - [Multi-Mode Syntax](#multi-mode-syntax)
     - [Available Roles](#available-roles)
   - [Decision Modes](#decision-modes)
@@ -64,6 +65,7 @@ python3 ~/.claude/skills/corporate-decision-panel/install.py
     - [Company Profile](#company-profile)
     - [Company Context](#company-context)
     - [Infographic Style](#infographic-style)
+    - [Platform Configuration](#platform-configuration)
     - [Routing Table](#routing-table)
   - [Output Formats](#output-formats)
   - [Production Pipeline](#production-pipeline)
@@ -97,6 +99,11 @@ python3 ~/.claude/skills/corporate-decision-panel/install.py
 Not sure which tier? Let the CEO assess:
 ```
 /cdp:evaluate: Should we acquire CompetitorX?
+```
+
+Re-run production to fix broken images or outputs:
+```
+/cdp:production
 ```
 
 ---
@@ -173,6 +180,30 @@ CEO assesses the issue and recommends a tier, mode, and routing. You accept, ove
 ```
 
 **CEO evaluates:** scope (single-domain / multi-domain / cross-cutting), impact (low / medium / high / critical), and reversibility (easily reversed / difficult / irreversible), then recommends tier and mode with rationale.
+
+### `/cdp:production` -- Production Re-run
+
+Re-run only the production pipeline for an existing session using the persisted `RECORD.md`. Does not re-run the deliberation cascade.
+
+```
+/cdp:production [session-path?]
+```
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `session-path` | No | Path to session directory, slug substring, or omit for most recent |
+
+**Session resolution:**
+1. Explicit path → validate it contains `RECORD.md`
+2. Slug substring match → scan `.cdp-output/*/RECORD.md`, disambiguate if multiple
+3. No argument → most recent session (by date prefix)
+
+**Examples:**
+```
+/cdp:production                                                  # Most recent session
+/cdp:production .cdp-output/2026-02-28_should-we-acquire-competitor-x/
+/cdp:production acquire-competitor                               # Fuzzy slug match
+```
 
 ### Multi-Mode Syntax
 
@@ -530,6 +561,44 @@ visual preferences.
 
 **Privacy:** The `.cdp-context/` directory is gitignored by default. It contains sensitive business data and should never be committed.
 
+### Platform Configuration
+
+An optional markdown file that selects which AI platform the Image
+Agent uses for infographic generation (Gemini or ChatGPT) and sets
+platform-specific behavior.
+
+**Location:** `.cdp-context/config.md` (gitignored by default)
+
+**Create from template:**
+```bash
+mkdir -p .cdp-context
+cp .claude/skills/corporate-decision-panel/templates/config-context.md .cdp-context/config.md
+# Edit with your preferred platform
+```
+
+**Available settings:** Platform selection (Gemini or ChatGPT),
+platform-specific behavior overrides. Gemini is the default.
+
+```mermaid
+flowchart LR
+    User["User sets platform\nin .cdp-context/config.md"]
+    IA["Image Agent reads\nplatform config"]
+    Platform["Targets configured\nAI platform"]
+    Submit["Submits prompts\nvia browser automation"]
+
+    User --> IA --> Platform --> Submit
+
+    style User fill:#e8f5e9,stroke:#2e7d32,color:#1a1a1a
+    style IA fill:#ef6c00,color:#fff
+    style Platform fill:#e3f2fd,stroke:#1565c0,color:#1a1a1a
+    style Submit fill:#f3e5f5,stroke:#6a1b9a,color:#1a1a1a
+```
+
+Without this file, the Image Agent defaults to Gemini. With it,
+you can switch to ChatGPT or adjust platform-specific settings.
+
+**Privacy:** The `.cdp-context/` directory is gitignored by default. It contains sensitive business data and should never be committed.
+
 ### Routing Table
 
 Default C-suite activation by decision type:
@@ -605,6 +674,7 @@ All production artifacts are written to a per-session directory:
 
 ```
 .cdp-output/YYYY-MM-DD_<issue-slug>/
+├── RECORD.md                                        # Persisted session record
 ├── index.html                                    # Interactive decision briefing
 ├── PRESENTATION_<issue-slug>.pptx                # Board-ready slide deck
 ├── REPORT_<issue-slug>.docx                      # Editable document
@@ -695,6 +765,7 @@ corporate-decision-panel/               # Clone to .claude/skills/corporate-deci
 │   └── cdp/
 │       ├── consult.md, panel.md
 │       ├── deliberate.md, evaluate.md
+│       └── production.md
 ├── config/
 │   ├── company-profile.md
 │   ├── decision-modes.md
@@ -703,6 +774,7 @@ corporate-decision-panel/               # Clone to .claude/skills/corporate-deci
     ├── advisory-note.md
     ├── company-context.md              # Template for .cdp-context/company.md
     ├── style-context.md                # Template for .cdp-context/style.md
+    ├── config-context.md               # Template for .cdp-context/config.md
     ├── comparative-decision-record.md
     ├── decision-record.md
     ├── panel-assessment.md
@@ -746,6 +818,7 @@ For detailed specifications, see the config and template files:
 - [templates/production/infographics.md](templates/production/infographics.md) -- Image Agent specification
 - [templates/infographic-prompts/](templates/infographic-prompts/) -- JSON prompt templates (Pauhu schema hybrid)
 - [templates/style-context.md](templates/style-context.md) -- Infographic style configuration template
+- [templates/config-context.md](templates/config-context.md) -- Platform configuration template
 - [templates/](templates/) -- All output format and production artifact specifications
 
 ---

@@ -19,7 +19,7 @@ Thank you for your interest in contributing. This project is a **Claude Code age
 | `agents/ceo.md` | CEO synthesizer agent definition |
 | `agents/c-suite/` | C-suite executive agent definitions |
 | `agents/team-leads/` | Domain-specialist team lead agents |
-| `commands/cdp/` | Slash command definitions (`panel`, `consult`, `evaluate`, `deliberate`) |
+| `commands/cdp/` | Slash command definitions (`panel`, `consult`, `evaluate`, `deliberate`, `production`) |
 | `config/` | Routing table, decision modes, company profile template |
 | `templates/` | Output templates (decision records, assessments, board documents) |
 | `SKILL.md` | Skill entry point and orchestration logic |
