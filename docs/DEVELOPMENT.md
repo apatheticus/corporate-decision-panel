@@ -88,7 +88,8 @@ corporate-decision-panel/
 │       ├── consult.md                   # /cdp:consult (Tier 1)
 │       ├── panel.md                     # /cdp:panel (Tier 2)
 │       ├── deliberate.md               # /cdp:deliberate (Tier 3)
-│       └── evaluate.md                 # /cdp:evaluate (auto-triage)
+│       ├── evaluate.md                 # /cdp:evaluate (auto-triage)
+│       └── production.md              # /cdp:production (re-run production)
 │
 ├── config/                              # System configuration
 │   ├── company-profile.md               # Archetype presets + override mechanism
@@ -101,6 +102,8 @@ corporate-decision-panel/
 │   ├── decision-record.md               # Tier 3 output format
 │   ├── comparative-decision-record.md   # Multi-mode output format
 │   ├── company-context.md               # Template for .cdp-context/company.md
+│   ├── style-context.md                 # Template for .cdp-context/style.md
+│   ├── config-context.md                # Template for .cdp-context/config.md
 │   └── production/                      # Production artifact specifications
 │       ├── advisory-document.md         # Tier 1 DOCX spec
 │       ├── board-document.md            # DOCX report spec
@@ -155,6 +158,7 @@ This is idempotent -- safe to re-run after every change. It:
 - Copies `commands/` to `.claude/commands/` (preserving `cdp/` structure)
 - Appends `.cdp-output/` and `.cdp-context/` to `.gitignore` (project-local only)
 - Creates `.cdp-context/` directory (project-local only)
+- Seeds `.cdp-context/` with `company.md`, `style.md`, and `config.md` templates (skips files already present)
 
 ### 4. Verify Installation
 
@@ -259,6 +263,9 @@ Run CDP commands against your changes and verify the output:
 
 # Test auto-triage logic
 /cdp:evaluate: Should we acquire CompetitorX?
+
+# Re-run production for most recent session
+/cdp:production
 ```
 
 ### Calibration Protocol

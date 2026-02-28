@@ -50,7 +50,7 @@ The skill entry point ([`SKILL.md`](../SKILL.md)) defines the orchestration prot
 ```mermaid
 flowchart TD
     User["User"]
-    CMD["Slash Command\n(/cdp:consult, /cdp:panel,\n/cdp:deliberate, /cdp:evaluate)"]
+    CMD["Slash Command\n(/cdp:consult, /cdp:panel,\n/cdp:deliberate, /cdp:evaluate,\n/cdp:production)"]
     CEO["CEO Agent\n(Opus)\nFrame → Route → Synthesize"]
     CS["C-Suite Agents\n(Sonnet × 8)\nDomain Decomposition"]
     TL["Team Lead Agents\n(Haiku × 34)\nSpecialist Analysis"]
@@ -302,6 +302,12 @@ An optional markdown file (`.cdp-context/company.md`) containing real company da
 
 **Template:** [`templates/company-context.md`](../templates/company-context.md)
 
+### Level 3.5: Platform Configuration
+
+An optional markdown file (`.cdp-context/config.md`) that selects which AI platform the Image Agent uses for infographic generation (Gemini or ChatGPT). The Image Agent reads this at the start of the production pipeline and targets the configured platform for all submissions.
+
+**Template:** [`templates/config-context.md`](../templates/config-context.md)
+
 ### Level 4: Per-Session Overrides
 
 Users specify tier, mode, and role selection at invocation time. The CEO can further override routing based on issue analysis. Multi-mode comparison (`guardian vs pioneer`, `all-modes`) runs domain analysis once and CEO synthesis multiple times.
@@ -350,7 +356,7 @@ The system defaults to lightweight engagement. Tier 1 is the daily habit; Tier 3
 
 ## Production Pipeline
 
-After the deliberation cascade completes, a production pipeline generates distributable artifacts. The pipeline is a 5-task DAG with explicit dependencies.
+After the deliberation cascade completes, a production pipeline generates distributable artifacts. The pipeline is a 5-task DAG with explicit dependencies. The `/cdp:production` command enables re-running this pipeline for an existing session using the persisted `RECORD.md`, without re-running the deliberation cascade.
 
 ```mermaid
 flowchart LR
@@ -408,6 +414,7 @@ All artifacts are written to a per-session directory:
 
 ```
 .cdp-output/YYYY-MM-DD_<issue-slug>/
+├── RECORD.md
 ├── index.html
 ├── PRESENTATION_<issue-slug>.pptx
 ├── REPORT_<issue-slug>.docx

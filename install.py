@@ -99,6 +99,7 @@ def main():
     print("  /cdp:panel finance tech: Should we build or buy?")
     print("  /cdp:deliberate: Should we pivot to a platform model?")
     print("  /cdp:evaluate: Should we acquire CompetitorX?")
+    print("  /cdp:production                                  # Re-run production for most recent session")
 
 
 if __name__ == "__main__":

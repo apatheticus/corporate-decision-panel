@@ -14,6 +14,7 @@ invocation:
   - /cdp:panel
   - /cdp:deliberate
   - /cdp:evaluate
+  - /cdp:production
 ---
 
 # Corporate Decision Panel
@@ -46,7 +47,8 @@ commands are installed in the project's `.claude/` directory.
    - `.cdp-output/`
    - `.cdp-context/`
 4. Create `.cdp-context/` directory if it doesn't exist
-5. Print setup confirmation:
+5. Seed `.cdp-context/` with template files (`company.md`, `style.md`, `config.md`) if not already present -- copies from `templates/` directory
+6. Print setup confirmation:
    ```
    CDP auto-setup complete.
    - Agent definitions copied to .claude/agents/
@@ -61,7 +63,7 @@ commands are installed in the project's `.claude/` directory.
      /cdp:deliberate: Should we pivot to a platform model?
      /cdp:evaluate: Should we acquire CompetitorX?
    ```
-6. If the user provided a command with this invocation, proceed to execute it
+7. If the user provided a command with this invocation, proceed to execute it
 
 **If YES:** Proceed directly to command execution.
 
@@ -146,6 +148,25 @@ up to 5x the strategic insight.
 
 Multi-mode produces a **Comparative Decision Record** with shared analysis,
 per-mode synthesis, divergence analysis, and Mode Sensitivity rating.
+
+### Production Re-run
+```
+/cdp:production [session-path?]
+```
+
+Re-runs only the production pipeline for an existing session using the
+persisted `RECORD.md`. Does not re-run the deliberation cascade.
+
+Session resolution:
+1. Explicit path → validate it contains `RECORD.md`
+2. Slug substring match → scan `.cdp-output/*/RECORD.md`, disambiguate if multiple
+3. No argument → most recent session (by date prefix)
+4. No sessions → error
+
+Examples:
+- `/cdp:production` — most recent session
+- `/cdp:production .cdp-output/2026-02-28_should-we-acquire-competitor-x/`
+- `/cdp:production acquire-competitor` — fuzzy slug match
 
 ---
 
@@ -262,6 +283,32 @@ Mode, produces the Decision Record.
 Output template: `templates/decision-record.md`
 Comparative output: `templates/comparative-decision-record.md`
 
+### Production Re-run Protocol
+
+When invoked via `/cdp:production`, execute the following steps:
+
+1. **Resolve session directory.** Apply session resolution rules (explicit path,
+   slug substring match, or most recent by date prefix). Error if no `.cdp-output/`
+   directory exists.
+2. **Read and parse `RECORD.md`.** Split YAML frontmatter from body content.
+   Extract `type`, `tier`, `issue_title`, `issue_slug`, `activated_roles`, and
+   `decision_mode` (or `decision_modes` for multi-mode) from frontmatter.
+3. **Error if `RECORD.md` missing.** Display: "This session predates the
+   `/cdp:production` feature. Re-run the original deliberation command to
+   generate production artifacts and a RECORD.md for future re-runs."
+4. **Display session summary.** Show issue title, tier, mode, date, activated
+   roles, and number of previous production runs to the user.
+5. **Clean stale artifacts.** Remove all files in the session directory except
+   `RECORD.md` and the `build/` directory. Recreate `images/` directory.
+6. **Route by tier.** Tier 1: spawn Advisory Document Agent only. Tier 2/3:
+   spawn the full five-task production DAG (Tasks A-E).
+7. **Pass record body content** as input to production agents. Include the full
+   record text in each production TaskCreate description. Production agents
+   behave identically regardless of original vs. re-run invocation.
+8. **Update `RECORD.md` frontmatter.** Increment `production_runs` by 1. Set
+   `last_production` to current ISO 8601 timestamp.
+9. **Return completion summary.** List all generated artifacts with file paths.
+
 ---
 
 ## Agent Architecture
@@ -340,6 +387,7 @@ The **issue slug** is derived from the Issue Title produced in CEO Phase 1: lowe
 
 ```
 .cdp-output/2026-02-22_should-we-acquire-competitor-x/
+├── RECORD.md                              # Persisted session record
 ├── index.html                          # Decision briefing page
 ├── PRESENTATION_should-we-acquire-competitor-x.pptx
 ├── REPORT_should-we-acquire-competitor-x.docx
@@ -353,6 +401,7 @@ The **issue slug** is derived from the Issue Title produced in CEO Phase 1: lowe
 
 ```
 .cdp-output/2026-02-22_can-we-afford-to-hire-this-quarter/
+├── RECORD.md
 ├── ADVISORY_can-we-afford-to-hire-this-quarter.docx
 └── build/
     └── build_advisory.js
@@ -449,6 +498,35 @@ Output: `{session-output}/RESULTS_<issue-slug>.pdf`
 Build: `{session-output}/build/build_capsule.py`
 Spec: `templates/production/capsule-structure.md`
 
+### Record Persistence
+
+Before spawning production agents, the orchestrator writes the complete record
+(Decision Record, Panel Assessment, or Advisory Note) to
+`{session-output}/RECORD.md`. This persisted copy enables `/cdp:production`
+re-runs without re-running the deliberation cascade.
+
+**RECORD.md format:**
+
+```yaml
+---
+type: decision-record | panel-assessment | advisory-note | comparative-decision-record
+tier: 1 | 2 | 3
+decision_mode: analyst
+decision_modes: []           # multi-mode only
+issue_title: "Issue Title"
+issue_slug: issue-slug
+decision_type: Strategic
+date: "YYYY-MM-DDTHH:MM:SSZ"
+activated_roles: [cfo, cto]
+invocation: "/cdp:deliberate: Issue text"
+production_runs: 1
+last_production: "YYYY-MM-DDTHH:MM:SSZ"
+---
+```
+
+Body = complete CEO output (Decision Record / Panel Assessment / Advisory Note)
+verbatim. No summarization, no reformatting.
+
 ### Orchestrator Spawn Sequence
 ```
 TaskCreate: "Generate analytical infographics via browser automation"  -> task A
@@ -460,6 +538,11 @@ TaskCreate: "Produce Results PDF and Deliberation Capsule"   -> task E
 TaskUpdate: { taskId: D, addBlockedBy: [A, B, C] }
 TaskUpdate: { taskId: E, addBlockedBy: [D] }
 ```
+
+**Re-run invocation (`/cdp:production`):** When invoked via production re-run,
+the orchestrator reads record content from `RECORD.md` instead of conversation
+context and includes it in each production TaskCreate description. Production
+agents behave identically regardless of original vs. re-run invocation.
 
 **Tier 1 Spawn Sequence:** Single TaskCreate for the Advisory Document DOCX. No dependencies, no blocking — one agent, one artifact.
 ```
@@ -527,6 +610,20 @@ Without this file, the Image Agent uses the default values from each
 JSON prompt template. With it, all infographics reflect your brand
 palette and visual preferences.
 
+### Platform Configuration
+
+An optional markdown file that selects which AI platform the Image
+Agent uses for infographic generation (Gemini or ChatGPT) and sets
+platform-specific behavior.
+
+- **Location:** `.cdp-context/config.md` in the project root
+- **Create it:** Copy `templates/config-context.md` to `.cdp-context/config.md` and set your preferred platform. Gemini is the default.
+- **How it flows:** The Image Agent reads the file before generating infographics and targets the configured platform for all submissions in the session.
+- **Privacy:** The `.cdp-context/` directory is gitignored by default -- it contains sensitive business data and should not be committed.
+
+Without this file, the Image Agent defaults to Gemini. With it,
+you can switch to ChatGPT or adjust platform-specific settings.
+
 ---
 
 ## File References
@@ -536,6 +633,8 @@ palette and visual preferences.
 - `config/company-profile.md` -- Archetype presets and override mechanism
 - `config/decision-modes.md` -- Five mode definitions with prompt modifiers
 - `.cdp-context/company.md` -- Company facts for grounded reasoning (user-created, gitignored)
+- `.cdp-context/style.md` -- Infographic style overrides (user-created, gitignored)
+- `.cdp-context/config.md` -- Platform configuration for Image Agent (user-created, gitignored)
 
 ### Output Templates
 - `templates/advisory-note.md` -- Tier 1 Advisory Note + Escalation Brief
@@ -559,9 +658,13 @@ palette and visual preferences.
 - `templates/infographic-prompts/action-plan-timeline.json` -- Action Plan Timeline prompt
 - `templates/infographic-prompts/mode-comparison.json` -- Mode Comparison prompt
 
+### Session Records
+- `.cdp-output/*/RECORD.md` -- Persisted session record enabling `/cdp:production` re-runs
+
 ### Context Templates
 - `templates/company-context.md` -- Template for `.cdp-context/company.md`
 - `templates/style-context.md` -- Template for `.cdp-context/style.md`
+- `templates/config-context.md` -- Template for `.cdp-context/config.md`
 
 ### Agent Definitions (installed to `.claude/agents/` by auto-setup)
 - `agents/ceo.md` -- CEO with five-phase cascade protocol

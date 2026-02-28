@@ -36,6 +36,7 @@ Present any business issue and receive structured, multi-perspective analysis wi
 
 ### Part III: Commands & Usage
 - [Chapter 6 -- Command Reference](#chapter-6----command-reference)
+  - [`/cdp:production` -- Production Re-run](#cdpproduction----production-re-run)
 - [Chapter 7 -- Decision Modes In Depth](#chapter-7----decision-modes-in-depth)
 
 ### Part IV: Architecture & Internals
@@ -50,7 +51,8 @@ Present any business issue and receive structured, multi-perspective analysis wi
 - [Chapter 10 -- Configuration](#chapter-10----configuration)
   - [10.1 Company Profile](#101-company-profile)
   - [10.2 Company Context](#102-company-context)
-  - [10.3 Routing Table](#103-routing-table)
+  - [10.3 Platform Configuration](#103-platform-configuration)
+  - [10.4 Routing Table](#104-routing-table)
 
 ### Part VI: Output & Production
 - [Chapter 11 -- Output Formats](#chapter-11----output-formats)
@@ -320,12 +322,13 @@ cd .claude/skills/corporate-decision-panel && git pull && python3 install.py
 
 ### What the Installer Does
 
-The installer performs four actions:
+The installer performs five actions:
 
 1. **Copies agent definitions** from `agents/` to `.claude/agents/`, preserving the directory structure (`c-suite/`, `team-leads/`)
 2. **Copies slash commands** from `commands/` to `.claude/commands/`, preserving the directory structure (`cdp/`)
 3. **Updates `.gitignore`** to exclude `.cdp-output/` and `.cdp-context/` if not already present
 4. **Creates `.cdp-context/`** directory if it doesn't exist
+5. **Seeds `.cdp-context/` with templates** -- copies `company.md`, `style.md`, and `config.md` from `templates/` (skips any file already present, so your customizations are never overwritten)
 
 ```mermaid
 flowchart TD
@@ -338,7 +341,8 @@ flowchart TD
     GlobCopy --> GitIgnore
 
     GitIgnore --> MkDir["Create .cdp-context/\ndirectory"]
-    MkDir --> Done["Setup complete\nRestart Claude Code\nfor slash commands"]
+    MkDir --> Seed["Seed .cdp-context/ with\ncompany.md, style.md,\nconfig.md templates\n(skip if present)"]
+    Seed --> Done["Setup complete\nRestart Claude Code\nfor slash commands"]
 
     style Start fill:#1A5276,color:#fff
     style Done fill:#21618C,color:#fff
@@ -604,6 +608,43 @@ Alternative: [mode] -- [what it would reveal]
 | Cross-cutting | High-Critical | Irreversible | Tier 3 |
 
 The CEO also recommends a mode based on the decision characteristics (see [CEO Mode Recommendation](#ceo-mode-recommendation-auto-triage) in Chapter 7) and suggests an alternative mode that would reveal a different dimension of the decision.
+
+### `/cdp:production` -- Production Re-run
+
+Re-run only the production pipeline for an existing session using the persisted `RECORD.md`. Does not re-run the deliberation cascade. Use this when images fail (browser automation issues) or outputs have errors -- no need to re-run the expensive analytical phases.
+
+**Syntax:**
+
+```
+/cdp:production [session-path?]
+```
+
+**Parameters:**
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `session-path` | No | Path to session directory, slug substring, or omit for most recent |
+
+**Session resolution order:**
+1. Explicit path → validate it contains `RECORD.md`
+2. Slug substring match → scan `.cdp-output/*/RECORD.md`, disambiguate if multiple matches
+3. No argument → most recent session (by date prefix)
+4. No sessions found → error with example invocations
+
+**Examples:**
+
+```
+/cdp:production                                                  # Most recent session
+/cdp:production .cdp-output/2026-02-28_should-we-acquire-competitor-x/
+/cdp:production acquire-competitor                               # Fuzzy slug match
+```
+
+**Behavior:** The orchestrator reads the persisted `RECORD.md` from the session directory, extracts session metadata from the YAML frontmatter, cleans stale artifacts (preserving `RECORD.md` and `build/`), and spawns the production pipeline using the record body as input. Production agents behave identically regardless of original vs. re-run invocation.
+
+**Error cases:**
+- **No `RECORD.md`**: "This session predates the `/cdp:production` feature. Re-run the original deliberation command to generate production artifacts and a RECORD.md for future re-runs."
+- **No `.cdp-output/` directory**: "No CDP sessions found. Run a deliberation first."
+- **Multiple slug matches**: Lists matching sessions with metadata and asks for disambiguation.
 
 ### Multi-Mode Syntax
 
@@ -1350,7 +1391,42 @@ Without this file, agents reason using general frameworks. With it, agents groun
 
 **Privacy:** The `.cdp-context/` directory is gitignored by default. It contains sensitive business data and should never be committed to version control.
 
-### 10.3 Routing Table
+### 10.3 Platform Configuration
+
+An optional markdown file that selects which AI platform the Image Agent uses for infographic generation (Gemini or ChatGPT) and sets platform-specific behavior.
+
+**Location:** `.cdp-context/config.md` (gitignored by default)
+
+**Create from template:**
+
+```bash
+mkdir -p .cdp-context
+cp .claude/skills/corporate-decision-panel/templates/config-context.md .cdp-context/config.md
+# Edit with your preferred platform
+```
+
+**Available settings:** Platform selection (Gemini or ChatGPT), platform-specific behavior overrides. Gemini is the default.
+
+```mermaid
+flowchart LR
+    User["User sets platform\nin .cdp-context/config.md"]
+    IA["Image Agent reads\nplatform config"]
+    Platform["Targets configured\nAI platform"]
+    Submit["Submits prompts\nvia browser automation"]
+
+    User --> IA --> Platform --> Submit
+
+    style User fill:#EBF5FB,stroke:#2980B9,color:#2C3E50
+    style IA fill:#D35400,color:#fff
+    style Platform fill:#D6EAF8,stroke:#2980B9,color:#2C3E50
+    style Submit fill:#E8DAEF,stroke:#6C3483,color:#2C3E50
+```
+
+Without this file, the Image Agent defaults to Gemini. With it, you can switch to ChatGPT or adjust platform-specific settings.
+
+**Privacy:** The `.cdp-context/` directory is gitignored by default. It contains sensitive business data and should never be committed to version control.
+
+### 10.4 Routing Table
 
 The routing table determines which C-suite agents are activated for each decision type. The CEO selects routing during Phase 1 based on the decision type classification and can always override defaults.
 
@@ -1532,6 +1608,7 @@ All production artifacts are written to a per-session directory:
 
 ```
 .cdp-output/YYYY-MM-DD_<issue-slug>/
+├── RECORD.md                                        # Persisted session record
 ├── index.html                                    # Interactive decision briefing
 ├── PRESENTATION_<issue-slug>.pptx                # Board-ready slide deck
 ├── REPORT_<issue-slug>.docx                      # Editable document
@@ -1662,7 +1739,8 @@ corporate-decision-panel/               # Clone to .claude/skills/corporate-deci
 │       ├── consult.md                  # /cdp:consult -- Tier 1
 │       ├── panel.md                    # /cdp:panel -- Tier 2
 │       ├── deliberate.md               # /cdp:deliberate -- Tier 3
-│       └── evaluate.md                 # /cdp:evaluate -- Auto-Triage
+│       ├── evaluate.md                 # /cdp:evaluate -- Auto-Triage
+│       └── production.md              # /cdp:production -- Production Re-run
 │
 ├── config/                             # Configuration specifications
 │   ├── company-profile.md              # Archetype presets + override mechanism
@@ -1672,6 +1750,8 @@ corporate-decision-panel/               # Clone to .claude/skills/corporate-deci
 ├── templates/                          # Output format specifications
 │   ├── advisory-note.md                # Tier 1 output template
 │   ├── company-context.md              # Company context template (user copies this)
+│   ├── style-context.md                # Infographic style template (user copies this)
+│   ├── config-context.md               # Platform configuration template (user copies this)
 │   ├── comparative-decision-record.md  # Multi-mode output template
 │   ├── decision-record.md              # Tier 3 output template
 │   ├── panel-assessment.md             # Tier 2 output template
@@ -1757,6 +1837,7 @@ For detailed specifications, see the config and template files:
 | **Advisory Note** | Tier 1 output: 3-5 sentence recommendation from a single C-suite agent |
 | **Archetype** | Company profile preset (Technology/SaaS, Professional Services, Regulated Industry, Manufacturing) |
 | **Calibration** | Process of verifying that modes produce meaningfully different outcomes for your company |
+| **config.md** | Platform configuration file (`.cdp-context/config.md`) selecting AI platform for infographic generation |
 | **Cascade** | The five-phase execution model for Tier 3 deliberations |
 | **Decision Record** | Tier 3 output: comprehensive 9-section deliberation document |
 | **Disposition** | An agent's built-in orientation (Skeptic, Advocate, Systemic, Investigative, Synthesizer) |
@@ -1764,6 +1845,7 @@ For detailed specifications, see the config and template files:
 | **Fault Line** | Point where domain perspectives disagree -- the primary analytical signal in CDP |
 | **Mode Sensitivity** | Multi-mode signal indicating whether evidence or risk appetite drives the decision |
 | **Panel Assessment** | Tier 2 output: ~1 page multi-perspective analysis |
+| **RECORD.md** | Persisted session record written to the output directory, enabling `/cdp:production` re-runs |
 | **Routing** | CEO's decision about which C-suite agents to activate for a given issue |
 | **Shared Consciousness** | Phase 0 broadcast ensuring all agents start with identical context |
 
