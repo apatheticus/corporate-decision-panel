@@ -513,14 +513,14 @@ flowchart LR
     User["User fills\n.cdp-context/style.md"]
     IA["Image Agent reads\nstyle overrides"]
     JSON["JSON prompt\ndefaults overridden"]
-    Gemini["Submitted to\nGemini"]
+    AI["Submitted to\nAI platform"]
 
-    User --> IA --> JSON --> Gemini
+    User --> IA --> JSON --> AI
 
     style User fill:#e8f5e9,stroke:#2e7d32,color:#1a1a1a
     style IA fill:#ef6c00,color:#fff
     style JSON fill:#e3f2fd,stroke:#1565c0,color:#1a1a1a
-    style Gemini fill:#f3e5f5,stroke:#6a1b9a,color:#1a1a1a
+    style AI fill:#f3e5f5,stroke:#6a1b9a,color:#1a1a1a
 ```
 
 Without this file, the Image Agent uses the default values from each
@@ -649,7 +649,7 @@ flowchart LR
 
 | Task | Artifact | Technology | Description |
 |------|----------|-----------|-------------|
-| A | `images/INFOGRAPHIC_*.png` | Browser automation (Gemini / JSON prompts) | 5-6 analytical infographics: routing diagram, domain scorecard, fault line map, risk-opportunity matrix, action plan timeline, mode comparison (multi-mode) |
+| A | `images/INFOGRAPHIC_*.png` | Browser automation (Gemini or ChatGPT / JSON prompts) | 5-6 analytical infographics: routing diagram, domain scorecard, fault line map, risk-opportunity matrix, action plan timeline, mode comparison (multi-mode) |
 | B | `PRESENTATION_*.pptx` | pptxgenjs (Node.js) | 11-slide board-ready deck: title, exec summary, the question, framework, domain analyses, fault lines, decision, guardrails, risks, next steps, metadata |
 | C | `REPORT_*.docx` | docx (Node.js) | Editable document: cover, TOC, 8 sections, 2 appendices. US Letter, Arial 12pt. |
 | D | `index.html` | Vanilla HTML/CSS/JS | Self-contained interactive briefing page. No CDN, works from `file://`. Embeds infographics, links PPTX/DOCX downloads. |
@@ -714,7 +714,7 @@ corporate-decision-panel/               # Clone to .claude/skills/corporate-deci
     │   ├── action-plan-timeline.json
     │   └── mode-comparison.json
     └── production/
-        ├── infographics.md             # Image Agent spec (Gemini + JSON prompts)
+        ├── infographics.md             # Image Agent spec (AI platform + JSON prompts)
         ├── advisory-document.md        # Tier 1 DOCX spec
         ├── board-document.md
         ├── board-presentation.md

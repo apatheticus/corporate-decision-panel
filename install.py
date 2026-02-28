@@ -69,12 +69,30 @@ def main():
         cdp_context = project_root / ".cdp-context"
         cdp_context.mkdir(exist_ok=True)
 
+        # Seed .cdp-context/ with template files (skip if already present)
+        templates_dir = script_dir / "templates"
+        context_templates = {
+            "company-context.md": "company.md",
+            "style-context.md": "style.md",
+            "config-context.md": "config.md",
+        }
+        seeded = []
+        for src_name, dest_name in context_templates.items():
+            src = templates_dir / src_name
+            dest = cdp_context / dest_name
+            if src.exists() and not dest.exists():
+                shutil.copy2(src, dest)
+                seeded.append(dest_name)
+
     print("CDP installed successfully.")
     print(f"  - {agent_count} agent definitions copied to .claude/agents/")
     print(f"  - {command_count} slash commands copied to .claude/commands/cdp/")
     if not is_global:
         print("  - .gitignore updated")
-        print("  - .cdp-context/ directory created")
+        if seeded:
+            print(f"  - {len(seeded)} context template(s) added to .cdp-context/: {', '.join(seeded)}")
+        else:
+            print("  - .cdp-context/ templates already present (not overwritten)")
     print()
     print("Quick start:")
     print("  /cdp:consult cfo: Can we afford to hire this quarter?")
