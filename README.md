@@ -63,6 +63,7 @@ python3 ~/.claude/skills/corporate-decision-panel/install.py
   - [Configuration](#configuration)
     - [Company Profile](#company-profile)
     - [Company Context](#company-context)
+    - [Infographic Style](#infographic-style)
     - [Routing Table](#routing-table)
   - [Output Formats](#output-formats)
   - [Production Pipeline](#production-pipeline)
@@ -487,6 +488,48 @@ Without this file, agents reason using general frameworks. With it, agents groun
 
 **Privacy:** The `.cdp-context/` directory is gitignored by default. It contains sensitive business data and should never be committed.
 
+### Infographic Style
+
+An optional markdown file containing visual style preferences that the
+Image Agent uses to override default JSON prompt values -- brand colors,
+typography, composition, and quality keywords.
+
+**Location:** `.cdp-context/style.md` (gitignored by default)
+
+**Create from template:**
+```bash
+mkdir -p .cdp-context
+cp .claude/skills/corporate-decision-panel/templates/style-context.md .cdp-context/style.md
+# Edit with your visual preferences
+```
+
+**Available sections:** Visual Style, Brand Colors, Color Overrides,
+Composition, Quality Control, Typography Preferences, Additional Notes.
+All settings are optional -- the Image Agent uses JSON prompt defaults
+for anything left blank.
+
+```mermaid
+flowchart LR
+    User["User fills\n.cdp-context/style.md"]
+    IA["Image Agent reads\nstyle overrides"]
+    JSON["JSON prompt\ndefaults overridden"]
+    Gemini["Submitted to\nGemini"]
+
+    User --> IA --> JSON --> Gemini
+
+    style User fill:#e8f5e9,stroke:#2e7d32,color:#1a1a1a
+    style IA fill:#ef6c00,color:#fff
+    style JSON fill:#e3f2fd,stroke:#1565c0,color:#1a1a1a
+    style Gemini fill:#f3e5f5,stroke:#6a1b9a,color:#1a1a1a
+```
+
+Without this file, the Image Agent uses the default values from each
+JSON prompt template (editorial style, neutral colors, Material Design
+palette). With it, all infographics reflect your brand palette and
+visual preferences.
+
+**Privacy:** The `.cdp-context/` directory is gitignored by default. It contains sensitive business data and should never be committed.
+
 ### Routing Table
 
 Default C-suite activation by decision type:
@@ -606,7 +649,7 @@ flowchart LR
 
 | Task | Artifact | Technology | Description |
 |------|----------|-----------|-------------|
-| A | `images/INFOGRAPHIC_*.png` | Browser automation | 5-6 analytical infographics: routing diagram, domain scorecard, fault line map, risk-opportunity matrix, action plan timeline, mode comparison (multi-mode) |
+| A | `images/INFOGRAPHIC_*.png` | Browser automation (Gemini / JSON prompts) | 5-6 analytical infographics: routing diagram, domain scorecard, fault line map, risk-opportunity matrix, action plan timeline, mode comparison (multi-mode) |
 | B | `PRESENTATION_*.pptx` | pptxgenjs (Node.js) | 11-slide board-ready deck: title, exec summary, the question, framework, domain analyses, fault lines, decision, guardrails, risks, next steps, metadata |
 | C | `REPORT_*.docx` | docx (Node.js) | Editable document: cover, TOC, 8 sections, 2 appendices. US Letter, Arial 12pt. |
 | D | `index.html` | Vanilla HTML/CSS/JS | Self-contained interactive briefing page. No CDN, works from `file://`. Embeds infographics, links PPTX/DOCX downloads. |
@@ -658,11 +701,20 @@ corporate-decision-panel/               # Clone to .claude/skills/corporate-deci
 │   └── routing-table.md
 └── templates/
     ├── advisory-note.md
-    ├── company-context.md
+    ├── company-context.md              # Template for .cdp-context/company.md
+    ├── style-context.md                # Template for .cdp-context/style.md
     ├── comparative-decision-record.md
     ├── decision-record.md
     ├── panel-assessment.md
+    ├── infographic-prompts/
+    │   ├── routing-diagram.json
+    │   ├── domain-scorecard.json
+    │   ├── fault-line-map.json
+    │   ├── risk-opportunity-matrix.json
+    │   ├── action-plan-timeline.json
+    │   └── mode-comparison.json
     └── production/
+        ├── infographics.md             # Image Agent spec (Gemini + JSON prompts)
         ├── advisory-document.md        # Tier 1 DOCX spec
         ├── board-document.md
         ├── board-presentation.md
@@ -691,6 +743,9 @@ For detailed specifications, see the config and template files:
 - [config/decision-modes.md](config/decision-modes.md) -- Five mode definitions with full CEO prompt modifiers
 - [config/routing-table.md](config/routing-table.md) -- Routing defaults and threshold conditions
 - [config/company-profile.md](config/company-profile.md) -- Archetype presets and override mechanism
+- [templates/production/infographics.md](templates/production/infographics.md) -- Image Agent specification
+- [templates/infographic-prompts/](templates/infographic-prompts/) -- JSON prompt templates (Pauhu schema hybrid)
+- [templates/style-context.md](templates/style-context.md) -- Infographic style configuration template
 - [templates/](templates/) -- All output format and production artifact specifications
 
 ---

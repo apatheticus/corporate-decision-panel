@@ -1,0 +1,63 @@
+{
+  "core": {
+    "subject": "Domain Scorecard -- recommendation and confidence matrix across all activated C-suite domains",
+    "objects": [
+      "{{DOMAIN_RECOMMENDATIONS}} -- per-domain recommendation (approve / approve with conditions / oppose / neutral) with confidence level (high / medium / low)",
+      "{{KEY_RISKS}} -- top risk identified per domain",
+      "{{KEY_OPPORTUNITIES}} -- top opportunity identified per domain",
+      "{{INTERNAL_CONTRADICTIONS}} -- flagged contradictions within any domain's team lead findings"
+    ],
+    "notes": [
+      "{{ACTIVATED_DOMAINS}} -- list of domains that participated in the analysis",
+      "{{DECISION_MODE}} -- the synthesis mode applied (Guardian / Pioneer / Architect / Analyst / Sentinel)"
+    ],
+    "constraints": [
+      "All text must be legible at 6.5 inch print width",
+      "No decorative elements -- every visual element conveys data",
+      "White or transparent background"
+    ]
+  },
+  "style": {
+    "primary_style": "editorial",
+    "render_quality": "professional-quality",
+    "lighting": "soft-ambient",
+    "color_profile": "neutral"
+  },
+  "technical": {
+    "resolution": "4k",
+    "anti_aliasing": true,
+    "noise": "low",
+    "color_depth": "high"
+  },
+  "composition": {
+    "perspective": "natural_human_vision",
+    "framing": "centered"
+  },
+  "quality_keywords": {
+    "include": [
+      "studio quality",
+      "photographic quality"
+    ],
+    "avoid": [
+      "digital artifacts",
+      "blurry",
+      "oversaturated colors"
+    ]
+  },
+  "extras": {
+    "color_mapping": {
+      "approve": "#2E7D32",
+      "approve_with_conditions": "#EF6C00",
+      "oppose": "#C62828",
+      "neutral": "#757575",
+      "confidence_high": "#1B5E20",
+      "confidence_medium": "#F57F17",
+      "confidence_low": "#B71C1C"
+    },
+    "data": {
+      "domain_count": "{{DOMAIN_COUNT}} -- number of activated domains in the scorecard",
+      "consensus_level": "{{CONSENSUS_LEVEL}} -- overall consensus / mild dissent / strong dissent / split decision",
+      "most_determinative": "{{MOST_DETERMINATIVE}} -- the domain perspective weighted highest in CEO synthesis"
+    }
+  }
+}

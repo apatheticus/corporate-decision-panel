@@ -1,0 +1,63 @@
+{
+  "core": {
+    "subject": "Routing Diagram -- which C-suite executives were activated for this decision and why",
+    "objects": [
+      "{{ACTIVATED_ROLES}} -- list of activated C-suite roles with disposition badges (skeptic/advocate/systemic/investigative)",
+      "{{EXCLUDED_ROLES}} -- list of excluded C-suite roles with exclusion rationale",
+      "{{ROUTING_RATIONALE}} -- CEO's routing reasoning and decision type classification",
+      "{{THRESHOLD_CONDITIONS}} -- full-activation threshold conditions assessed (triggered / not triggered)"
+    ],
+    "notes": [
+      "{{DECISION_TYPE}} -- primary and secondary decision type classifications",
+      "{{ISSUE_TITLE}} -- the business question being evaluated"
+    ],
+    "constraints": [
+      "All text must be legible at 6.5 inch print width",
+      "No decorative elements -- every visual element conveys data",
+      "White or transparent background"
+    ]
+  },
+  "style": {
+    "primary_style": "editorial",
+    "render_quality": "professional-quality",
+    "lighting": "soft-ambient",
+    "color_profile": "neutral"
+  },
+  "technical": {
+    "resolution": "4k",
+    "anti_aliasing": true,
+    "noise": "low",
+    "color_depth": "high"
+  },
+  "composition": {
+    "perspective": "overhead",
+    "framing": "centered"
+  },
+  "quality_keywords": {
+    "include": [
+      "studio quality",
+      "photographic quality"
+    ],
+    "avoid": [
+      "digital artifacts",
+      "blurry",
+      "oversaturated colors"
+    ]
+  },
+  "extras": {
+    "color_mapping": {
+      "skeptic": "#C62828",
+      "advocate": "#2E7D32",
+      "systemic": "#1565C0",
+      "investigative": "#E65100",
+      "synthesizer": "#6A1B9A",
+      "excluded": "#9E9E9E"
+    },
+    "data": {
+      "activated_count": "{{ACTIVATED_COUNT}} -- number of activated C-suite roles",
+      "excluded_count": "{{EXCLUDED_COUNT}} -- number of excluded C-suite roles",
+      "full_activation": "{{FULL_ACTIVATION}} -- whether full-activation threshold was triggered (true/false)",
+      "cso_activated": "{{CSO_ACTIVATED}} -- whether CSO research investigation was initiated (true/false)"
+    }
+  }
+}

@@ -375,7 +375,13 @@ Task E: Archivist (PDFs)         <-- blocked by D
 ### Production Agents
 
 **Task A -- Image Agent** (parallel, unblocked)
-Generates 5-6 analytical infographics via browser automation:
+Generates 5-6 analytical infographics via browser automation targeting
+`gemini.google.com`. Each infographic is produced by populating a JSON
+prompt template (Pauhu schema hybrid) with Decision Record data, applying
+style overrides from `.cdp-context/style.md` (if present), and submitting
+to Gemini with a generate-inspect-iterate cycle (max 3 attempts per image).
+
+Infographics produced:
 1. Routing Diagram -- which C-suite activated and why
 2. Domain Scorecard -- recommendation/confidence matrix
 3. Fault Line Map -- agreement/contention visualization
@@ -384,7 +390,8 @@ Generates 5-6 analytical infographics via browser automation:
 6. Mode Comparison (multi-mode only) -- divergence tree
 
 Output: `{session-output}/images/INFOGRAPHIC_*.png`
-Spec: See individual infographic descriptions above
+Prompt templates: `templates/infographic-prompts/*.json`
+Spec: `templates/production/infographics.md`
 
 **Task B -- Presentation Agent** (parallel, unblocked)
 Creates board-ready PPTX via `pptxgenjs`. 11 slides: Title, Executive
@@ -438,7 +445,7 @@ Spec: `templates/production/capsule-structure.md`
 
 ### Orchestrator Spawn Sequence
 ```
-TaskCreate: "Generate analytical infographics"               -> task A
+TaskCreate: "Generate analytical infographics via Gemini"     -> task A
 TaskCreate: "Create board presentation (PPTX)"               -> task B
 TaskCreate: "Create board document (DOCX)"                   -> task C
 TaskCreate: "Create interactive decision briefing page"      -> task D
@@ -499,6 +506,21 @@ agent reasoning in facts rather than generic frameworks.
 Without this file, agents reason using general frameworks. With it,
 agents ground their analysis in your actual numbers and constraints.
 
+### Infographic Style
+
+An optional markdown file containing visual style preferences --
+brand colors, typography, composition, quality keywords -- that the
+Image Agent uses to override default JSON prompt values.
+
+- **Location:** `.cdp-context/style.md` in the project root
+- **Create it:** Copy `templates/style-context.md` to `.cdp-context/style.md` and fill in your preferences. All settings are optional.
+- **How it flows:** The Image Agent reads the file before generating each infographic and overrides the corresponding JSON prompt values (style, color mappings, composition, quality keywords) with your preferences.
+- **Privacy:** The `.cdp-context/` directory is gitignored by default -- it contains sensitive business data and should not be committed.
+
+Without this file, the Image Agent uses the default values from each
+JSON prompt template. With it, all infographics reflect your brand
+palette and visual preferences.
+
 ---
 
 ## File References
@@ -516,11 +538,24 @@ agents ground their analysis in your actual numbers and constraints.
 - `templates/comparative-decision-record.md` -- Multi-mode comparison format
 
 ### Production Templates
+- `templates/production/infographics.md` -- Image Agent spec (Gemini + JSON prompts)
 - `templates/production/advisory-document.md` -- Tier 1 Advisory Document DOCX
 - `templates/production/decision-briefing-page.md` -- HTML page spec
 - `templates/production/board-presentation.md` -- PPTX slide structure
 - `templates/production/board-document.md` -- DOCX document structure
 - `templates/production/capsule-structure.md` -- Capsule PDF layers
+
+### Infographic Prompt Templates
+- `templates/infographic-prompts/routing-diagram.json` -- Routing Diagram prompt
+- `templates/infographic-prompts/domain-scorecard.json` -- Domain Scorecard prompt
+- `templates/infographic-prompts/fault-line-map.json` -- Fault Line Map prompt
+- `templates/infographic-prompts/risk-opportunity-matrix.json` -- Risk-Opportunity Matrix prompt
+- `templates/infographic-prompts/action-plan-timeline.json` -- Action Plan Timeline prompt
+- `templates/infographic-prompts/mode-comparison.json` -- Mode Comparison prompt
+
+### Context Templates
+- `templates/company-context.md` -- Template for `.cdp-context/company.md`
+- `templates/style-context.md` -- Template for `.cdp-context/style.md`
 
 ### Agent Definitions (installed to `.claude/agents/` by auto-setup)
 - `agents/ceo.md` -- CEO with five-phase cascade protocol

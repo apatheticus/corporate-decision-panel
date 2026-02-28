@@ -1578,7 +1578,7 @@ flowchart LR
 
 | Task | Artifact | Technology | Description |
 |------|----------|-----------|-------------|
-| **A** | `images/INFOGRAPHIC_*.png` | Browser automation | 5-6 analytical infographics: routing diagram, domain scorecard, fault line map, risk-opportunity matrix, action plan timeline, mode comparison (multi-mode) |
+| **A** | `images/INFOGRAPHIC_*.png` | Browser automation (Gemini / JSON prompts) | 5-6 analytical infographics: routing diagram, domain scorecard, fault line map, risk-opportunity matrix, action plan timeline, mode comparison (multi-mode) |
 | **B** | `PRESENTATION_*.pptx` | pptxgenjs (Node.js) | 11-slide board-ready deck: title, exec summary, the question, framework, domain analyses, fault lines, decision, guardrails, risks, next steps, metadata |
 | **C** | `REPORT_*.docx` | docx (Node.js) | Editable document: cover, TOC, 8 sections, 2 appendices. US Letter, Arial 12pt. |
 | **D** | `index.html` | Vanilla HTML/CSS/JS | Self-contained interactive briefing page. No CDN, works from `file://`. Embeds infographics, links PPTX/DOCX downloads. |

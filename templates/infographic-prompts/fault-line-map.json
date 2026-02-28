@@ -1,0 +1,61 @@
+{
+  "core": {
+    "subject": "Fault Line Map -- agreement and contention visualization across domain recommendations",
+    "objects": [
+      "{{AGREEMENT_POINTS}} -- findings where most or all domains concur",
+      "{{CONTENTION_POINTS}} -- where and why domain recommendations diverge, with domains on each side",
+      "{{UNRESOLVED_TENSIONS}} -- analytical tensions that cannot be resolved with current information",
+      "{{PRE_MORTEM_FINDINGS}} -- failure modes identified in Phase 4.5 pre-mortem challenge (Tier 3 only)"
+    ],
+    "notes": [
+      "{{CONTENTION_DRIVERS}} -- underlying assumption or priority differences driving each disagreement",
+      "{{FACTUAL_VS_VALUES}} -- whether each contention is factual (resolvable with data) or values-based (judgment call)"
+    ],
+    "constraints": [
+      "All text must be legible at 6.5 inch print width",
+      "No decorative elements -- every visual element conveys data",
+      "White or transparent background"
+    ]
+  },
+  "style": {
+    "primary_style": "editorial",
+    "render_quality": "professional-quality",
+    "lighting": "soft-ambient",
+    "color_profile": "neutral"
+  },
+  "technical": {
+    "resolution": "4k",
+    "anti_aliasing": true,
+    "noise": "low",
+    "color_depth": "high"
+  },
+  "composition": {
+    "perspective": "overhead",
+    "framing": "centered"
+  },
+  "quality_keywords": {
+    "include": [
+      "studio quality",
+      "photographic quality"
+    ],
+    "avoid": [
+      "digital artifacts",
+      "blurry",
+      "oversaturated colors"
+    ]
+  },
+  "extras": {
+    "color_mapping": {
+      "agreement_line": "#4CAF50",
+      "contention_critical": "#C62828",
+      "contention_secondary": "#EF6C00",
+      "unresolved": "#9E9E9E",
+      "pre_mortem_callout": "#B71C1C"
+    },
+    "data": {
+      "agreement_count": "{{AGREEMENT_COUNT}} -- number of points of agreement",
+      "contention_count": "{{CONTENTION_COUNT}} -- number of points of contention",
+      "pre_mortem_count": "{{PRE_MORTEM_COUNT}} -- number of pre-mortem failure modes (0 if Tier 2)"
+    }
+  }
+}
