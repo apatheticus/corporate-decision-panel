@@ -13,6 +13,8 @@ Exports:
     save_prompt_json         -- Write machine-readable prompt JSON with metadata
     create_placeholder_png   -- Create a white placeholder PNG with error text
     generate_infographic     -- End-to-end generation: preflight, prompt, API, save
+    generate_with_retry      -- Retry wrapper with backoff, validation, feedback
+    _backoff                 -- Exponential backoff with jitter helper
     GenerationResult         -- Dataclass with success/output_path/prompt_path/error_code
     PLACEHOLDER_RE           -- Compiled regex for {{PLACEHOLDER}} tokens
     ASPECT_RATIOS            -- Per-type aspect ratio mapping
@@ -25,9 +27,11 @@ from __future__ import annotations
 
 import argparse
 import json
+import random
 import re
 import sys
-from dataclasses import dataclass
+import time
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -40,6 +44,7 @@ from google.genai.errors import ClientError, ServerError
 
 from scripts.config import ConfigError, load_config
 from scripts.preflight import run_preflight
+from scripts.validation import validate_infographic
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -81,16 +86,19 @@ class GenerationResult:
     """Result of an infographic generation attempt.
 
     Attributes:
-        success:     True if the PNG was saved successfully.
-        output_path: Path to the saved PNG (None on failure).
-        prompt_path: Path to the saved prompt text file (None on failure).
-        error_code:  Machine-readable error identifier (None on success).
+        success:        True if the PNG was saved successfully.
+        output_path:    Path to the saved PNG (None on failure).
+        prompt_path:    Path to the saved prompt text file (None on failure).
+        error_code:     Machine-readable error identifier (None on success).
+        had_rate_limit: True if a 429 was encountered during retry (for
+                        session-level adaptive delay).
     """
 
     success: bool
     output_path: Path | None = None
     prompt_path: Path | None = None
     error_code: str | None = None
+    had_rate_limit: bool = False
 
 
 # ---------------------------------------------------------------------------
@@ -452,6 +460,36 @@ def _detect_content_block(response) -> str | None:
 
 
 # ---------------------------------------------------------------------------
+# Backoff helper
+# ---------------------------------------------------------------------------
+
+
+def _backoff(
+    attempt: int,
+    base_delay: float = 2.0,
+    max_delay: float = 30.0,
+) -> float:
+    """Sleep with exponential backoff and jitter.
+
+    Computes ``min(base_delay * 2^attempt, max_delay)`` then adds
+    random jitter of up to 50% of the computed delay.
+
+    Args:
+        attempt: Zero-based attempt index (0 = first retry).
+        base_delay: Base delay in seconds (default 2.0).
+        max_delay: Maximum delay cap in seconds (default 30.0).
+
+    Returns:
+        Actual delay slept, in seconds (for logging/testing).
+    """
+    delay = min(base_delay * (2 ** attempt), max_delay)
+    jitter = random.uniform(0, delay * 0.5)
+    actual = delay + jitter
+    time.sleep(actual)
+    return actual
+
+
+# ---------------------------------------------------------------------------
 # Status output
 # ---------------------------------------------------------------------------
 
@@ -529,6 +567,7 @@ def generate_infographic(
     output_path: Path,
     skip_preflight: bool = False,
     config_dir: Path = Path(".cdp-context"),
+    style_override_extra: str | None = None,
 ) -> GenerationResult:
     """Generate a single infographic PNG via the Gemini API.
 
@@ -549,6 +588,8 @@ def generate_infographic(
         skip_preflight: If True, skip pre-flight validation.
         config_dir: Directory containing ``config.md`` and optional
                     ``style.md`` (default: ``.cdp-context``).
+        style_override_extra: Optional extra style text to append (e.g.
+                    corrective feedback from validation retry).
 
     Returns:
         :class:`GenerationResult` with success status, paths, and
@@ -578,6 +619,13 @@ def generate_infographic(
     if style_path.exists():
         style_override = style_path.read_text()
 
+    # Append corrective feedback from validation retry (if any)
+    if style_override_extra:
+        if style_override:
+            style_override = style_override + "\n\n" + style_override_extra
+        else:
+            style_override = style_override_extra
+
     # --- 5. Serialize prompt ---
     prompt = serialize_template(template, data, style_override)
 
@@ -588,7 +636,12 @@ def generate_infographic(
     _status("PROMPT", "assembled")
 
     # --- 7. API call ---
-    client = genai.Client(api_key=config["api_key"])
+    client = genai.Client(
+        api_key=config["api_key"],
+        http_options=types.HttpOptions(
+            retry_options=types.HttpRetryOptions(attempts=1),
+        ),
+    )
     aspect_ratio = ASPECT_RATIOS.get(type_slug, "16:9")
     gen_config = _build_config(type_slug, aspect_ratio, config["model_id"])
 
@@ -645,6 +698,151 @@ def generate_infographic(
         output_path=output_path,
         prompt_path=prompt_path,
     )
+
+
+# ---------------------------------------------------------------------------
+# Retry wrapper
+# ---------------------------------------------------------------------------
+
+
+def generate_with_retry(
+    infographic_type: str,
+    data_path: Path,
+    output_path: Path,
+    retry_limit: int = 2,
+    config_dir: Path = Path(".cdp-context"),
+) -> GenerationResult:
+    """Generate an infographic with shared retry budget for transient errors
+    and quality validation failures.
+
+    On each attempt:
+        - Transient API errors (429/503/500) trigger backoff and retry.
+        - Content/safety blocks immediately produce a placeholder (no retry).
+        - Successful generation runs vision validation; if it fails, retries
+          with corrective feedback appended via ``style_override_extra``.
+        - Budget exhaustion produces a placeholder PNG and saves PROMPT.json.
+
+    Args:
+        infographic_type: Type slug (e.g. "domain-scorecard").
+        data_path: Path to a JSON file with placeholder data.
+        output_path: Destination path for the PNG.
+        retry_limit: Max retries (default 2 = 3 total attempts).
+        config_dir: Directory containing ``config.md``.
+
+    Returns:
+        :class:`GenerationResult` with success status and ``had_rate_limit``
+        flag for session-level adaptive delay.
+    """
+    max_attempts = retry_limit + 1
+    corrective_feedback: str | None = None
+    had_rate_limit = False
+    type_slug = infographic_type.lower().replace("_", "-").strip()
+
+    # Determine placeholder dimensions from aspect ratio
+    aspect = ASPECT_RATIOS.get(type_slug, "16:9")
+    if aspect == "4:3":
+        ph_width, ph_height = 1440, 1080
+    else:
+        ph_width, ph_height = 1920, 1080
+
+    result = GenerationResult(success=False)
+
+    for attempt in range(max_attempts):
+        result = generate_infographic(
+            infographic_type,
+            data_path,
+            output_path,
+            skip_preflight=(attempt > 0),
+            config_dir=config_dir,
+            style_override_extra=corrective_feedback,
+        )
+
+        if not result.success:
+            error_code = result.error_code or ""
+
+            # Content/safety block -- do NOT retry
+            if _is_content_block(error_code):
+                create_placeholder_png(
+                    output_path,
+                    "BLOCKED: content policy",
+                    width=ph_width,
+                    height=ph_height,
+                )
+                # Read prompt from file if prompt_path exists
+                prompt_text = ""
+                if result.prompt_path and result.prompt_path.exists():
+                    prompt_text = result.prompt_path.read_text()
+                save_prompt_json(
+                    prompt_text,
+                    output_path.parent,
+                    type_slug,
+                    error_code=error_code,
+                )
+                _status("BLOCKED", type_slug)
+                result.had_rate_limit = had_rate_limit
+                return result
+
+            # Track 429 for session-level adaptive delay
+            if "429" in error_code:
+                had_rate_limit = True
+
+            # Retryable error -- retry with backoff
+            if _is_retryable_error(error_code) and attempt < max_attempts - 1:
+                _status(
+                    "RETRY",
+                    f"{type_slug} attempt {attempt + 2}/{max_attempts}",
+                )
+                _backoff(attempt)
+                continue
+
+            # Budget exhausted or non-retryable error
+            create_placeholder_png(
+                output_path,
+                f"{type_slug} -- Generation Failed",
+                width=ph_width,
+                height=ph_height,
+            )
+            prompt_text = ""
+            if result.prompt_path and result.prompt_path.exists():
+                prompt_text = result.prompt_path.read_text()
+            save_prompt_json(
+                prompt_text,
+                output_path.parent,
+                type_slug,
+                error_code=error_code,
+            )
+            _status("FAILED", type_slug)
+            result.had_rate_limit = had_rate_limit
+            return result
+
+        # Success -- run vision validation
+        validation = validate_infographic(
+            result.output_path, data_path, config_dir
+        )
+
+        if validation.passed:  # includes warning_only
+            status_detail = type_slug
+            if validation.warning_only:
+                status_detail += " (warnings)"
+            _status("VALIDATED", status_detail)
+            result.had_rate_limit = had_rate_limit
+            return result
+
+        # Validation failed -- retry with corrective feedback
+        if attempt < max_attempts - 1:
+            corrective_feedback = validation.feedback
+            _status(
+                "VALIDATION_FAILED",
+                f"{type_slug} -- retrying with feedback",
+            )
+            continue
+
+        # Budget exhausted but image exists -- return as-is
+        result.had_rate_limit = had_rate_limit
+        return result
+
+    result.had_rate_limit = had_rate_limit
+    return result
 
 
 # ---------------------------------------------------------------------------
