@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in-progress
-stopped_at: Completed 02-01-PLAN.md
-last_updated: "2026-03-04T14:42:15Z"
-last_activity: 2026-03-04 — Completed 02-01 prompt serialization pipeline with TDD
+stopped_at: Completed 02-02-PLAN.md
+last_updated: "2026-03-04T14:49:48Z"
+last_activity: 2026-03-04 — Completed 02-02 generation engine with API call and thinking config
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 5
-  completed_plans: 3
-  percent: 60
+  completed_plans: 4
+  percent: 80
 ---
 
 # Project State
@@ -26,28 +26,28 @@ See: .planning/PROJECT.md (updated 2026-03-04)
 ## Current Position
 
 Phase: 2 of 4 (API Integration)
-Plan: 1 of 3 in current phase
-Status: Plan 02-01 complete, continuing phase 2
-Last activity: 2026-03-04 — Completed 02-01 prompt serialization pipeline with TDD
+Plan: 2 of 3 in current phase
+Status: Plan 02-02 complete, continuing phase 2
+Last activity: 2026-03-04 — Completed 02-02 generation engine with API call and thinking config
 
-Progress: [██████----] 60%
+Progress: [████████--] 80%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
-- Average duration: 2min
-- Total execution time: 7min
+- Total plans completed: 4
+- Average duration: 3min
+- Total execution time: 11min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | Phase 01 | 2 | 4min | 2min |
-| Phase 02 | 1 | 3min | 3min |
+| Phase 02 | 2 | 7min | 3.5min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (2min), 01-02 (2min), 02-01 (3min)
+- Last 5 plans: 01-01 (2min), 01-02 (2min), 02-01 (3min), 02-02 (4min)
 - Trend: stable
 
 *Updated after each plan completion*
@@ -70,6 +70,9 @@ Recent decisions affecting current work:
 - [Phase 02]: Descriptive paragraphs over keyword lists for prompt structure (per Google guidance)
 - [Phase 02]: Inline data substitution within template sections rather than separate data block
 - [Phase 02]: Unknown placeholders resolve to [TOKEN] bracketed form for visibility
+- [Phase 02]: Thinking config conditional on model prefix (gemini-3-/gemini-3.) for future-proofing
+- [Phase 02]: Non-thinking models get warning, not error, for complex types
+- [Phase 02]: ClientError returns API_ERROR_{code} in GenerationResult (Phase 3 adds retry)
 
 ### Pending Todos
 
@@ -82,6 +85,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-04T14:42:15Z
-Stopped at: Completed 02-01-PLAN.md
-Resume file: .planning/phases/02-api-integration/02-01-SUMMARY.md
+Last session: 2026-03-04T14:49:48Z
+Stopped at: Completed 02-02-PLAN.md
+Resume file: .planning/phases/02-api-integration/02-02-SUMMARY.md

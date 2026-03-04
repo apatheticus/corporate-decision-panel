@@ -15,10 +15,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Image Generation
 
-- [ ] **GEN-01**: Generate infographics via `generate_content()` with `response_modalities=["TEXT", "IMAGE"]` and `image_size="2K"`
+- [x] **GEN-01**: Generate infographics via `generate_content()` with `response_modalities=["TEXT", "IMAGE"]` and `image_size="2K"`
 - [x] **GEN-02**: Serialize existing JSON prompt templates to text and pass as prompt content
-- [ ] **GEN-03**: Assign optimal aspect ratio per infographic type (6 types)
-- [ ] **GEN-04**: Enable thinking mode for complex infographic types (Fault-Line Map, Mode Comparison)
+- [x] **GEN-03**: Assign optimal aspect ratio per infographic type (6 types)
+- [x] **GEN-04**: Enable thinking mode for complex infographic types (Fault-Line Map, Mode Comparison)
 
 ### Quality Validation
 
@@ -72,10 +72,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SETUP-01 | Phase 1 | Complete |
 | SETUP-02 | Phase 1 | Complete |
 | SETUP-03 | Phase 1 | Complete |
-| GEN-01 | Phase 2 | Pending |
+| GEN-01 | Phase 2 | Complete |
 | GEN-02 | Phase 2 | Complete |
-| GEN-03 | Phase 2 | Pending |
-| GEN-04 | Phase 2 | Pending |
+| GEN-03 | Phase 2 | Complete |
+| GEN-04 | Phase 2 | Complete |
 | QUAL-01 | Phase 3 | Pending |
 | QUAL-02 | Phase 3 | Pending |
 | QUAL-03 | Phase 3 | Pending |
