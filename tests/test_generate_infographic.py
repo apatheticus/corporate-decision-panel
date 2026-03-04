@@ -655,6 +655,287 @@ class TestCLI:
 
 
 # ---------------------------------------------------------------------------
+# Placeholder, prompt JSON, and error classification tests (Phase 3 Plan 01)
+# ---------------------------------------------------------------------------
+
+
+class TestPlaceholder:
+    """Tests for create_placeholder_png: file creation, dimensions, parent dirs."""
+
+    def test_creates_valid_png(self, tmp_path):
+        """create_placeholder_png produces a valid PNG file."""
+        from scripts.generate_infographic import create_placeholder_png
+
+        output = tmp_path / "error.png"
+        result = create_placeholder_png(output, "TEST ERROR")
+        assert result == output
+        assert output.exists()
+        img = Image.open(output)
+        assert img.format == "PNG"
+
+    def test_default_dimensions_1920x1080(self, tmp_path):
+        """create_placeholder_png defaults to 1920x1080 (16:9)."""
+        from scripts.generate_infographic import create_placeholder_png
+
+        output = tmp_path / "error.png"
+        create_placeholder_png(output, "TEST ERROR")
+        img = Image.open(output)
+        assert img.size == (1920, 1080)
+
+    def test_custom_dimensions(self, tmp_path):
+        """create_placeholder_png accepts width/height overrides."""
+        from scripts.generate_infographic import create_placeholder_png
+
+        output = tmp_path / "error.png"
+        create_placeholder_png(output, "TEST ERROR", width=1440, height=1080)
+        img = Image.open(output)
+        assert img.size == (1440, 1080)
+
+    def test_creates_parent_directories(self, tmp_path):
+        """create_placeholder_png creates parent dirs if they don't exist."""
+        from scripts.generate_infographic import create_placeholder_png
+
+        output = tmp_path / "nested" / "deep" / "error.png"
+        create_placeholder_png(output, "TEST ERROR")
+        assert output.exists()
+
+    def test_white_background(self, tmp_path):
+        """create_placeholder_png produces a white background image."""
+        from scripts.generate_infographic import create_placeholder_png
+
+        output = tmp_path / "error.png"
+        create_placeholder_png(output, "TEST ERROR")
+        img = Image.open(output)
+        # Check a corner pixel is white
+        assert img.getpixel((0, 0)) == (255, 255, 255)
+
+
+class TestPromptJson:
+    """Tests for save_prompt_json: file creation, JSON structure, timestamp."""
+
+    def test_creates_json_file(self, tmp_path):
+        """save_prompt_json writes a JSON file at the expected path."""
+        from scripts.generate_infographic import save_prompt_json
+
+        result = save_prompt_json("test prompt", tmp_path, "domain-scorecard")
+        assert result.exists()
+        assert result.name == "INFOGRAPHIC_domain-scorecard_PROMPT.json"
+
+    def test_json_structure(self, tmp_path):
+        """save_prompt_json writes JSON with type, timestamp, error_code, prompt fields."""
+        import json as json_mod
+        from scripts.generate_infographic import save_prompt_json
+
+        save_prompt_json("my prompt text", tmp_path, "domain-scorecard", error_code="API_ERROR_429")
+        data = json_mod.loads((tmp_path / "INFOGRAPHIC_domain-scorecard_PROMPT.json").read_text())
+        assert data["type"] == "domain-scorecard"
+        assert data["prompt"] == "my prompt text"
+        assert data["error_code"] == "API_ERROR_429"
+        assert "timestamp" in data
+
+    def test_timestamp_iso_8601(self, tmp_path):
+        """save_prompt_json timestamp is ISO 8601 UTC."""
+        import json as json_mod
+        from datetime import datetime, timezone
+        from scripts.generate_infographic import save_prompt_json
+
+        save_prompt_json("prompt", tmp_path, "test-type")
+        data = json_mod.loads((tmp_path / "INFOGRAPHIC_test-type_PROMPT.json").read_text())
+        # Should parse as a valid datetime
+        ts = datetime.fromisoformat(data["timestamp"])
+        assert ts.tzinfo is not None or "+00:00" in data["timestamp"] or "Z" in data["timestamp"]
+
+    def test_error_code_none_by_default(self, tmp_path):
+        """save_prompt_json defaults error_code to None."""
+        import json as json_mod
+        from scripts.generate_infographic import save_prompt_json
+
+        save_prompt_json("prompt", tmp_path, "test-type")
+        data = json_mod.loads((tmp_path / "INFOGRAPHIC_test-type_PROMPT.json").read_text())
+        assert data["error_code"] is None
+
+
+class TestErrorClassification:
+    """Tests for _is_retryable_error and _is_content_block helpers."""
+
+    def test_retryable_429(self):
+        """_is_retryable_error('API_ERROR_429') returns True."""
+        from scripts.generate_infographic import _is_retryable_error
+
+        assert _is_retryable_error("API_ERROR_429") is True
+
+    def test_retryable_503(self):
+        """_is_retryable_error('API_ERROR_503') returns True."""
+        from scripts.generate_infographic import _is_retryable_error
+
+        assert _is_retryable_error("API_ERROR_503") is True
+
+    def test_retryable_500(self):
+        """_is_retryable_error('API_ERROR_500') returns True."""
+        from scripts.generate_infographic import _is_retryable_error
+
+        assert _is_retryable_error("API_ERROR_500") is True
+
+    def test_not_retryable_400(self):
+        """_is_retryable_error('API_ERROR_400') returns False."""
+        from scripts.generate_infographic import _is_retryable_error
+
+        assert _is_retryable_error("API_ERROR_400") is False
+
+    def test_not_retryable_403(self):
+        """_is_retryable_error('API_ERROR_403') returns False."""
+        from scripts.generate_infographic import _is_retryable_error
+
+        assert _is_retryable_error("API_ERROR_403") is False
+
+    def test_not_retryable_content_block(self):
+        """_is_retryable_error('CONTENT_BLOCKED_SAFETY') returns False."""
+        from scripts.generate_infographic import _is_retryable_error
+
+        assert _is_retryable_error("CONTENT_BLOCKED_SAFETY") is False
+
+    def test_content_block_safety(self):
+        """_is_content_block('CONTENT_BLOCKED_SAFETY') returns True."""
+        from scripts.generate_infographic import _is_content_block
+
+        assert _is_content_block("CONTENT_BLOCKED_SAFETY") is True
+
+    def test_content_block_image_safety(self):
+        """_is_content_block('CONTENT_BLOCKED_IMAGE_SAFETY') returns True."""
+        from scripts.generate_infographic import _is_content_block
+
+        assert _is_content_block("CONTENT_BLOCKED_IMAGE_SAFETY") is True
+
+    def test_not_content_block_api_error(self):
+        """_is_content_block('API_ERROR_429') returns False."""
+        from scripts.generate_infographic import _is_content_block
+
+        assert _is_content_block("API_ERROR_429") is False
+
+
+class TestContentBlock:
+    """Tests for content block detection in generate_infographic()."""
+
+    def _setup_env(self, tmp_path, sample_data, sample_template):
+        """Helper: create config dir, template dir, and data file."""
+        config_dir = tmp_path / ".cdp-context"
+        config_dir.mkdir()
+        (config_dir / "config.md").write_text(
+            "- **Gemini API Key:** test-key-abc123\n"
+            "- **Image Model:** gemini-2.5-flash-image\n"
+            "- **Retry Limit:** 2\n"
+        )
+
+        template_dir = tmp_path / "templates" / "infographic-prompts"
+        template_dir.mkdir(parents=True)
+        (template_dir / "domain-scorecard.json").write_text(
+            json.dumps(sample_template, indent=2)
+        )
+
+        data_path = tmp_path / "data.json"
+        data_path.write_text(json.dumps(sample_data))
+        output_path = tmp_path / "output" / "infographic.png"
+
+        return data_path, output_path, config_dir, template_dir
+
+    def test_prompt_level_content_block(
+        self,
+        tmp_path,
+        sample_data,
+        sample_template,
+        mock_content_blocked_response,
+    ):
+        """generate_infographic detects prompt-level content block (block_reason=SAFETY)."""
+        data_path, output_path, config_dir, template_dir = self._setup_env(
+            tmp_path, sample_data, sample_template
+        )
+
+        mock_client = MagicMock()
+        mock_client.models.generate_content.return_value = mock_content_blocked_response
+
+        with (
+            patch("scripts.generate_infographic.genai") as mock_genai,
+            patch("scripts.generate_infographic.TEMPLATE_DIR", template_dir),
+        ):
+            mock_genai.Client.return_value = mock_client
+            result = generate_infographic(
+                "domain-scorecard",
+                data_path,
+                output_path,
+                skip_preflight=True,
+                config_dir=config_dir,
+            )
+
+        assert result.success is False
+        assert result.error_code == "CONTENT_BLOCKED_SAFETY"
+
+    def test_candidate_level_content_block(
+        self,
+        tmp_path,
+        sample_data,
+        sample_template,
+        mock_candidate_blocked_response,
+    ):
+        """generate_infographic detects candidate-level content block (finish_reason=IMAGE_SAFETY)."""
+        data_path, output_path, config_dir, template_dir = self._setup_env(
+            tmp_path, sample_data, sample_template
+        )
+
+        mock_client = MagicMock()
+        mock_client.models.generate_content.return_value = mock_candidate_blocked_response
+
+        with (
+            patch("scripts.generate_infographic.genai") as mock_genai,
+            patch("scripts.generate_infographic.TEMPLATE_DIR", template_dir),
+        ):
+            mock_genai.Client.return_value = mock_client
+            result = generate_infographic(
+                "domain-scorecard",
+                data_path,
+                output_path,
+                skip_preflight=True,
+                config_dir=config_dir,
+            )
+
+        assert result.success is False
+        assert result.error_code == "CONTENT_BLOCKED_IMAGE_SAFETY"
+
+    def test_server_error_caught(
+        self,
+        tmp_path,
+        sample_data,
+        sample_template,
+    ):
+        """generate_infographic catches ServerError (5xx) and returns API_ERROR_{code}."""
+        from google.genai.errors import ServerError
+
+        data_path, output_path, config_dir, template_dir = self._setup_env(
+            tmp_path, sample_data, sample_template
+        )
+
+        mock_client = MagicMock()
+        mock_client.models.generate_content.side_effect = ServerError(
+            code=503, response_json={"error": {"message": "Service Unavailable"}}
+        )
+
+        with (
+            patch("scripts.generate_infographic.genai") as mock_genai,
+            patch("scripts.generate_infographic.TEMPLATE_DIR", template_dir),
+        ):
+            mock_genai.Client.return_value = mock_client
+            result = generate_infographic(
+                "domain-scorecard",
+                data_path,
+                output_path,
+                skip_preflight=True,
+                config_dir=config_dir,
+            )
+
+        assert result.success is False
+        assert result.error_code == "API_ERROR_503"
+
+
+# ---------------------------------------------------------------------------
 # Live integration tests (Plan 03) -- require real Gemini API key
 # ---------------------------------------------------------------------------
 

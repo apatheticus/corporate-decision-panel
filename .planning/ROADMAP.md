@@ -61,7 +61,11 @@ Plans:
   3. After any total failure, the output directory contains a white placeholder PNG and a `INFOGRAPHIC_<type>_PROMPT.json` file, leaving the session intact for downstream tasks
   4. A full 6-infographic session completes without 429 rate-limit storms (inter-call delay of 3-5 seconds between images)
   5. After generation, a Gemini vision pass verifies that expected data labels are present; if it fails, generation retries with corrective feedback up to the configured maximum
-**Plans**: TBD
+**Plans:** 2 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — Error classification, placeholder PNG, PROMPT.json, vision validation module
+- [ ] 03-02-PLAN.md — Retry wrapper with backoff, session orchestrator with inter-call delay and summary
 
 ### Phase 4: Scale and Docs
 **Goal**: All six infographic types generate via API and instruction documents reflect the API-based workflow with no browser automation references remaining
@@ -83,5 +87,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Config and Pre-flight | 2/2 | Complete | 2026-03-04 |
 | 2. API Integration | 3/3 | Complete | 2026-03-04 |
-| 3. Error Handling and Quality | 0/TBD | Not started | - |
+| 3. Error Handling and Quality | 0/2 | Not started | - |
 | 4. Scale and Docs | 0/TBD | Not started | - |

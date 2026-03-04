@@ -185,3 +185,80 @@ def sample_data_file(tmp_path, sample_data):
     data_file = tmp_path / "data.json"
     data_file.write_text(json.dumps(sample_data))
     return data_file
+
+
+# ---------------------------------------------------------------------------
+# Content block fixtures (Phase 3)
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def mock_content_blocked_response():
+    """A mock Gemini API response with prompt-level content block.
+
+    Simulates a 200 OK response where prompt_feedback.block_reason = "SAFETY".
+    No image data is present.
+    """
+    response = MagicMock()
+    response.prompt_feedback = MagicMock()
+    response.prompt_feedback.block_reason = "SAFETY"
+    response.candidates = []
+    response.parts = []
+    return response
+
+
+@pytest.fixture
+def mock_candidate_blocked_response():
+    """A mock Gemini API response with candidate-level content block.
+
+    Simulates a 200 OK response where candidates[0].finish_reason = "IMAGE_SAFETY".
+    No image data is present, but prompt_feedback has no block_reason.
+    """
+    candidate = MagicMock()
+    candidate.finish_reason = "IMAGE_SAFETY"
+    response = MagicMock()
+    response.prompt_feedback = MagicMock()
+    response.prompt_feedback.block_reason = None
+    response.candidates = [candidate]
+    # Parts exist but have no inline_data
+    part = MagicMock()
+    part.inline_data = None
+    response.parts = [part]
+    return response
+
+
+# ---------------------------------------------------------------------------
+# Validation fixtures (Phase 3)
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def mock_validation_pass_response():
+    """A mock Gemini vision response indicating validation passed.
+
+    Returns structured text with VERDICT: PASS.
+    """
+    response = MagicMock()
+    response.text = (
+        "VERDICT: PASS\n"
+        "WARNINGS: none\n"
+        "MISSING: none\n"
+        "FEEDBACK: none"
+    )
+    return response
+
+
+@pytest.fixture
+def mock_validation_fail_response():
+    """A mock Gemini vision response indicating validation failed.
+
+    Returns structured text with VERDICT: FAIL and specific missing labels.
+    """
+    response = MagicMock()
+    response.text = (
+        "VERDICT: FAIL\n"
+        "WARNINGS: none\n"
+        "MISSING: Revenue label\n"
+        "FEEDBACK: Ensure Revenue label appears clearly"
+    )
+    return response
