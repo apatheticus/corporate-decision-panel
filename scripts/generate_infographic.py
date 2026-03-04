@@ -92,6 +92,9 @@ class GenerationResult:
         error_code:     Machine-readable error identifier (None on success).
         had_rate_limit: True if a 429 was encountered during retry (for
                         session-level adaptive delay).
+        warning_only:   True if vision validation passed with warnings
+                        (e.g. partially truncated labels). Used by the
+                        session layer to emit OK+WARN instead of OK.
     """
 
     success: bool
@@ -99,6 +102,7 @@ class GenerationResult:
     prompt_path: Path | None = None
     error_code: str | None = None
     had_rate_limit: bool = False
+    warning_only: bool = False
 
 
 # ---------------------------------------------------------------------------
@@ -826,6 +830,7 @@ def generate_with_retry(
                 status_detail += " (warnings)"
             _status("VALIDATED", status_detail)
             result.had_rate_limit = had_rate_limit
+            result.warning_only = validation.warning_only
             return result
 
         # Validation failed -- retry with corrective feedback
