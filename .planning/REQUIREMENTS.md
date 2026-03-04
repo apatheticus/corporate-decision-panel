@@ -38,7 +38,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **DOC-01**: Update `templates/production/infographics.md` Task A spec for API-based flow
 - [x] **DOC-02**: Update `templates/config-context.md` template with API key, model ID, and retry limit fields
 - [x] **DOC-03**: Update `agents/ceo.md` Task A spawn instruction
-- [ ] **DOC-04**: Remove all browser automation references from image generation workflow
+- [x] **DOC-04**: Remove all browser automation references from image generation workflow
 
 ## v2 Requirements
 
@@ -86,7 +86,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DOC-01 | Phase 4 | Complete |
 | DOC-02 | Phase 1 | Complete |
 | DOC-03 | Phase 4 | Complete |
-| DOC-04 | Phase 4 | Pending |
+| DOC-04 | Phase 4 | Complete |
 
 **Coverage:**
 - v1 requirements: 18 total

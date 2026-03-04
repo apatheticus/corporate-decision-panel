@@ -77,12 +77,12 @@ Plans:
   2. `templates/production/infographics.md` Task A spec describes the API-based script invocation — no browser automation steps remain
   3. `agents/ceo.md` Task A spawn instruction references the script, not browser-based generation
   4. No browser automation code paths remain in the image generation workflow
-**Plans:** 3 plans
+**Plans:** 2/3 plans executed
 
 Plans:
-- [ ] 04-01-PLAN.md — Rewrite infographics.md and ceo.md for API-based workflow
+- [x] 04-01-PLAN.md — Rewrite infographics.md and ceo.md for API-based workflow
 - [ ] 04-02-PLAN.md — Browser automation sweep across SKILL.md, README.md, docs/README.md, docs/ARCHITECTURE.md
-- [ ] 04-03-PLAN.md — Live 6-type generation verification with test data fixtures and visual spot-check
+- [x] 04-03-PLAN.md — Live 6-type generation verification with test data fixtures and visual spot-check
 
 ## Progress
 
@@ -94,4 +94,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 1. Config and Pre-flight | 2/2 | Complete | 2026-03-04 |
 | 2. API Integration | 3/3 | Complete | 2026-03-04 |
 | 3. Error Handling and Quality | 3/3 | Complete | 2026-03-04 |
-| 4. Scale and Docs | 0/3 | Not started | - |
+| 4. Scale and Docs | 2/3 | In Progress|  |
