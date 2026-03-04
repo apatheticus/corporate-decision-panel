@@ -64,8 +64,9 @@ For each session, the Image Agent follows this workflow:
    data for each infographic type per the Content Mapping table below
 2. **Write data files** -- Save one JSON file per infographic type to
    `{session-output}/images/` with placeholder token values
-3. **Run session** -- Call `scripts/session.py` with all type slugs,
-   data paths, and the output directory. The session orchestrator:
+3. **Run session** -- Import and call `run_session()` from
+   `scripts.session` with all type slugs, data paths, and the output
+   directory. The session orchestrator:
    - Generates each type sequentially with 4-second inter-call delay
    - Runs vision-based validation after each successful generation
    - Retries with corrective feedback if validation fails

@@ -595,7 +595,7 @@ Task E: Archivist (Results PDF + Capsule PDF)  <-- blocked by D
 TaskCreate: "Generate analytical infographics via Gemini API script
   Extract data from Decision Record per infographic type
   Write data JSON files to {session}/images/ per type
-  Run scripts/session.py to generate all types
+  Import and call run_session() from scripts.session to generate all types
   Session output: <absolute-path>  Issue slug: <issue-slug>"            -> Task A
 TaskCreate: "Create board presentation (PPTX)
   Session output: <absolute-path>  Issue slug: <issue-slug>"            -> Task B

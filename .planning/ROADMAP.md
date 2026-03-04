@@ -12,10 +12,10 @@ Migrate the Corporate Decision Panel's infographic generation from browser autom
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Config and Pre-flight** - API key parsing, model ID configurability, and billing validation before any generation
-- [ ] **Phase 2: API Integration** - Script skeleton plus live end-to-end generation for one infographic type
-- [ ] **Phase 3: Error Handling and Quality** - Retry logic, rate limiting, content-block classification, and AI vision validation
-- [ ] **Phase 4: Scale and Docs** - All six infographic types generating via API; instruction documents updated; browser automation removed
+- [x] **Phase 1: Config and Pre-flight** - API key parsing, model ID configurability, and billing validation before any generation
+- [x] **Phase 2: API Integration** - Script skeleton plus live end-to-end generation for one infographic type
+- [x] **Phase 3: Error Handling and Quality** - Retry logic, rate limiting, content-block classification, and AI vision validation
+- [x] **Phase 4: Scale and Docs** - All six infographic types generating via API; instruction documents updated; browser automation removed
 
 ## Phase Details
 
@@ -77,11 +77,11 @@ Plans:
   2. `templates/production/infographics.md` Task A spec describes the API-based script invocation — no browser automation steps remain
   3. `agents/ceo.md` Task A spawn instruction references the script, not browser-based generation
   4. No browser automation code paths remain in the image generation workflow
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans executed
 
 Plans:
 - [x] 04-01-PLAN.md — Rewrite infographics.md and ceo.md for API-based workflow
-- [ ] 04-02-PLAN.md — Browser automation sweep across SKILL.md, README.md, docs/README.md, docs/ARCHITECTURE.md
+- [x] 04-02-PLAN.md — Browser automation sweep across SKILL.md, README.md, docs/README.md, docs/ARCHITECTURE.md
 - [x] 04-03-PLAN.md — Live 6-type generation verification with test data fixtures and visual spot-check
 
 ## Progress
@@ -94,4 +94,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 1. Config and Pre-flight | 2/2 | Complete | 2026-03-04 |
 | 2. API Integration | 3/3 | Complete | 2026-03-04 |
 | 3. Error Handling and Quality | 3/3 | Complete | 2026-03-04 |
-| 4. Scale and Docs | 2/3 | In Progress|  |
+| 4. Scale and Docs | 3/3 | Complete | 2026-03-04 |
