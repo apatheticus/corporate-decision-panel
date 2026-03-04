@@ -10,11 +10,15 @@ Exports:
     substitute_placeholders  -- Replace {{TOKEN}} patterns with data values
     serialize_template       -- Flatten template + data to natural language prompt
     save_prompt              -- Write assembled prompt to disk
+    save_prompt_json         -- Write machine-readable prompt JSON with metadata
+    create_placeholder_png   -- Create a white placeholder PNG with error text
     generate_infographic     -- End-to-end generation: preflight, prompt, API, save
     GenerationResult         -- Dataclass with success/output_path/prompt_path/error_code
     PLACEHOLDER_RE           -- Compiled regex for {{PLACEHOLDER}} tokens
     ASPECT_RATIOS            -- Per-type aspect ratio mapping
     THINKING_TYPES           -- Set of types that benefit from thinking mode
+    RETRYABLE_CODES          -- HTTP status codes eligible for retry
+    CONTENT_BLOCK_REASONS    -- Reasons indicating content/safety block
 """
 
 from __future__ import annotations
@@ -24,11 +28,15 @@ import json
 import re
 import sys
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
+
+from PIL import Image as PILImage
+from PIL import ImageDraw, ImageFont
 
 from google import genai
 from google.genai import types
-from google.genai.errors import ClientError
+from google.genai.errors import ClientError, ServerError
 
 from scripts.config import ConfigError, load_config
 from scripts.preflight import run_preflight
@@ -55,6 +63,12 @@ THINKING_TYPES: set[str] = {"fault-line-map", "mode-comparison"}
 # Models whose IDs start with these prefixes support thinking_level for
 # image generation.  The default gemini-2.5-flash-image does NOT.
 THINKING_MODEL_PREFIXES: tuple[str, ...] = ("gemini-3-", "gemini-3.")
+
+# HTTP status codes that are eligible for retry (transient errors).
+RETRYABLE_CODES: set[int] = {408, 429, 500, 502, 503, 504}
+
+# Reasons from the API that indicate a content/safety block.
+CONTENT_BLOCK_REASONS: set[str] = {"SAFETY", "IMAGE_SAFETY", "OTHER", "PROHIBITED_CONTENT"}
 
 
 # ---------------------------------------------------------------------------
@@ -278,6 +292,166 @@ def save_prompt(prompt: str, output_dir: Path, type_slug: str) -> Path:
 
 
 # ---------------------------------------------------------------------------
+# Prompt JSON saving (Phase 3)
+# ---------------------------------------------------------------------------
+
+
+def save_prompt_json(
+    prompt: str,
+    output_dir: Path,
+    type_slug: str,
+    error_code: str | None = None,
+) -> Path:
+    """Save machine-readable prompt with metadata for manual retry.
+
+    Writes a JSON file with type, ISO 8601 UTC timestamp, error code,
+    and the full prompt text.
+
+    Args:
+        prompt: The assembled natural language prompt text.
+        output_dir: Directory to write the JSON file into.
+        type_slug: Infographic type slug (e.g. "domain-scorecard").
+        error_code: Machine-readable error code (None if no error).
+
+    Returns:
+        Path to the written JSON file.
+    """
+    metadata = {
+        "type": type_slug,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "error_code": error_code,
+        "prompt": prompt,
+    }
+    output_dir.mkdir(parents=True, exist_ok=True)
+    path = output_dir / f"INFOGRAPHIC_{type_slug}_PROMPT.json"
+    path.write_text(json.dumps(metadata, indent=2))
+    return path
+
+
+# ---------------------------------------------------------------------------
+# Placeholder PNG generation (Phase 3)
+# ---------------------------------------------------------------------------
+
+
+def create_placeholder_png(
+    output_path: Path,
+    error_text: str,
+    width: int = 1920,
+    height: int = 1080,
+) -> Path:
+    """Create a white placeholder PNG with centered gray error text.
+
+    Used when infographic generation fails entirely or is blocked by
+    content policy.  The placeholder preserves the expected dimensions
+    so downstream embedding (PPTX/HTML) does not break.
+
+    Args:
+        output_path: Destination path for the PNG file.
+        error_text: Error message to render centered on the image.
+        width: Image width in pixels (default 1920 for 16:9).
+        height: Image height in pixels (default 1080).
+
+    Returns:
+        Path to the saved placeholder PNG.
+    """
+    img = PILImage.new("RGB", (width, height), "white")
+    draw = ImageDraw.Draw(img)
+
+    try:
+        font = ImageFont.load_default(size=36)
+    except TypeError:
+        # Pillow < 10.4 does not support size parameter
+        font = ImageFont.load_default()
+
+    draw.text(
+        (width // 2, height // 2),
+        error_text,
+        fill=(128, 128, 128),
+        font=font,
+        anchor="mm",
+    )
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    img.save(str(output_path))
+    return output_path
+
+
+# ---------------------------------------------------------------------------
+# Error classification (Phase 3)
+# ---------------------------------------------------------------------------
+
+
+def _is_retryable_error(error_code: str) -> bool:
+    """Check if an API_ERROR_{code} is retryable.
+
+    Parses the numeric HTTP status code from the error code string
+    and checks against :data:`RETRYABLE_CODES`.
+
+    Args:
+        error_code: Error code string (e.g. "API_ERROR_429").
+
+    Returns:
+        True if the error is transient and eligible for retry.
+    """
+    if error_code.startswith("API_ERROR_"):
+        try:
+            code = int(error_code.split("_")[-1])
+            return code in RETRYABLE_CODES
+        except ValueError:
+            pass
+    return False
+
+
+def _is_content_block(error_code: str) -> bool:
+    """Check if the error represents a content/safety block.
+
+    Content blocks start with ``CONTENT_BLOCKED`` and should NOT be
+    retried -- the same prompt will always be blocked.
+
+    Args:
+        error_code: Error code string (e.g. "CONTENT_BLOCKED_SAFETY").
+
+    Returns:
+        True if the error is a content/safety block.
+    """
+    return error_code.startswith("CONTENT_BLOCKED")
+
+
+def _detect_content_block(response) -> str | None:
+    """Check an API response for content/safety blocks.
+
+    Examines both ``response.prompt_feedback.block_reason`` (prompt-level
+    block) and ``response.candidates[0].finish_reason`` (candidate-level
+    block) for reasons in :data:`CONTENT_BLOCK_REASONS`.
+
+    Args:
+        response: The Gemini API response object.
+
+    Returns:
+        A string like ``"CONTENT_BLOCKED_SAFETY"`` if blocked, or None.
+    """
+    # Check 1: Prompt-level block
+    try:
+        if response.prompt_feedback and response.prompt_feedback.block_reason:
+            reason = str(response.prompt_feedback.block_reason)
+            if reason in CONTENT_BLOCK_REASONS:
+                return f"CONTENT_BLOCKED_{reason}"
+    except (AttributeError, TypeError):
+        pass
+
+    # Check 2: Candidate-level finish reason
+    try:
+        if response.candidates:
+            finish_reason = str(response.candidates[0].finish_reason)
+            if finish_reason in CONTENT_BLOCK_REASONS:
+                return f"CONTENT_BLOCKED_{finish_reason}"
+    except (AttributeError, TypeError, IndexError):
+        pass
+
+    return None
+
+
+# ---------------------------------------------------------------------------
 # Status output
 # ---------------------------------------------------------------------------
 
@@ -428,6 +602,21 @@ def generate_infographic(
         return GenerationResult(
             success=False,
             error_code=f"API_ERROR_{e.code}",
+            prompt_path=prompt_path,
+        )
+    except ServerError as e:
+        return GenerationResult(
+            success=False,
+            error_code=f"API_ERROR_{e.code}",
+            prompt_path=prompt_path,
+        )
+
+    # --- 7b. Content block detection ---
+    block_code = _detect_content_block(response)
+    if block_code is not None:
+        return GenerationResult(
+            success=False,
+            error_code=block_code,
             prompt_path=prompt_path,
         )
 
