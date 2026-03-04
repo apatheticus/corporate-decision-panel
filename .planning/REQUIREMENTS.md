@@ -10,7 +10,7 @@ Requirements for initial release. Each maps to roadmap phases.
 ### API Setup
 
 - [x] **SETUP-01**: API key stored in `.cdp-context/config.md` with clear field format
-- [ ] **SETUP-02**: Pre-flight validation probes API key and billing status before any generation
+- [x] **SETUP-02**: Pre-flight validation probes API key and billing status before any generation
 - [x] **SETUP-03**: Model ID configurable in `.cdp-context/config.md` (not hardcoded)
 
 ### Image Generation
@@ -70,7 +70,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | SETUP-01 | Phase 1 | Complete |
-| SETUP-02 | Phase 1 | Pending |
+| SETUP-02 | Phase 1 | Complete |
 | SETUP-03 | Phase 1 | Complete |
 | GEN-01 | Phase 2 | Pending |
 | GEN-02 | Phase 2 | Pending |
