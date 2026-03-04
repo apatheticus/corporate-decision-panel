@@ -2,7 +2,8 @@
 
 Covers: load_template, substitute_placeholders, serialize_template, save_prompt
 (from Plan 01), plus generate_infographic, aspect ratios, thinking config,
-preflight integration, and CLI wrapper (from Plan 02).
+preflight integration, and CLI wrapper (from Plan 02), and live end-to-end
+generation with dimension verification (from Plan 03).
 """
 
 import json
@@ -10,8 +11,10 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
+from PIL import Image
 
 from scripts.config import ConfigError
+from scripts.generate_infographic import generate_infographic
 
 
 class TestPromptSerialization:
@@ -649,3 +652,44 @@ class TestCLI:
         )
         assert result.returncode == 0
         assert "Infographic type slug" in result.stdout or "type" in result.stdout
+
+
+# ---------------------------------------------------------------------------
+# Live integration tests (Plan 03) -- require real Gemini API key
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.live
+class TestLiveGeneration:
+    """Live end-to-end tests that call the real Gemini API.
+
+    Requires a configured .cdp-context/config.md with a valid API key.
+    Run with: python -m pytest tests/test_generate_infographic.py -m live -x -v -s
+    Skip in CI by default (not collected unless -m live is specified).
+    """
+
+    def test_live_domain_scorecard(self, tmp_path):
+        """Generate a real Domain Scorecard via Gemini API and check dimensions."""
+        data_path = Path("tests/fixtures/sample-domain-scorecard-data.json")
+        output_path = tmp_path / "images" / "INFOGRAPHIC_domain-scorecard.png"
+
+        result = generate_infographic(
+            infographic_type="domain-scorecard",
+            data_path=data_path,
+            output_path=output_path,
+            skip_preflight=False,
+        )
+
+        assert result.success, f"Generation failed: {result.error_code}"
+        assert result.output_path.exists(), "PNG not saved"
+        assert result.prompt_path.exists(), "Prompt not saved"
+
+        # Check dimensions: at least 2000px on longest edge
+        img = Image.open(result.output_path)
+        longest_edge = max(img.size)
+        assert longest_edge >= 2000, f"Longest edge {longest_edge}px < 2000px"
+
+        # Check aspect ratio is 4:3 (within tolerance)
+        width, height = img.size
+        ratio = width / height
+        assert 1.2 <= ratio <= 1.4, f"Aspect ratio {ratio:.2f} not close to 4:3 (1.33)"
