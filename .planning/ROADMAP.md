@@ -44,7 +44,12 @@ Plans:
   3. The Domain Scorecard type (most text-dense) generates with real Decision Record data and the data labels are recognizably correct
   4. Aspect ratio is set per infographic type (4:3 for matrix/scorecard layouts, 16:9 for routing/fault-line diagrams)
   5. Thinking mode is active for Fault-Line Map and Mode Comparison types (configurable `thinking_level`)
-**Plans**: TBD
+**Plans:** 3 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — Prompt serialization TDD (template loading, placeholder substitution, natural language flattening)
+- [ ] 02-02-PLAN.md — Generation engine (API call, aspect ratios, thinking config, preflight integration, CLI)
+- [ ] 02-03-PLAN.md — Live generation verification (Domain Scorecard end-to-end with human visual check)
 
 ### Phase 3: Error Handling and Quality
 **Goal**: Infographic generation is reliable across a full 6-infographic session — transient failures retry, content blocks skip cleanly, and quality validation catches bad text rendering
@@ -76,7 +81,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Config and Pre-flight | 1/2 | In Progress | - |
-| 2. API Integration | 0/TBD | Not started | - |
+| 1. Config and Pre-flight | 2/2 | Complete | 2026-03-04 |
+| 2. API Integration | 0/3 | Planned | - |
 | 3. Error Handling and Quality | 0/TBD | Not started | - |
 | 4. Scale and Docs | 0/TBD | Not started | - |
