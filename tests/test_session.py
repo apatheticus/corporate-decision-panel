@@ -439,3 +439,62 @@ class TestSessionResult:
         )
         assert "domain-scorecard" in result.results
         assert result.results["domain-scorecard"].success is True
+
+
+@pytest.mark.live
+class TestLiveSession:
+    """Live end-to-end session test calling the real Gemini API.
+
+    Requires a configured .cdp-context/config.md with a valid API key.
+    Run with: python -m pytest tests/test_session.py -m live -x -v -s
+    """
+
+    def test_live_all_six_types(self, tmp_path):
+        """Generate all 6 infographic types and verify OK or OK+WARN status."""
+        from pathlib import Path as P
+        from scripts.session import run_session
+
+        all_types = [
+            "routing-diagram",
+            "domain-scorecard",
+            "fault-line-map",
+            "risk-opportunity-matrix",
+            "action-plan-timeline",
+            "mode-comparison",
+        ]
+
+        data_paths = {
+            t: P(f"tests/fixtures/sample-{t}-data.json")
+            for t in all_types
+        }
+
+        # Verify all fixture files exist before calling API
+        for t, dp in data_paths.items():
+            assert dp.exists(), f"Missing fixture: {dp}"
+
+        output_dir = tmp_path / "images"
+        output_dir.mkdir()
+
+        result = run_session(
+            types_list=all_types,
+            data_paths=data_paths,
+            output_dir=output_dir,
+        )
+
+        # Check each type individually for clear failure messages
+        for type_slug in all_types:
+            gen_result = result.results[type_slug]
+            status = "OK+WARN" if gen_result.warning_only else ("OK" if gen_result.success else "FAILED")
+            assert gen_result.success, (
+                f"{type_slug}: expected OK or OK+WARN but got {status} "
+                f"(error_code={gen_result.error_code})"
+            )
+            # Verify PNG exists and is valid
+            assert gen_result.output_path is not None
+            assert gen_result.output_path.exists(), f"{type_slug}: PNG not written"
+            assert gen_result.output_path.stat().st_size > 1000, (
+                f"{type_slug}: PNG too small ({gen_result.output_path.stat().st_size} bytes)"
+            )
+
+        assert result.any_succeeded
+        assert len(result.results) == 6
