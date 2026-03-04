@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in-progress
-stopped_at: Completed 03-01-PLAN.md
-last_updated: "2026-03-04T17:55:46Z"
-last_activity: 2026-03-04 — Completed 03-01 error handling foundation (placeholder, validation, error classification)
+stopped_at: Completed 03-02-PLAN.md (Phase 03 complete)
+last_updated: "2026-03-04T18:05:51Z"
+last_activity: 2026-03-04 — Completed 03-02 retry wrapper and session orchestrator
 progress:
   total_phases: 4
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 7
-  completed_plans: 6
-  percent: 86
+  completed_plans: 7
+  percent: 93
 ---
 
 # Project State
@@ -21,23 +21,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-04)
 
 **Core value:** Infographic generation must work without browser interaction — a single API call per infographic that returns a PNG, driven by the same Decision Record data.
-**Current focus:** Phase 3 — Error Handling and Quality
+**Current focus:** Phase 3 complete — Ready for Phase 4 (Scale and Docs)
 
 ## Current Position
 
 Phase: 3 of 4 (Error Handling and Quality)
-Plan: 1 of 2 in current phase (03-01 complete)
-Status: Plan 03-01 complete, ready for 03-02
-Last activity: 2026-03-04 — Completed 03-01 error handling foundation (placeholder, validation, error classification)
+Plan: 2 of 2 in current phase (03-02 complete -- phase complete)
+Status: Phase 03 complete, ready for Phase 04
+Last activity: 2026-03-04 — Completed 03-02 retry wrapper and session orchestrator
 
-Progress: [████████░░] 86%
+Progress: [█████████░] 93%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
-- Average duration: 3min
-- Total execution time: 19min
+- Total plans completed: 7
+- Average duration: 4min
+- Total execution time: 25min
 
 **By Phase:**
 
@@ -45,10 +45,10 @@ Progress: [████████░░] 86%
 |-------|-------|-------|----------|
 | Phase 01 | 2 | 4min | 2min |
 | Phase 02 | 3 | 9min | 3min |
-| Phase 03 | 1 | 6min | 6min |
+| Phase 03 | 2 | 12min | 6min |
 
 **Recent Trend:**
-- Last 5 plans: 01-02 (2min), 02-01 (3min), 02-02 (4min), 02-03 (2min), 03-01 (6min)
+- Last 5 plans: 02-01 (3min), 02-02 (4min), 02-03 (2min), 03-01 (6min), 03-02 (6min)
 - Trend: stable
 
 *Updated after each plan completion*
@@ -80,6 +80,10 @@ Recent decisions affecting current work:
 - [Phase 03]: Validation API errors return pass-with-warning (non-blocking quality gate)
 - [Phase 03]: Content block detection checks both prompt_feedback.block_reason and candidates[0].finish_reason
 - [Phase 03]: Label extraction splits on comma + uppercase heuristic to avoid false splits
+- [Phase 03]: SDK retry disabled via HttpRetryOptions(attempts=1) -- prevents double-retry explosion
+- [Phase 03]: had_rate_limit field on GenerationResult signals 429 to session for adaptive delay
+- [Phase 03]: Hardcoded 4s inter-call delay with adaptive doubling on 429 (not configurable)
+- [Phase 03]: Module-level import of validate_infographic (no circular dependency, cleaner mocking)
 
 ### Pending Todos
 
@@ -92,6 +96,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-04T17:55:46Z
-Stopped at: Completed 03-01-PLAN.md
-Resume file: .planning/phases/03-error-handling-and-quality/03-02-PLAN.md
+Last session: 2026-03-04T18:05:51Z
+Stopped at: Completed 03-02-PLAN.md (Phase 03 complete)
+Resume file: Phase 04 planning needed
