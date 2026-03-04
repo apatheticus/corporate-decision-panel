@@ -1,12 +1,15 @@
 """Shared test fixtures for CDP testing.
 
-Provides fixtures for config testing and prompt template testing.
+Provides fixtures for config testing, prompt template testing,
+and generation pipeline testing (mocked Gemini API).
 """
 
 import json
 from pathlib import Path
+from unittest.mock import MagicMock
 
 import pytest
+from PIL import Image
 
 
 # ---------------------------------------------------------------------------
@@ -139,3 +142,46 @@ def sample_template_path(tmp_path, sample_template):
     template_file = tmp_path / "domain-scorecard.json"
     template_file.write_text(json.dumps(sample_template, indent=2))
     return tmp_path
+
+
+# ---------------------------------------------------------------------------
+# Generation pipeline fixtures
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def mock_genai_image_response():
+    """A mock Gemini API response containing a 1x1 white PNG image.
+
+    The mock response has one part with ``inline_data`` that returns
+    a PIL Image from ``part.as_image()``.
+    """
+    img = Image.new("RGB", (1, 1), color=(255, 255, 255))
+    part = MagicMock()
+    part.inline_data = True  # truthy to pass ``is not None`` check
+    part.as_image.return_value = img
+    response = MagicMock()
+    response.parts = [part]
+    return response
+
+
+@pytest.fixture
+def mock_genai_text_only_response():
+    """A mock Gemini API response containing only text (no image).
+
+    Used to test the NO_IMAGE_IN_RESPONSE error path.
+    """
+    part = MagicMock()
+    part.inline_data = None
+    part.text = "Here is a description of the infographic."
+    response = MagicMock()
+    response.parts = [part]
+    return response
+
+
+@pytest.fixture
+def sample_data_file(tmp_path, sample_data):
+    """Writes sample_data to a JSON file in tmp_path and returns the path."""
+    data_file = tmp_path / "data.json"
+    data_file.write_text(json.dumps(sample_data))
+    return data_file

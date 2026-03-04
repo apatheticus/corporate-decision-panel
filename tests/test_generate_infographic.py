@@ -1,9 +1,13 @@
-"""Tests for prompt serialization pipeline.
+"""Tests for infographic generation pipeline.
 
-Covers: load_template, substitute_placeholders, serialize_template, save_prompt.
+Covers: load_template, substitute_placeholders, serialize_template, save_prompt
+(from Plan 01), plus generate_infographic, aspect ratios, thinking config,
+preflight integration, and CLI wrapper (from Plan 02).
 """
 
+import json
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -209,3 +213,439 @@ class TestPromptSerialization:
         result = save_prompt("test prompt", nested, "routing-diagram")
         assert result.exists()
         assert result.parent == nested
+
+
+# ---------------------------------------------------------------------------
+# Generation pipeline tests (Plan 02)
+# ---------------------------------------------------------------------------
+
+
+class TestGeneration:
+    """Tests for the generate_infographic() function: API call configuration,
+    PNG output, prompt saving, error handling, and preflight integration."""
+
+    def _setup_env(self, tmp_path, sample_data, sample_template):
+        """Helper: create config dir, template dir, and data file for generation tests.
+
+        Returns (data_path, output_path, config_dir, template_dir).
+        """
+        # Config directory with valid key
+        config_dir = tmp_path / ".cdp-context"
+        config_dir.mkdir()
+        (config_dir / "config.md").write_text(
+            "- **Gemini API Key:** test-key-abc123\n"
+            "- **Image Model:** gemini-2.5-flash-image\n"
+            "- **Retry Limit:** 2\n"
+        )
+
+        # Template directory
+        template_dir = tmp_path / "templates" / "infographic-prompts"
+        template_dir.mkdir(parents=True)
+        (template_dir / "domain-scorecard.json").write_text(
+            json.dumps(sample_template, indent=2)
+        )
+        (template_dir / "fault-line-map.json").write_text(
+            json.dumps(sample_template, indent=2)
+        )
+
+        # Data file
+        data_path = tmp_path / "data.json"
+        data_path.write_text(json.dumps(sample_data))
+
+        # Output path
+        output_path = tmp_path / "output" / "infographic.png"
+
+        return data_path, output_path, config_dir, template_dir
+
+    def test_api_call_config(
+        self,
+        tmp_path,
+        sample_data,
+        sample_template,
+        mock_genai_image_response,
+    ):
+        """generate_content is called with response_modalities=["TEXT", "IMAGE"] and image_size="2K"."""
+        from scripts.generate_infographic import generate_infographic
+
+        data_path, output_path, config_dir, template_dir = self._setup_env(
+            tmp_path, sample_data, sample_template
+        )
+
+        mock_client = MagicMock()
+        mock_client.models.generate_content.return_value = mock_genai_image_response
+
+        with (
+            patch("scripts.generate_infographic.genai") as mock_genai,
+            patch("scripts.generate_infographic.TEMPLATE_DIR", template_dir),
+        ):
+            mock_genai.Client.return_value = mock_client
+            result = generate_infographic(
+                "domain-scorecard",
+                data_path,
+                output_path,
+                skip_preflight=True,
+                config_dir=config_dir,
+            )
+
+        assert result.success is True
+        # Verify generate_content was called
+        call_args = mock_client.models.generate_content.call_args
+        assert call_args is not None
+        config_arg = call_args.kwargs.get("config") or call_args[1].get("config")
+        assert config_arg.response_modalities == ["TEXT", "IMAGE"]
+        assert config_arg.image_config.image_size == "2K"
+
+    def test_png_saved(
+        self,
+        tmp_path,
+        sample_data,
+        sample_template,
+        mock_genai_image_response,
+    ):
+        """generate_infographic saves a PNG file at output_path."""
+        from scripts.generate_infographic import generate_infographic
+
+        data_path, output_path, config_dir, template_dir = self._setup_env(
+            tmp_path, sample_data, sample_template
+        )
+
+        mock_client = MagicMock()
+        mock_client.models.generate_content.return_value = mock_genai_image_response
+
+        with (
+            patch("scripts.generate_infographic.genai") as mock_genai,
+            patch("scripts.generate_infographic.TEMPLATE_DIR", template_dir),
+        ):
+            mock_genai.Client.return_value = mock_client
+            result = generate_infographic(
+                "domain-scorecard",
+                data_path,
+                output_path,
+                skip_preflight=True,
+                config_dir=config_dir,
+            )
+
+        assert result.success is True
+        assert result.output_path == output_path
+        assert output_path.exists()
+
+    def test_prompt_saved(
+        self,
+        tmp_path,
+        sample_data,
+        sample_template,
+        mock_genai_image_response,
+    ):
+        """generate_infographic saves a PROMPT.txt file alongside the output."""
+        from scripts.generate_infographic import generate_infographic
+
+        data_path, output_path, config_dir, template_dir = self._setup_env(
+            tmp_path, sample_data, sample_template
+        )
+
+        mock_client = MagicMock()
+        mock_client.models.generate_content.return_value = mock_genai_image_response
+
+        with (
+            patch("scripts.generate_infographic.genai") as mock_genai,
+            patch("scripts.generate_infographic.TEMPLATE_DIR", template_dir),
+        ):
+            mock_genai.Client.return_value = mock_client
+            result = generate_infographic(
+                "domain-scorecard",
+                data_path,
+                output_path,
+                skip_preflight=True,
+                config_dir=config_dir,
+            )
+
+        assert result.success is True
+        assert result.prompt_path is not None
+        assert result.prompt_path.exists()
+        assert "PROMPT.txt" in result.prompt_path.name
+
+    def test_no_image_in_response(
+        self,
+        tmp_path,
+        sample_data,
+        sample_template,
+        mock_genai_text_only_response,
+    ):
+        """If API returns text-only response, result.success is False with NO_IMAGE_IN_RESPONSE."""
+        from scripts.generate_infographic import generate_infographic
+
+        data_path, output_path, config_dir, template_dir = self._setup_env(
+            tmp_path, sample_data, sample_template
+        )
+
+        mock_client = MagicMock()
+        mock_client.models.generate_content.return_value = mock_genai_text_only_response
+
+        with (
+            patch("scripts.generate_infographic.genai") as mock_genai,
+            patch("scripts.generate_infographic.TEMPLATE_DIR", template_dir),
+        ):
+            mock_genai.Client.return_value = mock_client
+            result = generate_infographic(
+                "domain-scorecard",
+                data_path,
+                output_path,
+                skip_preflight=True,
+                config_dir=config_dir,
+            )
+
+        assert result.success is False
+        assert result.error_code == "NO_IMAGE_IN_RESPONSE"
+
+    def test_preflight_failure_stops_generation(
+        self,
+        tmp_path,
+        sample_data,
+        sample_template,
+    ):
+        """When preflight fails, generate_infographic returns failure and never calls genai.Client."""
+        from scripts.generate_infographic import generate_infographic
+        from scripts.preflight import PreflightResult
+
+        data_path, output_path, config_dir, template_dir = self._setup_env(
+            tmp_path, sample_data, sample_template
+        )
+
+        mock_preflight_result = PreflightResult(
+            success=False, error_code="INVALID_API_KEY"
+        )
+
+        with (
+            patch("scripts.generate_infographic.run_preflight", return_value=mock_preflight_result),
+            patch("scripts.generate_infographic.genai") as mock_genai,
+            patch("scripts.generate_infographic.TEMPLATE_DIR", template_dir),
+        ):
+            result = generate_infographic(
+                "domain-scorecard",
+                data_path,
+                output_path,
+                skip_preflight=False,
+                config_dir=config_dir,
+            )
+
+        assert result.success is False
+        assert result.error_code == "INVALID_API_KEY"
+        mock_genai.Client.assert_not_called()
+
+
+class TestAspectRatios:
+    """Tests for ASPECT_RATIOS mapping: correct ratio per infographic type."""
+
+    def test_scorecard_4_3(self):
+        """domain-scorecard maps to 4:3 aspect ratio."""
+        from scripts.generate_infographic import ASPECT_RATIOS
+
+        assert ASPECT_RATIOS["domain-scorecard"] == "4:3"
+
+    def test_matrix_4_3(self):
+        """risk-opportunity-matrix maps to 4:3 aspect ratio."""
+        from scripts.generate_infographic import ASPECT_RATIOS
+
+        assert ASPECT_RATIOS["risk-opportunity-matrix"] == "4:3"
+
+    def test_routing_16_9(self):
+        """routing-diagram maps to 16:9 aspect ratio."""
+        from scripts.generate_infographic import ASPECT_RATIOS
+
+        assert ASPECT_RATIOS["routing-diagram"] == "16:9"
+
+    def test_all_types_covered(self):
+        """All 6 infographic types are present in ASPECT_RATIOS."""
+        from scripts.generate_infographic import ASPECT_RATIOS
+
+        expected = {
+            "domain-scorecard",
+            "risk-opportunity-matrix",
+            "routing-diagram",
+            "fault-line-map",
+            "mode-comparison",
+            "action-plan-timeline",
+        }
+        assert set(ASPECT_RATIOS.keys()) == expected
+
+
+class TestThinkingConfig:
+    """Tests for conditional thinking_config: applied only for supported models
+    AND complex infographic types (fault-line-map, mode-comparison)."""
+
+    def test_thinking_applied_for_gemini3_complex_type(
+        self,
+        tmp_path,
+        sample_data,
+        sample_template,
+        mock_genai_image_response,
+    ):
+        """With gemini-3-pro-image-preview + fault-line-map, thinking_config is applied."""
+        from scripts.generate_infographic import generate_infographic
+
+        # Config directory with Gemini 3 model
+        config_dir = tmp_path / ".cdp-context"
+        config_dir.mkdir()
+        (config_dir / "config.md").write_text(
+            "- **Gemini API Key:** test-key-abc123\n"
+            "- **Image Model:** gemini-3-pro-image-preview\n"
+            "- **Retry Limit:** 2\n"
+        )
+
+        template_dir = tmp_path / "templates" / "infographic-prompts"
+        template_dir.mkdir(parents=True)
+        (template_dir / "fault-line-map.json").write_text(
+            json.dumps(sample_template, indent=2)
+        )
+
+        data_path = tmp_path / "data.json"
+        data_path.write_text(json.dumps(sample_data))
+        output_path = tmp_path / "output" / "infographic.png"
+
+        mock_client = MagicMock()
+        mock_client.models.generate_content.return_value = mock_genai_image_response
+
+        with (
+            patch("scripts.generate_infographic.genai") as mock_genai,
+            patch("scripts.generate_infographic.TEMPLATE_DIR", template_dir),
+        ):
+            mock_genai.Client.return_value = mock_client
+            result = generate_infographic(
+                "fault-line-map",
+                data_path,
+                output_path,
+                skip_preflight=True,
+                config_dir=config_dir,
+            )
+
+        assert result.success is True
+        call_args = mock_client.models.generate_content.call_args
+        config_arg = call_args.kwargs.get("config") or call_args[1].get("config")
+        assert config_arg.thinking_config is not None
+        # The SDK coerces "High" to a ThinkingLevel enum; check via .value
+        assert config_arg.thinking_config.thinking_level.value == "HIGH"
+
+    def test_no_thinking_for_flash_image(
+        self,
+        tmp_path,
+        sample_data,
+        sample_template,
+        mock_genai_image_response,
+        capsys,
+    ):
+        """With gemini-2.5-flash-image + fault-line-map, no thinking_config; warning printed."""
+        from scripts.generate_infographic import generate_infographic
+
+        # Config directory with flash model (no thinking support)
+        config_dir = tmp_path / ".cdp-context"
+        config_dir.mkdir()
+        (config_dir / "config.md").write_text(
+            "- **Gemini API Key:** test-key-abc123\n"
+            "- **Image Model:** gemini-2.5-flash-image\n"
+            "- **Retry Limit:** 2\n"
+        )
+
+        template_dir = tmp_path / "templates" / "infographic-prompts"
+        template_dir.mkdir(parents=True)
+        (template_dir / "fault-line-map.json").write_text(
+            json.dumps(sample_template, indent=2)
+        )
+
+        data_path = tmp_path / "data.json"
+        data_path.write_text(json.dumps(sample_data))
+        output_path = tmp_path / "output" / "infographic.png"
+
+        mock_client = MagicMock()
+        mock_client.models.generate_content.return_value = mock_genai_image_response
+
+        with (
+            patch("scripts.generate_infographic.genai") as mock_genai,
+            patch("scripts.generate_infographic.TEMPLATE_DIR", template_dir),
+        ):
+            mock_genai.Client.return_value = mock_client
+            result = generate_infographic(
+                "fault-line-map",
+                data_path,
+                output_path,
+                skip_preflight=True,
+                config_dir=config_dir,
+            )
+
+        assert result.success is True
+        # Verify no thinking_config applied
+        call_args = mock_client.models.generate_content.call_args
+        config_arg = call_args.kwargs.get("config") or call_args[1].get("config")
+        assert config_arg.thinking_config is None
+        # Verify warning printed
+        captured = capsys.readouterr()
+        assert "WARNING" in captured.out
+        assert "thinking" in captured.out.lower()
+        assert "gemini-2.5-flash-image" in captured.out
+
+    def test_no_thinking_for_simple_type(
+        self,
+        tmp_path,
+        sample_data,
+        sample_template,
+        mock_genai_image_response,
+    ):
+        """With gemini-3-pro-image-preview + domain-scorecard, no thinking_config."""
+        from scripts.generate_infographic import generate_infographic
+
+        # Config directory with Gemini 3 model
+        config_dir = tmp_path / ".cdp-context"
+        config_dir.mkdir()
+        (config_dir / "config.md").write_text(
+            "- **Gemini API Key:** test-key-abc123\n"
+            "- **Image Model:** gemini-3-pro-image-preview\n"
+            "- **Retry Limit:** 2\n"
+        )
+
+        template_dir = tmp_path / "templates" / "infographic-prompts"
+        template_dir.mkdir(parents=True)
+        (template_dir / "domain-scorecard.json").write_text(
+            json.dumps(sample_template, indent=2)
+        )
+
+        data_path = tmp_path / "data.json"
+        data_path.write_text(json.dumps(sample_data))
+        output_path = tmp_path / "output" / "infographic.png"
+
+        mock_client = MagicMock()
+        mock_client.models.generate_content.return_value = mock_genai_image_response
+
+        with (
+            patch("scripts.generate_infographic.genai") as mock_genai,
+            patch("scripts.generate_infographic.TEMPLATE_DIR", template_dir),
+        ):
+            mock_genai.Client.return_value = mock_client
+            result = generate_infographic(
+                "domain-scorecard",
+                data_path,
+                output_path,
+                skip_preflight=True,
+                config_dir=config_dir,
+            )
+
+        assert result.success is True
+        call_args = mock_client.models.generate_content.call_args
+        config_arg = call_args.kwargs.get("config") or call_args[1].get("config")
+        assert config_arg.thinking_config is None
+
+
+class TestCLI:
+    """Tests for the CLI wrapper (python -m scripts.generate_infographic)."""
+
+    def test_cli_help(self):
+        """CLI --help exits with code 0."""
+        import subprocess
+        import sys
+
+        result = subprocess.run(
+            [sys.executable, "-m", "scripts.generate_infographic", "--help"],
+            capture_output=True,
+            text=True,
+            cwd=str(Path(__file__).resolve().parent.parent),
+        )
+        assert result.returncode == 0
+        assert "Infographic type slug" in result.stdout or "type" in result.stdout
