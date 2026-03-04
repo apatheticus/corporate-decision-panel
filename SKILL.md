@@ -424,17 +424,15 @@ Task E: Archivist (PDFs)         <-- blocked by D
 ### Production Agents
 
 **Task A -- Image Agent** (parallel, unblocked)
-Generates 5-6 analytical infographics via browser automation targeting
-the configured AI platform (Gemini or ChatGPT, set in `.cdp-context/config.md`).
-Each infographic is produced by populating a JSON prompt template (Pauhu
-schema hybrid) with Decision Record data, applying style overrides from
-`.cdp-context/style.md` (if present), and submitting to the platform with
-a 3-attempt escalation per image (full prompt → corrective feedback →
-simplified prompt), all within the same conversation. Retries never open
-a new conversation. A 12-submission session cap applies
-across all infographics. If attempts are exhausted, a placeholder PNG is
-generated and the populated JSON prompt is saved alongside it for manual
-generation.
+Generates 5-6 analytical infographics via the Gemini API using
+`scripts/session.py`. The Image Agent reads the Decision Record, extracts
+data per infographic type, writes data JSON files, and calls the session
+orchestrator. Each infographic is produced by populating a JSON prompt
+template (Pauhu schema hybrid) with Decision Record data, applying style
+overrides from `.cdp-context/style.md` (if present), and calling the
+Gemini API with vision-based quality validation. Retries use corrective
+feedback. If all attempts are exhausted, a placeholder PNG is generated
+and the populated JSON prompt is saved alongside it for manual retry.
 
 Infographics produced:
 1. Routing Diagram -- which C-suite activated and why
@@ -529,7 +527,7 @@ verbatim. No summarization, no reformatting.
 
 ### Orchestrator Spawn Sequence
 ```
-TaskCreate: "Generate analytical infographics via browser automation"  -> task A
+TaskCreate: "Generate analytical infographics via Gemini API script"  -> task A
 TaskCreate: "Create board presentation (PPTX)"               -> task B
 TaskCreate: "Create board document (DOCX)"                   -> task C
 TaskCreate: "Create interactive decision briefing page"      -> task D
@@ -610,19 +608,16 @@ Without this file, the Image Agent uses the default values from each
 JSON prompt template. With it, all infographics reflect your brand
 palette and visual preferences.
 
-### Platform Configuration
+### API Configuration
 
-An optional markdown file that selects which AI platform the Image
-Agent uses for infographic generation (Gemini or ChatGPT) and sets
-platform-specific behavior.
+A markdown file that configures the Gemini API for infographic generation.
 
 - **Location:** `.cdp-context/config.md` in the project root
-- **Create it:** Copy `templates/config-context.md` to `.cdp-context/config.md` and set your preferred platform. Gemini is the default.
-- **How it flows:** The Image Agent reads the file before generating infographics and targets the configured platform for all submissions in the session.
+- **Create it:** Copy `templates/config-context.md` to `.cdp-context/config.md` and set your API key.
+- **How it flows:** The generation script reads the API key, model ID, and retry limit before generating infographics. Pre-flight validation verifies the key and billing status.
 - **Privacy:** The `.cdp-context/` directory is gitignored by default -- it contains sensitive business data and should not be committed.
 
-Without this file, the Image Agent defaults to Gemini. With it,
-you can switch to ChatGPT or adjust platform-specific settings.
+Without this file, the generation script cannot run -- a valid API key is required.
 
 ---
 
@@ -634,7 +629,7 @@ you can switch to ChatGPT or adjust platform-specific settings.
 - `config/decision-modes.md` -- Five mode definitions with prompt modifiers
 - `.cdp-context/company.md` -- Company facts for grounded reasoning (user-created, gitignored)
 - `.cdp-context/style.md` -- Infographic style overrides (user-created, gitignored)
-- `.cdp-context/config.md` -- Platform configuration for Image Agent (user-created, gitignored)
+- `.cdp-context/config.md` -- API configuration for Image Agent (user-created, gitignored)
 
 ### Output Templates
 - `templates/advisory-note.md` -- Tier 1 Advisory Note + Escalation Brief
