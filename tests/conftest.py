@@ -1,8 +1,17 @@
-"""Shared test fixtures for CDP config testing."""
+"""Shared test fixtures for CDP testing.
 
+Provides fixtures for config testing and prompt template testing.
+"""
+
+import json
 from pathlib import Path
 
 import pytest
+
+
+# ---------------------------------------------------------------------------
+# Config fixtures
+# ---------------------------------------------------------------------------
 
 
 @pytest.fixture
@@ -42,3 +51,91 @@ def valid_config_content():
 def template_path():
     """Returns path to the config template for validation tests."""
     return Path("templates/config-context.md")
+
+
+# ---------------------------------------------------------------------------
+# Prompt template fixtures
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def sample_template():
+    """A realistic template dict matching the JSON template structure.
+
+    Mirrors domain-scorecard.json with enough fields to exercise
+    all serialization paths: objects, notes, constraints, style,
+    color_mapping, quality_keywords, extras.data.
+    """
+    return {
+        "core": {
+            "subject": "Domain Scorecard -- recommendation and confidence matrix",
+            "objects": [
+                "{{DOMAIN_RECOMMENDATIONS}} -- per-domain recommendation with confidence level",
+                "{{KEY_RISKS}} -- top risk identified per domain",
+            ],
+            "notes": [
+                "{{ACTIVATED_DOMAINS}} -- list of domains that participated",
+                "{{DECISION_MODE}} -- the synthesis mode applied",
+            ],
+            "constraints": [
+                "All text must be legible at 6.5 inch print width",
+                "No decorative elements -- every visual element conveys data",
+                "White or transparent background",
+            ],
+        },
+        "style": {
+            "primary_style": "editorial",
+            "render_quality": "professional-quality",
+            "lighting": "soft-ambient",
+            "color_profile": "neutral",
+        },
+        "technical": {
+            "resolution": "4k",
+            "anti_aliasing": True,
+            "noise": "low",
+            "color_depth": "high",
+        },
+        "composition": {
+            "perspective": "natural_human_vision",
+            "framing": "centered",
+        },
+        "quality_keywords": {
+            "include": ["studio quality", "photographic quality"],
+            "avoid": ["digital artifacts", "blurry", "oversaturated colors"],
+        },
+        "extras": {
+            "color_mapping": {
+                "approve": "#2E7D32",
+                "oppose": "#C62828",
+                "neutral": "#757575",
+            },
+            "data": {
+                "domain_count": "{{DOMAIN_COUNT}} -- number of activated domains",
+                "consensus_level": "{{CONSENSUS_LEVEL}} -- overall consensus level",
+            },
+        },
+    }
+
+
+@pytest.fixture
+def sample_data():
+    """Data dict mapping placeholder tokens to concrete values."""
+    return {
+        "DOMAIN_RECOMMENDATIONS": "Finance: Approve (High), Legal: Oppose (Medium)",
+        "KEY_RISKS": "Regulatory exposure in Q3",
+        "ACTIVATED_DOMAINS": "Finance, Legal, Operations",
+        "DECISION_MODE": "Guardian",
+        "DOMAIN_COUNT": "3",
+        "CONSENSUS_LEVEL": "mild dissent",
+    }
+
+
+@pytest.fixture
+def sample_template_path(tmp_path, sample_template):
+    """Writes sample_template to a temp directory as domain-scorecard.json.
+
+    Returns the directory path (to pass as template_dir).
+    """
+    template_file = tmp_path / "domain-scorecard.json"
+    template_file.write_text(json.dumps(sample_template, indent=2))
+    return tmp_path
