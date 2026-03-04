@@ -169,10 +169,10 @@ def run_session(
 
         # Determine status
         if result.success:
-            status = "OK"
-            # We can't easily detect OK+WARN here without extra info,
-            # but we record it if the result has warning metadata.
-            # For now, OK covers both OK and OK+WARN at session level.
+            if result.warning_only:
+                status = "OK+WARN"
+            else:
+                status = "OK"
         elif _is_content_block(error_code):
             status = "BLOCKED"
         else:
