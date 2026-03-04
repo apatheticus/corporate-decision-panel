@@ -22,15 +22,15 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Quality Validation
 
-- [ ] **QUAL-01**: After generation, send image back to Gemini vision with expected data labels to verify text accuracy and readability
+- [x] **QUAL-01**: After generation, send image back to Gemini vision with expected data labels to verify text accuracy and readability
 - [ ] **QUAL-02**: If validation fails, retry generation with corrective feedback (up to configurable max attempts)
-- [ ] **QUAL-03**: Configurable retry limit stored in `.cdp-context/config.md`
+- [x] **QUAL-03**: Configurable retry limit stored in `.cdp-context/config.md`
 
 ### Error Handling
 
 - [ ] **ERR-01**: Exponential backoff with jitter on 429/timeout errors
-- [ ] **ERR-02**: Distinguish content/safety blocks (no retry) from transient errors (retry)
-- [ ] **ERR-03**: Placeholder PNG + saved prompt JSON on total failure
+- [x] **ERR-02**: Distinguish content/safety blocks (no retry) from transient errors (retry)
+- [x] **ERR-03**: Placeholder PNG + saved prompt JSON on total failure
 - [ ] **ERR-04**: Inter-call delay (3-5s) between sequential infographic generations
 
 ### Documentation
@@ -76,12 +76,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | GEN-02 | Phase 2 | Complete |
 | GEN-03 | Phase 2 | Complete |
 | GEN-04 | Phase 2 | Complete |
-| QUAL-01 | Phase 3 | Pending |
+| QUAL-01 | Phase 3 | Complete |
 | QUAL-02 | Phase 3 | Pending |
-| QUAL-03 | Phase 3 | Pending |
+| QUAL-03 | Phase 3 | Complete |
 | ERR-01 | Phase 3 | Pending |
-| ERR-02 | Phase 3 | Pending |
-| ERR-03 | Phase 3 | Pending |
+| ERR-02 | Phase 3 | Complete |
+| ERR-03 | Phase 3 | Complete |
 | ERR-04 | Phase 3 | Pending |
 | DOC-01 | Phase 4 | Pending |
 | DOC-02 | Phase 1 | Complete |
