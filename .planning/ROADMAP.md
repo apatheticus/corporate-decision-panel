@@ -28,7 +28,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. Running the pre-flight check with a valid key and billing enabled produces a clear success message
   3. Running with an invalid key, disabled billing, or wrong model ID produces a specific human-readable error (not a silent 403)
   4. The `templates/config-context.md` template includes API key, model ID, and retry limit fields with documented format
-**Plans**: TBD
+**Plans:** 2 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — Config template, parser, test infrastructure
+- [ ] 01-02-PLAN.md — Pre-flight validation with 4-step API check
 
 ### Phase 2: API Integration
 **Goal**: A single infographic type generates end-to-end via the Gemini API, producing a valid PNG at the correct output path
@@ -72,7 +76,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Config and Pre-flight | 0/TBD | Not started | - |
+| 1. Config and Pre-flight | 0/2 | Planning complete | - |
 | 2. API Integration | 0/TBD | Not started | - |
 | 3. Error Handling and Quality | 0/TBD | Not started | - |
 | 4. Scale and Docs | 0/TBD | Not started | - |
