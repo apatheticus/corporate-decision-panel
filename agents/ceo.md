@@ -592,10 +592,10 @@ Task E: Archivist (Results PDF + Capsule PDF)  <-- blocked by D
 **Spawn commands:**
 
 ```
-TaskCreate: "Generate analytical infographics via browser automation
-  Read .cdp-context/config.md for platform selection (gemini or chatgpt)
-  Use JSON prompt templates from templates/infographic-prompts/
-  Read .cdp-context/style.md for visual style overrides if present
+TaskCreate: "Generate analytical infographics via Gemini API script
+  Extract data from Decision Record per infographic type
+  Write data JSON files to {session}/images/ per type
+  Run scripts/session.py to generate all types
   Session output: <absolute-path>  Issue slug: <issue-slug>"            -> Task A
 TaskCreate: "Create board presentation (PPTX)
   Session output: <absolute-path>  Issue slug: <issue-slug>"            -> Task B
