@@ -69,30 +69,30 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SETUP-01 | — | Pending |
-| SETUP-02 | — | Pending |
-| SETUP-03 | — | Pending |
-| GEN-01 | — | Pending |
-| GEN-02 | — | Pending |
-| GEN-03 | — | Pending |
-| GEN-04 | — | Pending |
-| QUAL-01 | — | Pending |
-| QUAL-02 | — | Pending |
-| QUAL-03 | — | Pending |
-| ERR-01 | — | Pending |
-| ERR-02 | — | Pending |
-| ERR-03 | — | Pending |
-| ERR-04 | — | Pending |
-| DOC-01 | — | Pending |
-| DOC-02 | — | Pending |
-| DOC-03 | — | Pending |
-| DOC-04 | — | Pending |
+| SETUP-01 | Phase 1 | Pending |
+| SETUP-02 | Phase 1 | Pending |
+| SETUP-03 | Phase 1 | Pending |
+| GEN-01 | Phase 2 | Pending |
+| GEN-02 | Phase 2 | Pending |
+| GEN-03 | Phase 2 | Pending |
+| GEN-04 | Phase 2 | Pending |
+| QUAL-01 | Phase 3 | Pending |
+| QUAL-02 | Phase 3 | Pending |
+| QUAL-03 | Phase 3 | Pending |
+| ERR-01 | Phase 3 | Pending |
+| ERR-02 | Phase 3 | Pending |
+| ERR-03 | Phase 3 | Pending |
+| ERR-04 | Phase 3 | Pending |
+| DOC-01 | Phase 4 | Pending |
+| DOC-02 | Phase 1 | Pending |
+| DOC-03 | Phase 4 | Pending |
+| DOC-04 | Phase 4 | Pending |
 
 **Coverage:**
 - v1 requirements: 18 total
-- Mapped to phases: 0
-- Unmapped: 18 ⚠️
+- Mapped to phases: 18
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-04*
-*Last updated: 2026-03-04 after initial definition*
+*Last updated: 2026-03-04 after roadmap creation — all requirements mapped*
