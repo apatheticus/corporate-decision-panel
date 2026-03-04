@@ -9,9 +9,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### API Setup
 
-- [ ] **SETUP-01**: API key stored in `.cdp-context/config.md` with clear field format
+- [x] **SETUP-01**: API key stored in `.cdp-context/config.md` with clear field format
 - [ ] **SETUP-02**: Pre-flight validation probes API key and billing status before any generation
-- [ ] **SETUP-03**: Model ID configurable in `.cdp-context/config.md` (not hardcoded)
+- [x] **SETUP-03**: Model ID configurable in `.cdp-context/config.md` (not hardcoded)
 
 ### Image Generation
 
@@ -36,7 +36,7 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Documentation
 
 - [ ] **DOC-01**: Update `templates/production/infographics.md` Task A spec for API-based flow
-- [ ] **DOC-02**: Update `templates/config-context.md` template with API key, model ID, and retry limit fields
+- [x] **DOC-02**: Update `templates/config-context.md` template with API key, model ID, and retry limit fields
 - [ ] **DOC-03**: Update `agents/ceo.md` Task A spawn instruction
 - [ ] **DOC-04**: Remove all browser automation references from image generation workflow
 
@@ -69,9 +69,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SETUP-01 | Phase 1 | Pending |
+| SETUP-01 | Phase 1 | Complete |
 | SETUP-02 | Phase 1 | Pending |
-| SETUP-03 | Phase 1 | Pending |
+| SETUP-03 | Phase 1 | Complete |
 | GEN-01 | Phase 2 | Pending |
 | GEN-02 | Phase 2 | Pending |
 | GEN-03 | Phase 2 | Pending |
@@ -84,7 +84,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ERR-03 | Phase 3 | Pending |
 | ERR-04 | Phase 3 | Pending |
 | DOC-01 | Phase 4 | Pending |
-| DOC-02 | Phase 1 | Pending |
+| DOC-02 | Phase 1 | Complete |
 | DOC-03 | Phase 4 | Pending |
 | DOC-04 | Phase 4 | Pending |
 
