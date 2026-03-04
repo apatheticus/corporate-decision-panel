@@ -1512,6 +1512,106 @@ class TestGenerateWithRetryHadRateLimit:
         assert result.had_rate_limit is False
 
 
+class TestWarningOnlyPropagation:
+    """Tests for warning_only field on GenerationResult and its propagation
+    through generate_with_retry from validation results."""
+
+    def test_warning_only_defaults_false(self):
+        """GenerationResult has warning_only field defaulting to False."""
+        result = GenerationResult(success=True)
+        assert result.warning_only is False
+
+    def test_warning_only_set_on_validation_warning(self, tmp_path):
+        """When validation returns warning_only=True, GenerationResult.warning_only is True."""
+        from scripts.generate_infographic import generate_with_retry
+
+        output_path = tmp_path / "output.png"
+
+        def mock_generate(infographic_type, data_path, out_path, **kwargs):
+            return GenerationResult(
+                success=True,
+                output_path=out_path,
+                prompt_path=tmp_path / "prompt.txt",
+            )
+
+        def mock_validate(image_path, data_path, config_dir):
+            return MagicMock(passed=True, warning_only=True)
+
+        with (
+            patch("scripts.generate_infographic.generate_infographic", side_effect=mock_generate),
+            patch("scripts.generate_infographic.validate_infographic", side_effect=mock_validate),
+        ):
+            result = generate_with_retry(
+                "domain-scorecard",
+                tmp_path / "data.json",
+                output_path,
+                retry_limit=2,
+                config_dir=tmp_path,
+            )
+
+        assert result.success is True
+        assert result.warning_only is True
+
+    def test_warning_only_false_on_clean_pass(self, tmp_path):
+        """When validation returns warning_only=False, GenerationResult.warning_only is False."""
+        from scripts.generate_infographic import generate_with_retry
+
+        output_path = tmp_path / "output.png"
+
+        def mock_generate(infographic_type, data_path, out_path, **kwargs):
+            return GenerationResult(
+                success=True,
+                output_path=out_path,
+                prompt_path=tmp_path / "prompt.txt",
+            )
+
+        def mock_validate(image_path, data_path, config_dir):
+            return MagicMock(passed=True, warning_only=False)
+
+        with (
+            patch("scripts.generate_infographic.generate_infographic", side_effect=mock_generate),
+            patch("scripts.generate_infographic.validate_infographic", side_effect=mock_validate),
+        ):
+            result = generate_with_retry(
+                "domain-scorecard",
+                tmp_path / "data.json",
+                output_path,
+                retry_limit=2,
+                config_dir=tmp_path,
+            )
+
+        assert result.success is True
+        assert result.warning_only is False
+
+    def test_warning_only_false_on_failure(self, tmp_path):
+        """When generation fails (budget exhausted), warning_only remains False."""
+        from scripts.generate_infographic import generate_with_retry
+
+        def mock_generate(infographic_type, data_path, output_path, **kwargs):
+            return GenerationResult(
+                success=False,
+                error_code="API_ERROR_500",
+                prompt_path=tmp_path / "prompt.txt",
+            )
+
+        with (
+            patch("scripts.generate_infographic.generate_infographic", side_effect=mock_generate),
+            patch("scripts.generate_infographic._backoff"),
+            patch("scripts.generate_infographic.create_placeholder_png"),
+            patch("scripts.generate_infographic.save_prompt_json"),
+        ):
+            result = generate_with_retry(
+                "domain-scorecard",
+                tmp_path / "data.json",
+                tmp_path / "output.png",
+                retry_limit=2,
+                config_dir=tmp_path,
+            )
+
+        assert result.success is False
+        assert result.warning_only is False
+
+
 class TestSkipPreflightOnRetry:
     """Tests that preflight only runs on first attempt."""
 
