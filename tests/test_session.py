@@ -251,6 +251,112 @@ class TestSessionSummary:
         assert "images/INFOGRAPHIC_domain-scorecard.png" in line
 
 
+class TestOkWarnStatus:
+    """Tests for OK+WARN status in session summary when result.warning_only is True."""
+
+    def test_ok_warn_in_summary(self, tmp_path):
+        """When result.warning_only=True, summary line contains 'OK+WARN'."""
+        from scripts.session import run_session
+
+        def mock_gen_retry(type_slug, data_path, output_path, retry_limit, config_dir):
+            return GenerationResult(
+                success=True,
+                output_path=output_path,
+                prompt_path=tmp_path / "prompt.txt",
+                warning_only=True,
+            )
+
+        types_list = ["type-a"]
+        data_paths = {"type-a": tmp_path / "a.json"}
+
+        with (
+            patch("scripts.session.generate_with_retry", side_effect=mock_gen_retry),
+            patch("scripts.session.time.sleep"),
+            patch("scripts.session.load_config", return_value={"retry_limit": 2}),
+            patch("scripts.session._status"),
+        ):
+            result = run_session(types_list, data_paths, tmp_path / "output", tmp_path)
+
+        all_lines = "\n".join(result.summary_lines)
+        assert "OK+WARN" in all_lines
+
+    def test_ok_without_warn(self, tmp_path):
+        """When result.warning_only=False, summary shows 'OK' but NOT 'OK+WARN'."""
+        from scripts.session import run_session
+
+        def mock_gen_retry(type_slug, data_path, output_path, retry_limit, config_dir):
+            return GenerationResult(
+                success=True,
+                output_path=output_path,
+                prompt_path=tmp_path / "prompt.txt",
+                warning_only=False,
+            )
+
+        types_list = ["type-a"]
+        data_paths = {"type-a": tmp_path / "a.json"}
+
+        with (
+            patch("scripts.session.generate_with_retry", side_effect=mock_gen_retry),
+            patch("scripts.session.time.sleep"),
+            patch("scripts.session.load_config", return_value={"retry_limit": 2}),
+            patch("scripts.session._status"),
+        ):
+            result = run_session(types_list, data_paths, tmp_path / "output", tmp_path)
+
+        all_lines = "\n".join(result.summary_lines)
+        assert "OK" in all_lines
+        assert "OK+WARN" not in all_lines
+
+    def test_mixed_ok_warn_and_failed(self, tmp_path):
+        """Three types: OK+WARN, OK, FAILED -- all three statuses appear in summary."""
+        from scripts.session import run_session
+
+        call_count = 0
+
+        def mock_gen_retry(type_slug, data_path, output_path, retry_limit, config_dir):
+            nonlocal call_count
+            call_count += 1
+            if type_slug == "type-a":
+                return GenerationResult(
+                    success=True,
+                    output_path=output_path,
+                    prompt_path=tmp_path / "prompt.txt",
+                    warning_only=True,
+                )
+            if type_slug == "type-b":
+                return GenerationResult(
+                    success=True,
+                    output_path=output_path,
+                    prompt_path=tmp_path / "prompt.txt",
+                    warning_only=False,
+                )
+            return GenerationResult(
+                success=False,
+                error_code="API_ERROR_500",
+                prompt_path=tmp_path / "prompt.txt",
+            )
+
+        types_list = ["type-a", "type-b", "type-c"]
+        data_paths = {t: tmp_path / f"{t}.json" for t in types_list}
+
+        with (
+            patch("scripts.session.generate_with_retry", side_effect=mock_gen_retry),
+            patch("scripts.session.time.sleep"),
+            patch("scripts.session.load_config", return_value={"retry_limit": 2}),
+            patch("scripts.session._status"),
+        ):
+            result = run_session(types_list, data_paths, tmp_path / "output", tmp_path)
+
+        all_lines = "\n".join(result.summary_lines)
+        assert "OK+WARN" in all_lines
+        assert "FAILED" in all_lines
+        # Check that there's a plain "OK" line (type-b) distinct from "OK+WARN"
+        # Find the line for type-b specifically
+        type_b_line = [l for l in result.summary_lines if "type-b" in l][0]
+        assert "OK" in type_b_line
+        assert "OK+WARN" not in type_b_line
+
+
 class TestSessionAllFailed:
     """Tests for when all infographic types fail."""
 
