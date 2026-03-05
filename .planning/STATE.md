@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Initial Design Concerns
-status: completed
-stopped_at: Completed 07-03-PLAN.md
-last_updated: "2026-03-05T11:06:51.775Z"
-last_activity: 2026-03-05 -- Completed 07-03 structured threshold evaluation format
+status: executing
+stopped_at: Completed 08-02-PLAN.md
+last_updated: "2026-03-05T11:32:49.092Z"
+last_activity: 2026-03-05 -- Completed 08-02 mode sensitivity criteria and consistency scenarios
 progress:
   total_phases: 4
-  completed_phases: 3
-  total_plans: 8
-  completed_plans: 8
+  completed_phases: 4
+  total_plans: 10
+  completed_plans: 10
   percent: 100
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-04)
 
 **Core value:** Infographic generation must work without browser interaction -- a single API call per infographic that returns a PNG, driven by the same Decision Record data.
-**Current focus:** Phase 7 - Specification Formalization (v1.1 Initial Design Concerns)
+**Current focus:** Phase 8 - Test Scenarios (v1.1 Initial Design Concerns)
 
 ## Current Position
 
-Phase: 7 of 8 (Specification Formalization) -- v1.1
-Plan: 3 of 3 complete (07-03)
-Status: Phase 07 complete
-Last activity: 2026-03-05 -- Completed 07-03 structured threshold evaluation format
+Phase: 8 of 8 (Test Scenarios) -- v1.1
+Plan: 2 of 2 complete (08-02)
+Status: Phase 08 in progress
+Last activity: 2026-03-05 -- Completed 08-02 mode sensitivity criteria and consistency scenarios
 
 Progress: [██████████] 100%
 
@@ -58,6 +58,8 @@ Progress: [██████████] 100%
 | Phase 07 P01 | 2min | 1 tasks | 1 files |
 | Phase 07 P02 | 3min | 2 tasks | 1 files |
 | Phase 07 P03 | 1min | 2 tasks | 2 files |
+| Phase 08 P02 | 2min | 2 tasks | 2 files |
+| Phase 08 P02 | 2min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -81,6 +83,10 @@ Recent decisions affecting current work:
 - [Phase 07]: Three diagnostic questions per threshold for comprehensive coverage; all exemplars include borderline case (07-01)
 - [Phase 07]: Architect/Analyst/Sentinel use uniform MODERATE with criteria-based qualifying notes; cost formula uses generic K/L/N variables (07-02)
 - [Phase 07]: Threshold names kept in protocol; descriptions removed to avoid duplication with routing-table.md; Decision Record uses concise pointer to format spec (07-03)
+- [Phase 08]: Quantitative criteria use 3 countable dimensions with counting and pattern matching, not computed ratios (08-02)
+- [Phase 08]: Rating rule uses ANY-DIVERGE-means-HIGH escalation for maximum sensitivity to meaningful divergence (08-02)
+- [Phase 08]: Quantitative criteria use 3 countable dimensions with counting and pattern matching, not computed ratios (08-02)
+- [Phase 08]: Rating rule uses ANY-DIVERGE-means-HIGH escalation for maximum sensitivity to meaningful divergence (08-02)
 
 ### Pending Todos
 
@@ -93,6 +99,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-05T11:03:49.981Z
-Stopped at: Completed 07-03-PLAN.md
+Last session: 2026-03-05T11:32:13.363Z
+Stopped at: Completed 08-02-PLAN.md
 Resume file: None

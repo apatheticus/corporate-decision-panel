@@ -35,8 +35,8 @@ Requirements for v1.1 milestone. Each maps to roadmap phases.
 
 - [ ] **TEST-01**: Test scenario validates Tier 2 partial activation correctly excludes non-requested C-suite agents even when full-activation thresholds are met
 - [ ] **TEST-02**: Test scenario validates Phase 4.5 Pre-Mortem executes correctly when one or more C-suite agents have missing/partial recommendations
-- [ ] **TEST-03**: Mode sensitivity criteria defines quantitative thresholds for LOW/MEDIUM/HIGH divergence ratings
-- [ ] **TEST-04**: Test scenario validates mode sensitivity ratings are consistent across similar decision types
+- [x] **TEST-03**: Mode sensitivity criteria defines quantitative thresholds for LOW/MEDIUM/HIGH divergence ratings
+- [x] **TEST-04**: Test scenario validates mode sensitivity ratings are consistent across similar decision types
 
 ## v2 Requirements
 
@@ -101,8 +101,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SPEC-06 | Phase 7 | Complete |
 | TEST-01 | Phase 8 | Pending |
 | TEST-02 | Phase 8 | Pending |
-| TEST-03 | Phase 8 | Pending |
-| TEST-04 | Phase 8 | Pending |
+| TEST-03 | Phase 8 | Complete |
+| TEST-04 | Phase 8 | Complete |
 
 **Coverage:**
 - v1.1 requirements: 19 total

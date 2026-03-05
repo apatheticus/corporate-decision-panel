@@ -106,4 +106,4 @@ Phases execute in numeric order: 5 -> 6 -> 7 -> 8
 | 5. CEO Architecture | v1.1 | 2/2 | Complete | 2026-03-04 |
 | 6. Orchestration Hardening | v1.1 | 1/3 | In Progress | - |
 | 7. Specification Formalization | v1.1 | 0/3 | Not started | - |
-| 8. Test Scenarios | v1.1 | 0/2 | Not started | - |
+| 8. Test Scenarios | v1.1 | 1/2 | In Progress | - |
