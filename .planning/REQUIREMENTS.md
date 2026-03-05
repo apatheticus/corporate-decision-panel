@@ -9,8 +9,8 @@ Requirements for v1.1 milestone. Each maps to roadmap phases.
 
 ### CEO Architecture
 
-- [ ] **ARCH-01**: CEO orchestration protocol is extracted into a separate referenced document, with CEO agent focused on identity and synthesis
-- [ ] **ARCH-02**: CEO agent is under 350 lines after extraction, with zero duplication of orchestration logic
+- [x] **ARCH-01**: CEO orchestration protocol is extracted into a separate referenced document, with CEO agent focused on identity and synthesis
+- [x] **ARCH-02**: CEO agent is under 350 lines after extraction, with zero duplication of orchestration logic
 - [ ] **ARCH-03**: C-suite agents produce structured executive summary fields (role, position, confidence, key-risks) alongside full recommendations
 - [ ] **ARCH-04**: CEO reads executive summaries first and references full recommendations only when ambiguity requires it
 
@@ -84,8 +84,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ARCH-01 | Phase 5 | Pending |
-| ARCH-02 | Phase 5 | Pending |
+| ARCH-01 | Phase 5 | Complete |
+| ARCH-02 | Phase 5 | Complete |
 | ARCH-03 | Phase 5 | Pending |
 | ARCH-04 | Phase 5 | Pending |
 | ORCH-01 | Phase 6 | Pending |
