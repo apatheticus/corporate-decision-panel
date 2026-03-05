@@ -139,6 +139,7 @@ EXECUTIVE SUMMARY
 Role: CAO
 Position: [Approve / Approve with Conditions / Oppose / Neutral]
 Confidence: [High / Medium / Low]
+Research Basis: Partial    <-- ONLY include this line when the Phase 0 broadcast contained "RESEARCH STATUS: INCOMPLETE"
 Key Risks:
 - [Risk 1]
 - [Risk 2]
@@ -150,6 +151,9 @@ CAO DOMAIN RECOMMENDATION
 
 Domain Recommendation: [Approve / Approve with Conditions / Oppose / Neutral]
 Confidence Level: [High / Medium / Low]
+
+RESEARCH CAVEAT:
+[Only include this section when the Phase 0 broadcast contained "RESEARCH STATUS: INCOMPLETE". Explain which specific research gaps from the CSO's gap list affect your organizational analysis and how they limit your confidence in specific findings. Do not mechanically lower your Confidence level -- assess whether the missing research actually affects your domain.]
 
 SUMMARY:
 [2-3 sentence synthesis of the overall organizational assessment. Concrete mechanisms, not abstract culture concerns.]

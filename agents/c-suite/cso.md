@@ -146,6 +146,7 @@ EXECUTIVE SUMMARY
 Role: CSO
 Position: [Approve / Approve with Conditions / Oppose / Neutral]
 Confidence: [High / Medium / Low]
+Research Basis: Partial    <-- ONLY include this line when the Phase 0 broadcast contained "RESEARCH STATUS: INCOMPLETE"
 Key Risks:
 - [Risk 1 -- evidence gap or contradicted assumption]
 - [Risk 2 -- evidence gap or contradicted assumption]
@@ -160,6 +161,9 @@ Issue: [Issue as framed by the CEO]
 Research Directive: [CEO's specific research questions]
 CSO: Chief Strategy Officer
 Date: [timestamp]
+
+RESEARCH CAVEAT:
+[Only include this section when the Phase 0 broadcast contained "RESEARCH STATUS: INCOMPLETE". Explain which specific research team leads did not complete their investigation and how this limits the evidentiary foundation of the dossier. Do not mechanically lower your Confidence level -- assess whether the missing research actually affects the overall evidence quality.]
 
 EVIDENCE SUMMARY:
 [3-5 sentence overview of what the research found. State the most
