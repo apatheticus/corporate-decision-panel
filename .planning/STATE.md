@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Initial Design Concerns
 status: executing
-stopped_at: Completed 06-02-PLAN.md
-last_updated: "2026-03-05T10:18:46.688Z"
-last_activity: 2026-03-05 -- Completed 06-02 CSO timeout handling and research caveats
+stopped_at: Completed 07-02-PLAN.md
+last_updated: "2026-03-05T10:58:41Z"
+last_activity: 2026-03-05 -- Completed 07-02 decision mode weighting tables and cost formula
 progress:
   total_phases: 4
   completed_phases: 2
-  total_plans: 5
-  completed_plans: 5
-  percent: 80
+  total_plans: 8
+  completed_plans: 7
+  percent: 75
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-04)
 
 **Core value:** Infographic generation must work without browser interaction -- a single API call per infographic that returns a PNG, driven by the same Decision Record data.
-**Current focus:** Phase 6 - Orchestration Hardening (v1.1 Initial Design Concerns)
+**Current focus:** Phase 7 - Specification Formalization (v1.1 Initial Design Concerns)
 
 ## Current Position
 
-Phase: 6 of 8 (Orchestration Hardening) -- v1.1
-Plan: 2 of 3 complete (06-02)
+Phase: 7 of 8 (Specification Formalization) -- v1.1
+Plan: 1 of 3 complete (07-01)
 Status: In progress
-Last activity: 2026-03-05 -- Completed 06-02 CSO timeout handling and research caveats
+Last activity: 2026-03-05 -- Completed 07-01 routing threshold decision trees
 
-Progress: [████████░░] 80%
+Progress: [████████░░] 75%
 
 ## Performance Metrics
 
@@ -55,6 +55,7 @@ Progress: [████████░░] 80%
 | Phase 06 P03 | 1min | 1 tasks | 1 files |
 | Phase 06 P01 | 1min | 1 tasks | 1 files |
 | Phase 06 P02 | 3min | 2 tasks | 9 files |
+| Phase 07 P01 | 2min | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -75,6 +76,7 @@ Recent decisions affecting current work:
 - [Phase 06]: Clean session deletion with no archiving; users should version-control separately (06-03)
 - [Phase 06]: Pre-flight validation is agent-readable markdown instructions, not a Python script; Task D always spawns (06-01)
 - [Phase 06]: maxTurns: 25 as CSO ceiling; RESEARCH STATUS is standalone pattern-matchable flag; Research Basis: Partial only on incomplete (06-02)
+- [Phase 07]: Three diagnostic questions per threshold for comprehensive coverage; all exemplars include borderline case (07-01)
 
 ### Pending Todos
 
@@ -87,6 +89,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-05T10:14:08.638Z
-Stopped at: Completed 06-02-PLAN.md
+Last session: 2026-03-05T10:59:04.908Z
+Stopped at: Completed 07-01-PLAN.md
 Resume file: None
