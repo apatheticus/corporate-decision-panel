@@ -231,7 +231,9 @@ Output template: `templates/panel-assessment.md`
 ### Tier 3: Board Meeting
 
 Full five-phase cascade with optional Phase 1.5 (CSO research) and
-Phase 4.5 (pre-mortem challenge).
+Phase 4.5 (pre-mortem challenge). The authoritative phase protocol is
+defined in `config/orchestration-protocol.md`. The overview below
+describes the flow at a summary level.
 
 **Phase 0 -- Shared Consciousness Broadcast**
 CEO broadcasts issue context to all activated C-suite agents. Everyone
@@ -662,7 +664,8 @@ Without this file, the generation script cannot run -- a valid API key is requir
 - `templates/config-context.md` -- Template for `.cdp-context/config.md`
 
 ### Agent Definitions (installed to `.claude/agents/` by auto-setup)
-- `agents/ceo.md` -- CEO with five-phase cascade protocol
+- `agents/ceo.md` -- CEO identity, judgment criteria, and synthesis logic
+- `config/orchestration-protocol.md` -- Five-phase cascade protocol, production pipeline, organizational roster
 - `agents/c-suite/*.md` -- 8 C-suite agent definitions (COO, CFO, CTO, CISO, CAO, VP Sales, VP Delivery, CSO)
 - `agents/team-leads/{domain}/*.md` -- 34 team lead subagent definitions across 8 domains
 
