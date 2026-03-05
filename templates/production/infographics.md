@@ -21,123 +21,59 @@ analysis scannable.
 
 ## Technology
 
-**Target platform:** Read from `.cdp-context/config.md` → `Platform` field
-(default: `gemini`). If the file is absent or the field is blank, use `gemini`.
-**Prompt format:** JSON templates following the Pauhu schema hybrid
-convention with six top-level keys: `core`, `style`, `technical`,
-`composition`, `quality_keywords`, `extras`
-**Template directory:** `templates/infographic-prompts/`
+**Generation engine:** `scripts/session.py` -- Python session orchestrator
+that calls the Gemini API directly via `google-genai` SDK. No browser
+automation.
 
-### Platform Profiles
+**Prompt format:** JSON templates in `templates/infographic-prompts/`
+with six top-level keys: `core`, `style`, `technical`, `composition`,
+`quality_keywords`, `extras`.
 
-| | Gemini | ChatGPT |
-|---|---|---|
-| URL | `gemini.google.com` | `chatgpt.com` |
-| Model selection | Select **Pro** via the mode picker in the input bar | Select **GPT-4o** (or latest) via the model picker dropdown |
-| Fast-mode warning | Fast mode may not generate images from JSON prompts | N/A |
+**Style overrides:** If `.cdp-context/style.md` exists, the script reads
+it and appends style guidance to each prompt automatically.
 
-### Prompt Population Workflow
-
-For each infographic, follow this 5-step workflow:
-
-1. **Load template** -- Read the JSON template from
-   `templates/infographic-prompts/<type-slug>.json`
-2. **Extract data** -- Pull the required data from the Decision Record
-   sections identified in the Content Mapping table below
-3. **Populate placeholders** -- Replace all `{{PLACEHOLDER}}` tokens in
-   the template with extracted Decision Record data
-4. **Apply style overrides** -- If `.cdp-context/style.md` exists, read
-   it and override the corresponding JSON values using the mapping table
-   below
-5. **Submit to AI platform** -- Send the populated JSON as the image
-   generation prompt via browser automation to the configured platform
-
-### Style Configuration Integration
-
-| `.cdp-context/style.md` Section | JSON Key Overridden |
-|----------------------------------|---------------------|
-| Visual Style: primary_style | `style.primary_style` |
-| Visual Style: render_quality | `style.render_quality` |
-| Visual Style: lighting | `style.lighting` |
-| Visual Style: color_profile | `style.color_profile` |
-| Brand Colors | `extras.color_mapping` (all templates) |
-| Color Overrides | `extras.color_mapping` (per-template) |
-| Composition: perspective | `composition.perspective` |
-| Composition: framing | `composition.framing` |
-| Quality Control: include | `quality_keywords.include` |
-| Quality Control: avoid | `quality_keywords.avoid` |
+**Configuration:** `.cdp-context/config.md` provides:
+- **Gemini API Key** -- required for API access
+- **Image Model** -- default: gemini-2.5-flash-image
+- **Retry Limit** -- default: 2 (3 total attempts per infographic)
 
 ---
 
-## Attempt Budget
+## Retry Behavior
 
-**Hard limits -- these are not suggestions. Do not exceed them.**
+Retry limit is configured in `.cdp-context/config.md` via the
+**Retry Limit** field (default: 2, meaning 3 total attempts per
+infographic). The script handles retries internally:
 
-- **Per-infographic limit:** 3 total submissions maximum.
-  - **Attempt 1:** Submit the fully populated JSON prompt.
-  - **Attempt 2:** Send corrective feedback in the **SAME** conversation.
-  - **Attempt 3:** Send a simplified prompt (reduce `extras.data` to essential
-    fields only) in the **SAME** conversation.
-  - **After attempt 3:** STOP. Generate a placeholder. Move to the next
-    infographic.
-- **Session-wide limit:** 12 total submissions across all infographics
-  in a single session. If this limit is reached, generate placeholders (with
-  saved prompt files) for all remaining infographics immediately.
-- **Conversation rule:** Retries NEVER open a new conversation. A new
-  conversation is opened ONLY when moving to the next infographic.
-- **Tracking instruction:** Before each submission, state:
-  `"Infographic [N] of [total], attempt [X] of 3, session total [Y] of 12."`
+- **Transient errors** (429, 500, 503) trigger exponential backoff
+  with jitter
+- **Content/safety blocks** produce a placeholder PNG immediately
+  (no retry)
+- **Validation failures** retry with corrective feedback appended
+  to the prompt
+- **Budget exhaustion** saves the image as-is (if generated) or
+  produces a placeholder PNG with a saved prompt JSON for manual retry
 
 ---
 
-## Browser Automation Workflow
+## Generation Workflow
 
-For each infographic, execute this 8-step cycle:
+For each session, the Image Agent follows this workflow:
 
-1. **Navigate** -- Open the configured platform URL in a new conversation
-   (see Platform Profiles table)
-2. **Select mode** -- Select the required model using the platform's
-   model picker (see Platform Profiles table)
-3. **Submit prompt** -- Paste the populated JSON prompt and request
-   image generation
-4. **Wait for generation** -- Allow the platform to process and produce the
-   image (monitor for completion indicators)
-5. **Inspect output** -- Verify the generated image against these 5
-   quality criteria:
-   - Text is legible at 6.5 inch print width
-   - No decorative or extraneous visual elements
-   - Background is white or transparent
-   - Color mapping matches the template specification
-   - All data elements from the prompt are represented
-6. **Iterate if needed** -- If any quality criterion fails, follow this
-   decision tree:
-   - **Attempt 1 failed:** Send corrective feedback describing the specific
-     failures in the **SAME** conversation (this is attempt 2). Do NOT open
-     a new conversation.
-   - **Attempt 2 failed:** Send a simplified prompt -- reduce `extras.data`
-     to essential fields only -- in the **SAME** conversation (this is
-     attempt 3). Do NOT open a new conversation.
-   - **Attempt 3 failed:** STOP. Do NOT submit again. Proceed to step 7
-     for placeholder generation.
-7. **Download or placeholder** -- If an attempt produced an acceptable
-   image, save it as
-   `{session-output}/images/INFOGRAPHIC_<type-slug>.png`.
-   If all 3 attempts failed:
-   1. Generate a placeholder PNG (white background, centered text:
-      `"[Infographic type] -- generation failed. See
-      INFOGRAPHIC_<type-slug>_PROMPT.json to generate manually."`) and
-      save it at `{session-output}/images/INFOGRAPHIC_<type-slug>.png`.
-   2. Save the fully populated JSON prompt (the final version submitted
-      to the platform) to
-      `{session-output}/images/INFOGRAPHIC_<type-slug>_PROMPT.json` so
-      the user can paste it into the AI platform manually.
-   A PNG file must exist at the standard path regardless of outcome so
-   downstream agents (Tasks B, C, D) are never blocked.
-8. **New conversation for next infographic only** -- Start a fresh
-   conversation for the next infographic to avoid context contamination.
-   This step applies only when moving between infographics. Retries within
-   the same infographic never trigger this step -- they stay in the same
-   conversation.
+1. **Extract data** -- Read the Decision Record and extract the required
+   data for each infographic type per the Content Mapping table below
+2. **Write data files** -- Save one JSON file per infographic type to
+   `{session-output}/images/` with placeholder token values
+3. **Run session** -- Import and call `run_session()` from
+   `scripts.session` with all type slugs, data paths, and the output
+   directory. The session orchestrator:
+   - Generates each type sequentially with 4-second inter-call delay
+   - Runs vision-based validation after each successful generation
+   - Retries with corrective feedback if validation fails
+   - Doubles inter-call delay if 429 rate limit is encountered
+   - Produces a summary table with status per type
+4. **Report results** -- Parse the session summary and report
+   OK / OK+WARN / FAILED / BLOCKED status per type to the CEO agent
 
 ---
 
@@ -325,27 +261,22 @@ the source is a Comparative Decision Record.
 
 ## Error Handling
 
-1. **Placeholder on exhaustion** -- When all 3 attempts for an infographic
-   are consumed, generate a placeholder PNG immediately (white background,
-   centered text: `"[Infographic type] -- generation failed. See
-   INFOGRAPHIC_<type-slug>_PROMPT.json to generate manually."`). Save the
-   fully populated JSON prompt alongside it as
-   `{session-output}/images/INFOGRAPHIC_<type-slug>_PROMPT.json` so the
-   user can manually generate the graphic. Do not attempt a fourth
-   submission.
-2. **Check session budget** -- Before each submission, verify the session
-   total has not reached 12. If it has, stop and generate placeholders
-   (with saved prompt JSON files) for all remaining infographics
-   immediately.
-3. **Log status** -- In your task completion message, report:
-   - Successes on first attempt
-   - Corrective feedback uses (attempt 2)
-   - Simplified prompt uses (attempt 3)
-   - Placeholder fallbacks (with list of saved prompt files)
-   - Total submissions used out of 12
-4. **Never block the pipeline** -- Task A must complete (with real or
-   placeholder images) so Task D can proceed. Do not halt on a single
-   infographic failure.
+1. **Placeholder on failure** -- When all attempts for an infographic
+   are exhausted without a successful generation, a placeholder PNG is
+   created (white background, centered error text) and the prompt is
+   saved as `INFOGRAPHIC_<type-slug>_PROMPT.json` for manual retry.
+2. **Content blocks** -- If the Gemini API blocks the prompt for
+   content/safety reasons, a placeholder is generated immediately
+   with no retry (the same prompt will always be blocked).
+3. **Rate limiting** -- 429 responses trigger exponential backoff.
+   The session orchestrator also doubles its inter-call delay for
+   remaining types to reduce further rate limit hits.
+4. **Session summary** -- After all types are processed, the script
+   prints a summary table: `SUMMARY <type> <status> <attempts>/<max> <path>`
+   where status is OK, OK+WARN, FAILED, or BLOCKED.
+5. **Never block the pipeline** -- A PNG file exists at the standard
+   path for every type regardless of outcome (real or placeholder)
+   so downstream agents (Tasks B, C, D) are never blocked.
 
 ---
 

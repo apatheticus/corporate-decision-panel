@@ -111,6 +111,11 @@ Escalation Rationale: [Why Tier 3 is warranted -- typically because
 the disagreements surfaced are deeper than a working session can
 resolve, the issue has cross-cutting implications beyond the
 activated domains, or the stakes justify the full pre-mortem process.]
+Triggered Thresholds: [List each triggered full-activation threshold
+  condition with its status and reasoning. Format per condition:
+  N. [Condition Name] -- TRIGGERED: [one-sentence reasoning]
+  Include only TRIGGERED conditions. If no thresholds were triggered,
+  omit this field.]
 Additional Domains for Tier 3: [roles not activated in this Tier 2
 that should be included in the escalated analysis]
 ```

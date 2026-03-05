@@ -15,6 +15,7 @@ invocation:
   - /cdp:deliberate
   - /cdp:evaluate
   - /cdp:production
+  - /cdp:cleanup
 ---
 
 # Corporate Decision Panel
@@ -168,6 +169,17 @@ Examples:
 - `/cdp:production .cdp-output/2026-02-28_should-we-acquire-competitor-x/`
 - `/cdp:production acquire-competitor` — fuzzy slug match
 
+### Session Cleanup
+```
+/cdp:cleanup [--older-than days?]
+```
+Deletes old CDP session directories from `.cdp-output/` with age-based
+filtering and a confirmation prompt before deletion. Default threshold
+is 30 days.
+
+- `/cdp:cleanup` -- delete sessions older than 30 days
+- `/cdp:cleanup --older-than 7` -- delete sessions older than 7 days
+
 ---
 
 ## Decision Modes
@@ -231,7 +243,9 @@ Output template: `templates/panel-assessment.md`
 ### Tier 3: Board Meeting
 
 Full five-phase cascade with optional Phase 1.5 (CSO research) and
-Phase 4.5 (pre-mortem challenge).
+Phase 4.5 (pre-mortem challenge). The authoritative phase protocol is
+defined in `config/orchestration-protocol.md`. The overview below
+describes the flow at a summary level.
 
 **Phase 0 -- Shared Consciousness Broadcast**
 CEO broadcasts issue context to all activated C-suite agents. Everyone
@@ -409,6 +423,39 @@ The **issue slug** is derived from the Issue Title produced in CEO Phase 1: lowe
 
 The placeholder `{session-output}` used throughout this section and in production templates refers to this resolved path.
 
+### Pre-flight Dependency Validation
+
+Before spawning production tasks, the orchestrator validates external dependencies for each task using shell commands. All production tasks are optional -- the Decision Record (`RECORD.md`) is always produced regardless of task availability. "Required" here means required within a specific task: if a task's dependencies are missing, that task is skipped with explicit install instructions, but all other tasks whose dependencies are satisfied continue normally.
+
+**Dependency table:**
+
+| Task | Dependencies | Check Command | Install Command |
+|------|-------------|---------------|-----------------|
+| A (Image Agent) | python3, google-genai, Pillow | `python3 -c "from google import genai; from PIL import Image"` | `pip install google-genai>=1.65.0 Pillow>=10.0.0` |
+| B (Presentation) | node, pptxgenjs | `node -e "require('pptxgenjs')"` | `npm install pptxgenjs` |
+| C (Document) | node, docx | `node -e "require('docx')"` | `npm install docx` |
+| D (Web Page) | none | -- | -- |
+| E (Archivist) | python3, weasyprint | `python3 -c "import weasyprint"` | `pip install weasyprint` |
+
+**Execution protocol:**
+
+1. Run each check command from the table above. A non-zero exit code means the dependency is missing.
+2. Build a summary table showing task readiness:
+
+   | Task | Status | Missing Dependencies |
+   |------|--------|---------------------|
+   | A (Image Agent) | READY / SKIP | -- / `pip install google-genai>=1.65.0 Pillow>=10.0.0` |
+   | B (Presentation) | READY / SKIP | -- / `npm install pptxgenjs` |
+   | ... | ... | ... |
+
+   Use a checkmark for ready tasks and a warning marker for skipped tasks, listing the install command so the user can enable them next time.
+3. Print the summary table for user visibility before spawning any tasks.
+4. Spawn ONLY tasks whose dependencies are satisfied. Do not spawn tasks that failed their check command.
+5. List all skipped tasks with their install instructions so the user can install missing dependencies for next time.
+6. ALWAYS produce `RECORD.md` regardless of which tasks are skipped -- the Decision Record is the primary output, production artifacts are supplementary.
+
+**Note on Task D:** Task D (Web Page) has no external dependencies of its own. It is blocked by Tasks A, B, and C in the DAG, but if some of those are skipped, Task D still runs with whatever artifacts are available. Task D should always be spawned.
+
 ### Dependency Pipeline
 
 ```
@@ -424,17 +471,15 @@ Task E: Archivist (PDFs)         <-- blocked by D
 ### Production Agents
 
 **Task A -- Image Agent** (parallel, unblocked)
-Generates 5-6 analytical infographics via browser automation targeting
-the configured AI platform (Gemini or ChatGPT, set in `.cdp-context/config.md`).
-Each infographic is produced by populating a JSON prompt template (Pauhu
-schema hybrid) with Decision Record data, applying style overrides from
-`.cdp-context/style.md` (if present), and submitting to the platform with
-a 3-attempt escalation per image (full prompt → corrective feedback →
-simplified prompt), all within the same conversation. Retries never open
-a new conversation. A 12-submission session cap applies
-across all infographics. If attempts are exhausted, a placeholder PNG is
-generated and the populated JSON prompt is saved alongside it for manual
-generation.
+Generates 5-6 analytical infographics via the Gemini API using
+`scripts/session.py`. The Image Agent reads the Decision Record, extracts
+data per infographic type, writes data JSON files, and calls the session
+orchestrator. Each infographic is produced by populating a JSON prompt
+template (Pauhu schema hybrid) with Decision Record data, applying style
+overrides from `.cdp-context/style.md` (if present), and calling the
+Gemini API with vision-based quality validation. Retries use corrective
+feedback. If all attempts are exhausted, a placeholder PNG is generated
+and the populated JSON prompt is saved alongside it for manual retry.
 
 Infographics produced:
 1. Routing Diagram -- which C-suite activated and why
@@ -529,7 +574,7 @@ verbatim. No summarization, no reformatting.
 
 ### Orchestrator Spawn Sequence
 ```
-TaskCreate: "Generate analytical infographics via browser automation"  -> task A
+TaskCreate: "Generate analytical infographics via Gemini API script"  -> task A
 TaskCreate: "Create board presentation (PPTX)"               -> task B
 TaskCreate: "Create board document (DOCX)"                   -> task C
 TaskCreate: "Create interactive decision briefing page"      -> task D
@@ -610,19 +655,16 @@ Without this file, the Image Agent uses the default values from each
 JSON prompt template. With it, all infographics reflect your brand
 palette and visual preferences.
 
-### Platform Configuration
+### API Configuration
 
-An optional markdown file that selects which AI platform the Image
-Agent uses for infographic generation (Gemini or ChatGPT) and sets
-platform-specific behavior.
+A markdown file that configures the Gemini API for infographic generation.
 
 - **Location:** `.cdp-context/config.md` in the project root
-- **Create it:** Copy `templates/config-context.md` to `.cdp-context/config.md` and set your preferred platform. Gemini is the default.
-- **How it flows:** The Image Agent reads the file before generating infographics and targets the configured platform for all submissions in the session.
+- **Create it:** Copy `templates/config-context.md` to `.cdp-context/config.md` and set your API key.
+- **How it flows:** The generation script reads the API key, model ID, and retry limit before generating infographics. Pre-flight validation verifies the key and billing status.
 - **Privacy:** The `.cdp-context/` directory is gitignored by default -- it contains sensitive business data and should not be committed.
 
-Without this file, the Image Agent defaults to Gemini. With it,
-you can switch to ChatGPT or adjust platform-specific settings.
+Without this file, the generation script cannot run -- a valid API key is required.
 
 ---
 
@@ -634,7 +676,7 @@ you can switch to ChatGPT or adjust platform-specific settings.
 - `config/decision-modes.md` -- Five mode definitions with prompt modifiers
 - `.cdp-context/company.md` -- Company facts for grounded reasoning (user-created, gitignored)
 - `.cdp-context/style.md` -- Infographic style overrides (user-created, gitignored)
-- `.cdp-context/config.md` -- Platform configuration for Image Agent (user-created, gitignored)
+- `.cdp-context/config.md` -- API configuration for Image Agent (user-created, gitignored)
 
 ### Output Templates
 - `templates/advisory-note.md` -- Tier 1 Advisory Note + Escalation Brief
@@ -667,7 +709,8 @@ you can switch to ChatGPT or adjust platform-specific settings.
 - `templates/config-context.md` -- Template for `.cdp-context/config.md`
 
 ### Agent Definitions (installed to `.claude/agents/` by auto-setup)
-- `agents/ceo.md` -- CEO with five-phase cascade protocol
+- `agents/ceo.md` -- CEO identity, judgment criteria, and synthesis logic
+- `config/orchestration-protocol.md` -- Five-phase cascade protocol, production pipeline, organizational roster
 - `agents/c-suite/*.md` -- 8 C-suite agent definitions (COO, CFO, CTO, CISO, CAO, VP Sales, VP Delivery, CSO)
 - `agents/team-leads/{domain}/*.md` -- 34 team lead subagent definitions across 8 domains
 

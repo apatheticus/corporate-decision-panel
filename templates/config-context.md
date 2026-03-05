@@ -1,12 +1,16 @@
 # CDP Configuration
 
-> **Usage:** Copy this file to `.cdp-context/config.md` and set your preferences.
-> All settings have defaults -- only change what you need.
+> **Usage:** Copy this file to `.cdp-context/config.md` and fill in your API key.
+> All other settings have defaults -- only change what you need.
 >
 > This file is gitignored by default (it lives in `.cdp-context/`).
+>
+> Get a Gemini API key at: https://aistudio.google.com/apikey
 
 ---
 
-## Image Generation Platform
+## Image Generation
 
-- **Platform:** (gemini, chatgpt -- default: gemini)
+- **Gemini API Key:** (paste your key here)
+- **Image Model:** (default: gemini-2.5-flash-image)
+- **Retry Limit:** (default: 2)

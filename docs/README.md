@@ -51,7 +51,7 @@ Present any business issue and receive structured, multi-perspective analysis wi
 - [Chapter 10 -- Configuration](#chapter-10----configuration)
   - [10.1 Company Profile](#101-company-profile)
   - [10.2 Company Context](#102-company-context)
-  - [10.3 Platform Configuration](#103-platform-configuration)
+  - [10.3 API Configuration](#103-api-configuration)
   - [10.4 Routing Table](#104-routing-table)
 
 ### Part VI: Output & Production
@@ -611,7 +611,7 @@ The CEO also recommends a mode based on the decision characteristics (see [CEO M
 
 ### `/cdp:production` -- Production Re-run
 
-Re-run only the production pipeline for an existing session using the persisted `RECORD.md`. Does not re-run the deliberation cascade. Use this when images fail (browser automation issues) or outputs have errors -- no need to re-run the expensive analytical phases.
+Re-run only the production pipeline for an existing session using the persisted `RECORD.md`. Does not re-run the deliberation cascade. Use this when images fail (generation errors) or outputs have errors -- no need to re-run the expensive analytical phases.
 
 **Syntax:**
 
@@ -1391,9 +1391,9 @@ Without this file, agents reason using general frameworks. With it, agents groun
 
 **Privacy:** The `.cdp-context/` directory is gitignored by default. It contains sensitive business data and should never be committed to version control.
 
-### 10.3 Platform Configuration
+### 10.3 API Configuration
 
-An optional markdown file that selects which AI platform the Image Agent uses for infographic generation (Gemini or ChatGPT) and sets platform-specific behavior.
+A markdown file that configures the Gemini API for infographic generation.
 
 **Location:** `.cdp-context/config.md` (gitignored by default)
 
@@ -1402,27 +1402,28 @@ An optional markdown file that selects which AI platform the Image Agent uses fo
 ```bash
 mkdir -p .cdp-context
 cp .claude/skills/corporate-decision-panel/templates/config-context.md .cdp-context/config.md
-# Edit with your preferred platform
+# Edit with your API key and preferred model
 ```
 
-**Available settings:** Platform selection (Gemini or ChatGPT), platform-specific behavior overrides. Gemini is the default.
+**Available settings:** Gemini API key (required), image model selection,
+retry limit. See `templates/config-context.md` for all fields.
 
 ```mermaid
 flowchart LR
-    User["User sets platform\nin .cdp-context/config.md"]
-    IA["Image Agent reads\nplatform config"]
-    Platform["Targets configured\nAI platform"]
-    Submit["Submits prompts\nvia browser automation"]
+    User["User sets API key\nin .cdp-context/config.md"]
+    IA["Image Agent reads\nAPI config"]
+    Script["Calls scripts/session.py\nfor generation"]
+    API["Gemini API returns\nPNG images"]
 
-    User --> IA --> Platform --> Submit
+    User --> IA --> Script --> API
 
     style User fill:#EBF5FB,stroke:#2980B9,color:#2C3E50
     style IA fill:#D35400,color:#fff
-    style Platform fill:#D6EAF8,stroke:#2980B9,color:#2C3E50
-    style Submit fill:#E8DAEF,stroke:#6C3483,color:#2C3E50
+    style Script fill:#D6EAF8,stroke:#2980B9,color:#2C3E50
+    style API fill:#E8DAEF,stroke:#6C3483,color:#2C3E50
 ```
 
-Without this file, the Image Agent defaults to Gemini. With it, you can switch to ChatGPT or adjust platform-specific settings.
+Without this file, the generation script cannot run -- a valid Gemini API key is required.
 
 **Privacy:** The `.cdp-context/` directory is gitignored by default. It contains sensitive business data and should never be committed to version control.
 
@@ -1655,7 +1656,7 @@ flowchart LR
 
 | Task | Artifact | Technology | Description |
 |------|----------|-----------|-------------|
-| **A** | `images/INFOGRAPHIC_*.png` | Browser automation (Gemini or ChatGPT / JSON prompts) | 5-6 analytical infographics: routing diagram, domain scorecard, fault line map, risk-opportunity matrix, action plan timeline, mode comparison (multi-mode) |
+| **A** | `images/INFOGRAPHIC_*.png` | Gemini API (Python script / JSON prompts) | 5-6 analytical infographics: routing diagram, domain scorecard, fault line map, risk-opportunity matrix, action plan timeline, mode comparison (multi-mode) |
 | **B** | `PRESENTATION_*.pptx` | pptxgenjs (Node.js) | 11-slide board-ready deck: title, exec summary, the question, framework, domain analyses, fault lines, decision, guardrails, risks, next steps, metadata |
 | **C** | `REPORT_*.docx` | docx (Node.js) | Editable document: cover, TOC, 8 sections, 2 appendices. US Letter, Arial 12pt. |
 | **D** | `index.html` | Vanilla HTML/CSS/JS | Self-contained interactive briefing page. No CDN, works from `file://`. Embeds infographics, links PPTX/DOCX downloads. |

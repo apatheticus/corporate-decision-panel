@@ -65,7 +65,7 @@ python3 ~/.claude/skills/corporate-decision-panel/install.py
     - [Company Profile](#company-profile)
     - [Company Context](#company-context)
     - [Infographic Style](#infographic-style)
-    - [Platform Configuration](#platform-configuration)
+    - [API Configuration](#api-configuration)
     - [Routing Table](#routing-table)
   - [Output Formats](#output-formats)
   - [Production Pipeline](#production-pipeline)
@@ -561,11 +561,9 @@ visual preferences.
 
 **Privacy:** The `.cdp-context/` directory is gitignored by default. It contains sensitive business data and should never be committed.
 
-### Platform Configuration
+### API Configuration
 
-An optional markdown file that selects which AI platform the Image
-Agent uses for infographic generation (Gemini or ChatGPT) and sets
-platform-specific behavior.
+A markdown file that configures the Gemini API for infographic generation.
 
 **Location:** `.cdp-context/config.md` (gitignored by default)
 
@@ -573,29 +571,28 @@ platform-specific behavior.
 ```bash
 mkdir -p .cdp-context
 cp .claude/skills/corporate-decision-panel/templates/config-context.md .cdp-context/config.md
-# Edit with your preferred platform
+# Edit with your API key and preferred model
 ```
 
-**Available settings:** Platform selection (Gemini or ChatGPT),
-platform-specific behavior overrides. Gemini is the default.
+**Available settings:** Gemini API key (required), image model selection,
+retry limit. See `templates/config-context.md` for all fields.
 
 ```mermaid
 flowchart LR
-    User["User sets platform\nin .cdp-context/config.md"]
-    IA["Image Agent reads\nplatform config"]
-    Platform["Targets configured\nAI platform"]
-    Submit["Submits prompts\nvia browser automation"]
+    User["User sets API key\nin .cdp-context/config.md"]
+    IA["Image Agent reads\nAPI config"]
+    Script["Calls scripts/session.py\nfor generation"]
+    API["Gemini API returns\nPNG images"]
 
-    User --> IA --> Platform --> Submit
+    User --> IA --> Script --> API
 
     style User fill:#e8f5e9,stroke:#2e7d32,color:#1a1a1a
     style IA fill:#ef6c00,color:#fff
-    style Platform fill:#e3f2fd,stroke:#1565c0,color:#1a1a1a
-    style Submit fill:#f3e5f5,stroke:#6a1b9a,color:#1a1a1a
+    style Script fill:#e3f2fd,stroke:#1565c0,color:#1a1a1a
+    style API fill:#f3e5f5,stroke:#6a1b9a,color:#1a1a1a
 ```
 
-Without this file, the Image Agent defaults to Gemini. With it,
-you can switch to ChatGPT or adjust platform-specific settings.
+Without this file, the generation script cannot run -- a valid Gemini API key is required.
 
 **Privacy:** The `.cdp-context/` directory is gitignored by default. It contains sensitive business data and should never be committed.
 
@@ -719,7 +716,7 @@ flowchart LR
 
 | Task | Artifact | Technology | Description |
 |------|----------|-----------|-------------|
-| A | `images/INFOGRAPHIC_*.png` | Browser automation (Gemini or ChatGPT / JSON prompts) | 5-6 analytical infographics: routing diagram, domain scorecard, fault line map, risk-opportunity matrix, action plan timeline, mode comparison (multi-mode) |
+| A | `images/INFOGRAPHIC_*.png` | Gemini API (Python script / JSON prompts) | 5-6 analytical infographics: routing diagram, domain scorecard, fault line map, risk-opportunity matrix, action plan timeline, mode comparison (multi-mode) |
 | B | `PRESENTATION_*.pptx` | pptxgenjs (Node.js) | 11-slide board-ready deck: title, exec summary, the question, framework, domain analyses, fault lines, decision, guardrails, risks, next steps, metadata |
 | C | `REPORT_*.docx` | docx (Node.js) | Editable document: cover, TOC, 8 sections, 2 appendices. US Letter, Arial 12pt. |
 | D | `index.html` | Vanilla HTML/CSS/JS | Self-contained interactive briefing page. No CDN, works from `file://`. Embeds infographics, links PPTX/DOCX downloads. |
@@ -818,7 +815,7 @@ For detailed specifications, see the config and template files:
 - [templates/production/infographics.md](templates/production/infographics.md) -- Image Agent specification
 - [templates/infographic-prompts/](templates/infographic-prompts/) -- JSON prompt templates (Pauhu schema hybrid)
 - [templates/style-context.md](templates/style-context.md) -- Infographic style configuration template
-- [templates/config-context.md](templates/config-context.md) -- Platform configuration template
+- [templates/config-context.md](templates/config-context.md) -- API configuration template
 - [templates/](templates/) -- All output format and production artifact specifications
 
 ---

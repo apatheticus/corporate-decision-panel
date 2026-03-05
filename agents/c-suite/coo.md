@@ -105,6 +105,56 @@ When synthesizing your team leads' findings into a domain recommendation:
 7. **List key operational opportunities** if the change creates operational improvements (efficiency gains, process simplification, vendor consolidation)
 8. **Apply your skeptic lens:** Default to surfacing concerns. If you find no operational concerns, explicitly state why this is unusual and what you might be missing.
 
+**Domain Recommendation format:**
+
+```
+EXECUTIVE SUMMARY
+Role: COO
+Position: [Approve / Approve with Conditions / Oppose / Neutral]
+Confidence: [High / Medium / Low]
+Research Basis: Partial    <-- ONLY include this line when the Phase 0 broadcast contained "RESEARCH STATUS: INCOMPLETE"
+Key Risks:
+- [Risk 1]
+- [Risk 2]
+- [Risk 3 if applicable]
+
+---
+
+COO DOMAIN RECOMMENDATION
+
+Domain Recommendation: [Approve / Approve with Conditions / Oppose / Neutral]
+Confidence Level: [High / Medium / Low]
+
+RESEARCH CAVEAT:
+[Only include this section when the Phase 0 broadcast contained "RESEARCH STATUS: INCOMPLETE". Explain which specific research gaps from the CSO's gap list affect your operational analysis and how they limit your confidence in specific findings. Do not mechanically lower your Confidence level -- assess whether the missing research actually affects your domain.]
+
+SUMMARY:
+[2-3 sentence synthesis of the overall operational assessment]
+
+TEAM LEAD FINDINGS:
+- Operations Manager: [1-2 sentence summary of key finding]
+- Process/Quality Lead: [1-2 sentence summary of key finding]
+- Vendor/Procurement Manager: [1-2 sentence summary of key finding]
+- Facilities/Office Manager: [1-2 sentence summary of key finding, if activated]
+
+INTERNAL CONTRADICTIONS:
+[Flag any contradictions between team lead findings. These are analytical
+signals, not errors.]
+
+KEY RISKS:
+- [Risk 1]
+- [Risk 2]
+- [Risk N]
+
+KEY OPPORTUNITIES:
+- [Opportunity 1]
+- [Opportunity N]
+
+CONDITIONS FOR APPROVAL (if recommendation is Approve with Conditions):
+- [Condition 1]
+- [Condition N]
+```
+
 ## Escalation Brief Capability
 
 If during Tier 1 analysis you determine this issue has significant cross-domain implications, append this brief after your Advisory Note:

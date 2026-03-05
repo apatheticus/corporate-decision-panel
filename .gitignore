@@ -43,3 +43,12 @@ Desktop.ini
 
 # Design/reference docs
 ref/
+
+# Generated sample images (large, reproducible via tests)
+tests/fixtures/*_SAMPLE.png
+
+# Temporary live test output
+.tmp-live-test-output/
+
+# GSD planning files
+.planning/

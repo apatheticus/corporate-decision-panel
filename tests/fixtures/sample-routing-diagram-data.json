@@ -1,0 +1,12 @@
+{
+  "ACTIVATED_ROLES": "CFO (Advocate): Strongly supports the cloud migration initiative based on projected long-term cost savings and operational efficiency gains. Recommends phased investment with clear ROI milestones. CLO (Skeptic): Raises concerns about data residency compliance in APAC and EU jurisdictions. Requires regulatory impact assessment before proceeding. COO (Systemic): Evaluates cross-departmental operational dependencies and transition risks. Supports migration but flags supply chain system integration as critical path. CTO (Investigative): Conducting deep technical feasibility analysis of hybrid infrastructure options. Assessing vendor lock-in risks and legacy system compatibility.",
+  "EXCLUDED_ROLES": "CMO: Excluded -- decision does not involve marketing strategy, brand positioning, or customer-facing channels. No marketing budget impact identified. CHRO: Excluded -- no direct personnel restructuring, workforce reduction, or talent acquisition implications in current scope.",
+  "ROUTING_RATIONALE": "CEO selected Architect mode for this cross-domain strategic investment decision. The cloud migration touches Finance (capital allocation), Legal (regulatory compliance), Operations (business continuity), and Technology (infrastructure architecture) simultaneously. The interconnected nature of budget, compliance, operational continuity, and technical feasibility requires the Architect synthesis pattern to weigh competing domain priorities and produce a coherent phased recommendation.",
+  "THRESHOLD_CONDITIONS": "Budget threshold (>$10M capital expenditure): TRIGGERED -- estimated $14.2M over 3 years. Cross-domain threshold (3+ domains affected): TRIGGERED -- 4 domains activated with interdependent concerns. Regulatory threshold (compliance risk identified): NOT TRIGGERED -- CLO flags potential issues but no active regulatory proceeding.",
+  "DECISION_TYPE": "Strategic Investment / Cross-Domain Coordination",
+  "ISSUE_TITLE": "Enterprise Cloud Migration to Hybrid Infrastructure",
+  "ACTIVATED_COUNT": "4",
+  "EXCLUDED_COUNT": "2",
+  "FULL_ACTIVATION": "false",
+  "CSO_ACTIVATED": "false"
+}

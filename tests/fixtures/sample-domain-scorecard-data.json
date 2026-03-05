@@ -1,0 +1,11 @@
+{
+  "DOMAIN_RECOMMENDATIONS": "Finance: Approve (High confidence), Legal: Approve with conditions (Medium confidence), Operations: Approve (High confidence), Technology: Neutral (Low confidence)",
+  "KEY_RISKS": "Finance: Budget overrun if timeline extends beyond Q3. Legal: Regulatory compliance gap in APAC markets. Operations: Supply chain disruption during transition. Technology: Legacy system integration complexity.",
+  "KEY_OPPORTUNITIES": "Finance: 15% cost reduction via consolidation. Legal: First-mover advantage in regulatory framework. Operations: 30% efficiency gain post-automation. Technology: Platform modernization accelerator.",
+  "INTERNAL_CONTRADICTIONS": "Finance projects 15% savings but Operations estimates 20% transition costs in Year 1. Technology flags integration risk that Operations assessment does not account for.",
+  "ACTIVATED_DOMAINS": "Finance, Legal, Operations, Technology",
+  "DECISION_MODE": "Architect",
+  "DOMAIN_COUNT": "4",
+  "CONSENSUS_LEVEL": "mild dissent",
+  "MOST_DETERMINATIVE": "Finance"
+}

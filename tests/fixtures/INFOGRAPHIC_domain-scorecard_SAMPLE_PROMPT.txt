@@ -1,0 +1,15 @@
+Create a Domain Scorecard -- recommendation and confidence matrix across all activated C-suite domains.
+
+Include the following data elements: Finance: Approve (High confidence), Legal: Approve with conditions (Medium confidence), Operations: Approve (High confidence), Technology: Neutral (Low confidence) -- per-domain recommendation (approve / approve with conditions / oppose / neutral) with confidence level (high / medium / low); Finance: Budget overrun if timeline extends beyond Q3. Legal: Regulatory compliance gap in APAC markets. Operations: Supply chain disruption during transition. Technology: Legacy system integration complexity. -- top risk identified per domain; Finance: 15% cost reduction via consolidation. Legal: First-mover advantage in regulatory framework. Operations: 30% efficiency gain post-automation. Technology: Platform modernization accelerator. -- top opportunity identified per domain; Finance projects 15% savings but Operations estimates 20% transition costs in Year 1. Technology flags integration risk that Operations assessment does not account for. -- flagged contradictions within any domain's team lead findings.
+
+Context: Finance, Legal, Operations, Technology -- list of domains that participated in the analysis; Architect -- the synthesis mode applied (Guardian / Pioneer / Architect / Analyst / Sentinel).
+
+Constraints: All text must be legible at 6.5 inch print width; No decorative elements -- every visual element conveys data; White or transparent background.
+
+Style: editorial, professional-quality.
+
+Color coding: Use #2E7D32 for approve, Use #EF6C00 for approve with conditions, Use #C62828 for oppose, Use #757575 for neutral, Use #1B5E20 for confidence high, Use #F57F17 for confidence medium, Use #B71C1C for confidence low.
+
+Supplementary data: 4 -- number of activated domains in the scorecard; mild dissent -- overall consensus / mild dissent / strong dissent / split decision; Finance -- the domain perspective weighted highest in CEO synthesis.
+
+Quality: studio quality, photographic quality.

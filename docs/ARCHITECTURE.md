@@ -302,9 +302,9 @@ An optional markdown file (`.cdp-context/company.md`) containing real company da
 
 **Template:** [`templates/company-context.md`](../templates/company-context.md)
 
-### Level 3.5: Platform Configuration
+### Level 3.5: API Configuration
 
-An optional markdown file (`.cdp-context/config.md`) that selects which AI platform the Image Agent uses for infographic generation (Gemini or ChatGPT). The Image Agent reads this at the start of the production pipeline and targets the configured platform for all submissions.
+A markdown file (`.cdp-context/config.md`) that configures the Gemini API for infographic generation. The Image Agent reads this at the start of the production pipeline to get the API key, model ID, and retry limit.
 
 **Template:** [`templates/config-context.md`](../templates/config-context.md)
 
@@ -382,7 +382,7 @@ flowchart LR
 
 | Task | Artifact | Technology |
 |------|----------|------------|
-| A -- Image Agent | `images/INFOGRAPHIC_*.png` (5-6 infographics) | Browser automation (Gemini or ChatGPT / JSON prompts) |
+| A -- Image Agent | `images/INFOGRAPHIC_*.png` (5-6 infographics) | Gemini API (Python script / JSON prompts) |
 | B -- Presentation Agent | `PRESENTATION_<slug>.pptx` (11-slide deck) | pptxgenjs (Node.js) |
 | C -- Document Agent | `REPORT_<slug>.docx` (US Letter, 8 sections + appendices) | docx (Node.js) |
 
