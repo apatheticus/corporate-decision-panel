@@ -117,7 +117,7 @@ Decision Mode: [Guardian/Pioneer/Architect/Analyst/Sentinel]
    [Decomposition into evaluation dimensions]
    Activated Teams: [roles engaged + rationale]
    Excluded Teams: [roles not engaged + rationale for exclusion]
-   Threshold Conditions: [which conditions assessed, which triggered]
+   Threshold Assessment: [per-condition TRIGGERED/NOT TRIGGERED with reasoning, per config/orchestration-protocol.md Phase 1 Step 5]
    CSO Activation: [yes/no + rationale]
 
 3. SYNTHESIS METHODOLOGY
