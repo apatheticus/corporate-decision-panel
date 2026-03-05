@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Initial Design Concerns
-status: completed
-stopped_at: Phase 6 context gathered
-last_updated: "2026-03-05T09:52:28.829Z"
-last_activity: 2026-03-04 -- Completed 05-02 executive summary blocks and CEO summary-first synthesis
+status: executing
+stopped_at: Completed 06-01-PLAN.md
+last_updated: "2026-03-05T10:11:12Z"
+last_activity: 2026-03-05 -- Completed 06-01 pre-flight dependency validation
 progress:
   total_phases: 4
   completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
-  percent: 100
+  total_plans: 5
+  completed_plans: 4
+  percent: 60
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-04)
 
 **Core value:** Infographic generation must work without browser interaction -- a single API call per infographic that returns a PNG, driven by the same Decision Record data.
-**Current focus:** Phase 5 - CEO Architecture (v1.1 Initial Design Concerns)
+**Current focus:** Phase 6 - Orchestration Hardening (v1.1 Initial Design Concerns)
 
 ## Current Position
 
-Phase: 5 of 8 (CEO Architecture) -- first phase of v1.1
-Plan: 2 of 2 complete (Phase 5 COMPLETE)
-Status: Phase complete
-Last activity: 2026-03-04 -- Completed 05-02 executive summary blocks and CEO summary-first synthesis
+Phase: 6 of 8 (Orchestration Hardening) -- v1.1
+Plan: 1 of 3 complete (06-01)
+Status: In progress
+Last activity: 2026-03-05 -- Completed 06-01 pre-flight dependency validation
 
-Progress: [██████████] 100%
+Progress: [████████░░] 80%
 
 ## Performance Metrics
 
@@ -45,12 +45,14 @@ Progress: [██████████] 100%
 |-------|-------|-------|----------|
 | v1.0 phases 1-4 | 11 | -- | -- |
 | 05-ceo-architecture | 2/2 | 12min | 6min |
+| 06-orchestration-hardening | 1/3 | 1min | 1min |
 
 **Recent Trend:**
 - Last 5 plans: --
 - Trend: Starting new milestone
 
 *Updated after each plan completion*
+| Phase 06 P03 | 1min | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -65,6 +67,11 @@ Recent decisions affecting current work:
 - Removed decorative section separators in CEO to fit 350-line cap (05-01)
 - COO and VP Delivery received full Domain Recommendation code-block templates matching other 6 agents (05-02)
 - Removed additional decorative separators and tightened orchestration reference to keep CEO at 348 lines after synthesis updates (05-02)
+- Utility slash commands use inline instructions rather than SKILL.md delegation (06-03)
+- Clean session deletion with no archiving; users who want preservation should version-control separately (06-03)
+- [Phase 06]: Utility slash commands use inline instructions rather than SKILL.md delegation (06-03)
+- [Phase 06]: Clean session deletion with no archiving; users should version-control separately (06-03)
+- [Phase 06]: Pre-flight validation is agent-readable markdown instructions, not a Python script; Task D always spawns (06-01)
 
 ### Pending Todos
 
@@ -77,6 +84,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-05T09:52:28.827Z
-Stopped at: Phase 6 context gathered
-Resume file: .planning/phases/06-orchestration-hardening/06-CONTEXT.md
+Last session: 2026-03-05T10:11:12Z
+Stopped at: Completed 06-01-PLAN.md
+Resume file: .planning/phases/06-orchestration-hardening/06-01-SUMMARY.md
