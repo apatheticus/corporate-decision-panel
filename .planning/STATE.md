@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Initial Design Concerns
 status: executing
-stopped_at: Completed 08-02-PLAN.md
-last_updated: "2026-03-05T11:32:49.092Z"
+stopped_at: Completed 08-01-PLAN.md
+last_updated: "2026-03-05T11:33:17.615Z"
 last_activity: 2026-03-05 -- Completed 08-02 mode sensitivity criteria and consistency scenarios
 progress:
   total_phases: 4
@@ -58,7 +58,7 @@ Progress: [██████████] 100%
 | Phase 07 P01 | 2min | 1 tasks | 1 files |
 | Phase 07 P02 | 3min | 2 tasks | 1 files |
 | Phase 07 P03 | 1min | 2 tasks | 2 files |
-| Phase 08 P02 | 2min | 2 tasks | 2 files |
+| Phase 08 P01 | 3min | 2 tasks | 3 files |
 | Phase 08 P02 | 2min | 2 tasks | 2 files |
 
 ## Accumulated Context
@@ -83,8 +83,9 @@ Recent decisions affecting current work:
 - [Phase 07]: Three diagnostic questions per threshold for comprehensive coverage; all exemplars include borderline case (07-01)
 - [Phase 07]: Architect/Analyst/Sentinel use uniform MODERATE with criteria-based qualifying notes; cost formula uses generic K/L/N variables (07-02)
 - [Phase 07]: Threshold names kept in protocol; descriptions removed to avoid duplication with routing-table.md; Decision Record uses concise pointer to format spec (07-03)
-- [Phase 08]: Quantitative criteria use 3 countable dimensions with counting and pattern matching, not computed ratios (08-02)
-- [Phase 08]: Rating rule uses ANY-DIVERGE-means-HIGH escalation for maximum sensitivity to meaningful divergence (08-02)
+- [Phase 08]: User-specified roles take precedence over full-activation thresholds at Tier 2; thresholds surface as escalation recommendation (08-01)
+- [Phase 08]: Missing confidence defaults to LOW confidence for synthesis weighting (conservative default) (08-01)
+- [Phase 08]: Missing agents excluded from pre-mortem broadcast summaries but noted in preamble (08-01)
 - [Phase 08]: Quantitative criteria use 3 countable dimensions with counting and pattern matching, not computed ratios (08-02)
 - [Phase 08]: Rating rule uses ANY-DIVERGE-means-HIGH escalation for maximum sensitivity to meaningful divergence (08-02)
 
@@ -99,6 +100,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-05T11:32:13.363Z
-Stopped at: Completed 08-02-PLAN.md
+Last session: 2026-03-05T11:33:17.613Z
+Stopped at: Completed 08-01-PLAN.md
 Resume file: None
