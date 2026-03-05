@@ -18,8 +18,8 @@ Requirements for v1.1 milestone. Each maps to roadmap phases.
 
 - [x] **ORCH-01**: Production pipeline validates required dependencies before artifact generation, failing explicitly with install instructions
 - [x] **ORCH-02**: Production pipeline warns (does not block) when optional dependencies are missing, listing which artifacts will be skipped
-- [ ] **ORCH-03**: CSO Phase 1.5 has a maxTurns-based timeout that broadcasts partial results with explicit gap reporting if research is incomplete
-- [ ] **ORCH-04**: C-suite agents annotate recommendations with confidence caveats when CSO research is incomplete
+- [x] **ORCH-03**: CSO Phase 1.5 has a maxTurns-based timeout that broadcasts partial results with explicit gap reporting if research is incomplete
+- [x] **ORCH-04**: C-suite agents annotate recommendations with confidence caveats when CSO research is incomplete
 - [x] **ORCH-05**: Session cleanup script deletes old session directories with confirmation prompt and age-based filtering
 
 ### Specification Clarity
@@ -90,8 +90,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ARCH-04 | Phase 5 | Complete |
 | ORCH-01 | Phase 6 | Complete |
 | ORCH-02 | Phase 6 | Complete |
-| ORCH-03 | Phase 6 | Pending |
-| ORCH-04 | Phase 6 | Pending |
+| ORCH-03 | Phase 6 | Complete |
+| ORCH-04 | Phase 6 | Complete |
 | ORCH-05 | Phase 6 | Complete |
 | SPEC-01 | Phase 7 | Pending |
 | SPEC-02 | Phase 7 | Pending |
