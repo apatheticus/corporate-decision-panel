@@ -1,431 +1,546 @@
-# Architecture Research
+# Architecture: v1.1 Concern Fix Integration
 
-**Domain:** Gemini API image generation integration into multi-agent Claude Code skill
+**Domain:** Integrating 11 concern fixes into existing CDP multi-agent orchestration system
 **Researched:** 2026-03-04
-**Confidence:** HIGH (official SDK docs + official error docs + verified patterns)
+**Confidence:** HIGH (analysis based on direct reading of all affected source files)
 
-## Standard Architecture
+## Executive Summary
 
-### System Overview
+The 11 v1.1 concern fixes fall into three architectural categories: **extraction** (pulling embedded specs into standalone documents), **augmentation** (adding new behaviors to existing agent/script flows), and **creation** (building entirely new components). The critical insight is that most fixes touch `agents/ceo.md` -- the 682-line CEO agent is the gravity well of the system. Six of the eleven fixes either read from, write to, or restructure content currently embedded in that file. This makes the CEO refactor (concern #1) the foundational change that most other fixes depend on or benefit from.
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                    CEO Agent (Orchestrator)                          │
-│  Spawns Task A (Image Agent) in parallel with Tasks B and C         │
-└──────────────────────────────┬──────────────────────────────────────┘
-                               │ TaskCreate (session-output, issue-slug)
-                               ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                       Image Agent (Task A)                           │
-│                                                                      │
-│  ┌─────────────────┐   ┌──────────────────┐   ┌─────────────────┐  │
-│  │  Config Reader  │   │  Template Engine │   │  Prompt Builder │  │
-│  │                 │   │                  │   │                 │  │
-│  │ Reads API key   │   │ Loads JSON       │   │ Replaces        │  │
-│  │ from            │   │ prompt template  │   │ {{PLACEHOLDER}} │  │
-│  │ .cdp-context/   │   │ from templates/  │   │ tokens with     │  │
-│  │ config.md       │   │ infographic-     │   │ Decision Record │  │
-│  └────────┬────────┘   │ prompts/*.json   │   │ data            │  │
-│           │            └────────┬─────────┘   └────────┬────────┘  │
-│           │                     │                       │           │
-│           └─────────────────────▼───────────────────────┘           │
-│                                 │                                    │
-│                    ┌────────────▼────────────┐                      │
-│                    │    API Call Layer        │                      │
-│                    │                         │                      │
-│                    │  google-genai SDK        │                      │
-│                    │  client.models           │                      │
-│                    │  .generate_content()     │                      │
-│                    └────────────┬────────────┘                      │
-│                                 │                                    │
-│                    ┌────────────▼────────────┐                      │
-│                    │   Response Handler       │                      │
-│                    │                         │                      │
-│                    │  Check finish_reason     │                      │
-│                    │  Check inline_data       │                      │
-│                    │  Write PNG bytes         │                      │
-│                    └────────────┬────────────┘                      │
-│                                 │                                    │
-│           ┌─────────────────────▼───────────────────────┐           │
-│           │                                             │           │
-│    ┌──────▼──────┐                           ┌──────────▼──────┐   │
-│    │  PNG Output │                           │ Placeholder PNG  │   │
-│    │             │                           │ + _PROMPT.json   │   │
-│    │ {session}/  │                           │ fallback on      │   │
-│    │ images/     │                           │ all retries      │   │
-│    │ INFOGRAPHIC │                           │ exhausted        │   │
-│    │ _<slug>.png │                           └──────────────────┘   │
-│    └─────────────┘                                                   │
-└─────────────────────────────────────────────────────────────────────┘
-                               │
-                               ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                  External: Gemini API                                │
-│                                                                      │
-│  Endpoint: generativelanguage.googleapis.com (via SDK)               │
-│  Model: gemini-2.0-flash-exp-image-generation (or current)          │
-│  Auth: API key passed in client constructor                          │
-│  Response: inline_data bytes (PNG) in candidates[0].content.parts   │
-└─────────────────────────────────────────────────────────────────────┘
-```
+The existing architecture is a prompt-and-configuration system with zero application code for the deliberation engine itself (Python scripts handle only infographic generation). All 11 concern fixes are therefore markdown specification changes, Python script additions, or new markdown documents -- not traditional software engineering. The "build" metaphor here means "write and validate specification documents that agents follow."
 
-### Component Responsibilities
+## Existing Architecture (As-Is)
 
-| Component | Responsibility | Implementation |
-|-----------|---------------|----------------|
-| Config Reader | Read API key from `.cdp-context/config.md`; parse the `Gemini API Key:` field | Python string parsing (regex or split on `:`) |
-| Template Engine | Load the correct JSON template for each infographic type from `templates/infographic-prompts/*.json` | Python `json.load()` |
-| Style Applier | If `.cdp-context/style.md` exists, override matching JSON keys per the style mapping table | Python dict mutation |
-| Prompt Builder | Replace all `{{PLACEHOLDER}}` tokens with data extracted from the Decision Record | Python `str.replace()` in a loop; serialize back to JSON string |
-| API Call Layer | Call `client.models.generate_content()` with populated JSON string as contents; handle retries | `google-genai` SDK, retry loop with exponential backoff |
-| Response Handler | Check `finish_reason`; extract `inline_data.data` bytes; write PNG file | Python file I/O, `open(..., "wb")` |
-| Placeholder Generator | On exhausted retries, write white PNG with centered failure text; save prompt JSON | Python `Pillow` for PNG generation |
-
-## Recommended Project Structure
-
-The migration replaces browser automation with a Python helper script. The Image Agent instruction document calls this script instead of performing browser steps.
+### System Components
 
 ```
+agents/
+  ceo.md                     (682 lines -- orchestration + identity + routing + modes)
+  c-suite/
+    cao.md, cfo.md, ciso.md, coo.md, cso.md, cto.md, vp-delivery.md, vp-sales.md
+  team-leads/
+    cao/, cfo/, ciso/, coo/, cso/, cto/, vp-delivery/, vp-sales/
+
+config/
+  routing-table.md            (routing rules + threshold conditions + CSO activation)
+  decision-modes.md           (5 modes + mode/tier matrix + multi-mode comparison)
+  company-profile.md          (archetype presets + overrides)
+
 templates/
-├── infographic-prompts/        # Existing JSON templates (unchanged)
-│   ├── routing-diagram.json
-│   ├── domain-scorecard.json
-│   ├── fault-line-map.json
-│   ├── risk-opportunity-matrix.json
-│   ├── action-plan-timeline.json
-│   └── mode-comparison.json
-└── production/
-    └── infographics.md         # Update: replace browser steps with API steps
+  decision-record.md          (Tier 3 output format)
+  comparative-decision-record.md  (multi-mode output format)
+  panel-assessment.md         (Tier 2 output format)
+  advisory-note.md            (Tier 1 output format)
+  production/
+    infographics.md, board-presentation.md, board-document.md,
+    advisory-document.md, decision-briefing-page.md, capsule-structure.md
 
-scripts/                        # NEW — helper for infographic generation
-└── generate_infographic.py     # Python script: reads key, calls API, saves PNG
+scripts/
+  config.py, preflight.py, generate_infographic.py, validation.py, session.py
 
-.cdp-context/
-└── config.md                   # ADD: Gemini API Key field
+SKILL.md                      (invocation grammar + orchestration protocol + production spec)
 ```
 
-### Structure Rationale
-
-- **`scripts/generate_infographic.py`**: Keeps the API logic out of the markdown instruction file. The Image Agent calls this script with arguments (template path, output path, populated JSON) rather than embedding Python in the markdown prompt. This is the most Claude Code-compatible pattern — agents can call Bash tool to invoke Python scripts.
-- **`templates/production/infographics.md`**: Updated to describe the API workflow instead of browser steps. The script invocation replaces the 8-step browser cycle.
-- **`templates/infographic-prompts/*.json`**: Unchanged in structure. The JSON prompt format is compatible with direct API submission — the populated JSON becomes the text prompt sent to Gemini.
-
-## Architectural Patterns
-
-### Pattern 1: Config File → API Key Parsing
-
-**What:** Read the API key from `.cdp-context/config.md` at runtime. The file uses markdown with a field like `- **Gemini API Key:** sk-...`. The script must parse the markdown to extract the key.
-
-**When to use:** The CDP pattern stores config in markdown (not env vars, not JSON). This is by design — it keeps user-visible configuration in a readable, gitignored file.
-
-**Trade-offs:** Parsing markdown is fragile if field format drifts. Recommend a strict, documented field syntax and a clear error message when the key is missing or empty.
-
-**Example:**
-```python
-import re
-
-def read_api_key(config_path: str) -> str:
-    """Read Gemini API key from .cdp-context/config.md."""
-    with open(config_path, "r") as f:
-        content = f.read()
-    # Match: - **Gemini API Key:** <value>
-    match = re.search(r'\*\*Gemini API Key:\*\*\s*(.+)', content)
-    if not match or not match.group(1).strip():
-        raise ValueError(
-            "Gemini API Key not found in .cdp-context/config.md. "
-            "Add: - **Gemini API Key:** YOUR_KEY_HERE"
-        )
-    return match.group(1).strip()
-```
-
-### Pattern 2: JSON Prompt as Text Contents
-
-**What:** The populated JSON prompt object is serialized as a string and sent as the `contents` parameter to `generate_content()`. Gemini image models accept plain text instructions; the JSON structure is the instruction language, not a structured API parameter.
-
-**When to use:** This matches the existing prompt design (Pauhu schema hybrid). The agent already knows how to populate the JSON — nothing changes in the template format.
-
-**Trade-offs:** Gemini treats the JSON as a text description. It is not parsed as structured schema by the model — the model reads it as a highly structured text prompt. This is intentional and is already validated by the existing browser-based workflow.
-
-**Example:**
-```python
-import json
-
-def build_prompt_string(template_path: str, replacements: dict) -> str:
-    """Load JSON template, apply replacements, return as serialized string."""
-    with open(template_path, "r") as f:
-        raw = f.read()
-    for placeholder, value in replacements.items():
-        raw = raw.replace(f"{{{{{placeholder}}}}}", value)
-    # Validate it's still valid JSON after replacements
-    json.loads(raw)
-    return raw
-```
-
-### Pattern 3: finish_reason Guard Before Accessing Parts
-
-**What:** Always check `candidate.finish_reason` before accessing `candidate.content.parts`. When blocked (`SAFETY`, `OTHER`, `IMAGE_SAFETY`, `NO_IMAGE`), `content.parts` may be `None` or empty, causing an `IndexError` or `AttributeError`.
-
-**When to use:** Every image generation response. This is not optional defensive programming — the SDK has a known issue where accessing `finish_reason` on certain blocked responses can cause an indefinite hang (Issue #2024 in python-genai).
-
-**Trade-offs:** Adds a small check before every response access. Necessary for production reliability.
-
-**Example:**
-```python
-from google.genai import types
-
-TERMINAL_FINISH_REASONS = {"STOP"}
-BLOCKED_FINISH_REASONS = {"SAFETY", "OTHER", "RECITATION", "IMAGE_SAFETY", "NO_IMAGE"}
-
-def extract_image_bytes(response) -> bytes | None:
-    """Extract PNG bytes from a Gemini image generation response."""
-    if not response.candidates:
-        return None
-
-    candidate = response.candidates[0]
-
-    # Check finish reason before accessing content
-    finish_reason = str(candidate.finish_reason)
-    if any(blocked in finish_reason for blocked in BLOCKED_FINISH_REASONS):
-        return None
-
-    if candidate.content is None or not candidate.content.parts:
-        return None
-
-    for part in candidate.content.parts:
-        if part.inline_data is not None:
-            return part.inline_data.data
-
-    return None
-```
-
-### Pattern 4: Retry with Exponential Backoff
-
-**What:** Wrap the API call in a retry loop. Retry on `429 RESOURCE_EXHAUSTED` and `503 UNAVAILABLE` with exponential backoff. Do not retry on `SAFETY`/`OTHER` blocks — these are content decisions, not transient errors.
-
-**When to use:** All production Gemini API calls. The simplified retry model (remove hard budget tracking from browser automation) is appropriate here — API calls are fast and cheap.
-
-**Trade-offs:** Too-eager retry on 429 can worsen rate limit exhaustion. Jitter prevents synchronized retry storms when running multiple infographics.
-
-**Example:**
-```python
-import time
-import random
-from google.api_core import exceptions as google_exceptions
-
-def generate_with_retry(client, model: str, prompt: str, max_retries: int = 3) -> bytes | None:
-    """Call Gemini image generation with exponential backoff on transient errors."""
-    for attempt in range(1, max_retries + 1):
-        try:
-            response = client.models.generate_content(
-                model=model,
-                contents=prompt,
-                config=types.GenerateContentConfig(
-                    response_modalities=["IMAGE"]
-                )
-            )
-            image_bytes = extract_image_bytes(response)
-            if image_bytes:
-                return image_bytes
-            # Non-transient failure (content blocked) — do not retry
-            return None
-
-        except google_exceptions.ResourceExhausted:
-            if attempt == max_retries:
-                raise
-            wait = (2 ** attempt) + random.uniform(0, 1)
-            time.sleep(wait)
-
-        except google_exceptions.ServiceUnavailable:
-            if attempt == max_retries:
-                raise
-            wait = (2 ** attempt) + random.uniform(0, 1)
-            time.sleep(wait)
-
-        except Exception:
-            raise  # Don't retry on unknown errors
-
-    return None
-```
-
-## Data Flow
-
-### Infographic Generation Flow
+### Data Flow (Current)
 
 ```
-Decision Record (RECORD.md)
-    │
-    │  [Image Agent reads]
-    ▼
-Section extraction (per infographic type)
-    │  e.g., Section 2 for routing-diagram, Section 4 for domain-scorecard
-    ▼
-.cdp-context/config.md  →  API key extraction
-    │
-.cdp-context/style.md   →  Style override dict (if present)
-    │
-templates/infographic-prompts/<type>.json  →  Template load
-    │
-    ├── Apply {{PLACEHOLDER}} replacements from Decision Record data
-    ├── Apply style overrides to JSON dict
-    └── Serialize to prompt string (JSON)
-    │
-    ▼
-scripts/generate_infographic.py
-    │
-    ├── google-genai client.models.generate_content()
-    │       model: gemini-2.0-flash-exp-image-generation
-    │       contents: populated JSON string
-    │       config: response_modalities=["IMAGE"]
-    │
-    ├── On success: response.candidates[0].content.parts → inline_data.data (PNG bytes)
-    │
-    └── On failure: retry up to N times (transient) or return None (content block)
-    │
-    ▼
-{session-output}/images/INFOGRAPHIC_<type-slug>.png
-    │   (always written — real PNG or placeholder PNG)
-    │
-    ▼
-Task D (Web Page Agent) unblocked
-Task B (PPTX Agent) unblocked
-Task C (DOCX Agent) unblocked
+User input
+  -> SKILL.md (parses invocation, determines tier/mode)
+  -> agents/ceo.md (Phase 0-1: frame, route, broadcast)
+    -> config/routing-table.md (routing rules applied)
+    -> agents/c-suite/cso.md (Phase 1.5: conditional research)
+    -> agents/c-suite/*.md (Phase 2-4: domain analysis + synthesis)
+      -> agents/team-leads/*/*.md (Phase 3: specialist findings)
+    -> config/decision-modes.md (Phase 5: mode modifier applied)
+  -> templates/decision-record.md (output formatted)
+  -> templates/production/*.md (production artifacts)
+    -> scripts/*.py (infographic generation only)
+  -> .cdp-output/YYYY-MM-DD_<slug>/ (session output)
 ```
 
-### Error Escalation Flow
+### Key Architectural Properties
+
+1. **Prompt-as-code:** The deliberation engine has zero application code. Agent behavior is defined entirely by markdown specifications. "Changing architecture" means "editing markdown documents."
+2. **CEO monolith:** The CEO agent contains the orchestration protocol (5-phase cascade), routing logic, mode application, triage protocol, multi-mode comparison, susceptibility mitigations, tier-specific behavior, and production pipeline trigger -- all in 682 lines.
+3. **Config externalized:** Routing rules and decision modes already live in `config/` as separate documents. The CEO agent references them but duplicates key content inline.
+4. **C-suite autonomy:** Each C-suite agent has self-contained identity, team composition, Tier 1 behavior, Tier 2/3 behavior, Phase 4.5 behavior, and synthesis instructions. They produce structured output (Advisory Note or Domain Recommendation) that the CEO ingests.
+5. **Production pipeline is append-only:** After deliberation, production agents run sequentially/parallel to create artifacts. No feedback loop from production back to deliberation.
+6. **Session directories are write-once:** `.cdp-output/` directories are created and written to, but never cleaned up, archived, or managed.
+
+---
+
+## Per-Concern Integration Analysis
+
+### Concern 1: Extract Orchestration Protocol from CEO Agent
+
+**Category:** Extraction
+**What changes:** `agents/ceo.md`
+**What is created:** New document (e.g., `config/orchestration-protocol.md` or `docs/orchestration-protocol.md`)
+**What stays:** CEO identity, mandate, susceptibility mitigations, organizational roster
+
+**Current state:** The CEO agent contains three distinct concerns in one file:
+1. **Identity and judgment principles** (~30 lines) -- who the CEO is and how they think
+2. **Orchestration protocol** (~350 lines) -- the 5-phase cascade, Phase 4.5 pre-mortem, multi-mode comparison, production pipeline trigger, session output setup
+3. **Triage protocol** (~70 lines) -- `/evaluate` logic
+4. **Configuration references and susceptibility mitigations** (~80 lines)
+
+**Integration approach:**
+- Extract the orchestration protocol (Phases 0-5, Phase 4.5, multi-mode comparison, production spawn sequence) into a standalone spec document
+- CEO agent retains identity, mandate, principles, susceptibility mitigations, organizational roster, and `\`references\`` the orchestration spec
+- The extracted spec becomes the canonical source of truth for phase execution; the CEO agent becomes the canonical source for CEO judgment and identity
+- Production pipeline trigger and session output setup move with the orchestration protocol (they are procedural, not identity)
+
+**Dependency:** This is the foundational refactor. Concerns 3, 5, 6, and 7 all modify content currently embedded in the CEO agent. Extracting the protocol first creates clean separation, so subsequent fixes modify the right document.
+
+**Files affected:**
+| File | Action | Scope |
+|------|--------|-------|
+| `agents/ceo.md` | MODIFY -- remove orchestration protocol, add reference to extracted spec | Major reduction (~350 lines removed) |
+| `config/orchestration-protocol.md` (NEW) | CREATE -- extracted 5-phase cascade, production pipeline, session setup | ~350 lines |
+| `SKILL.md` | MODIFY -- update references if SKILL.md currently delegates to CEO agent for protocol | Minor |
+
+---
+
+### Concern 2: Pre-Flight Validation for Production Pipeline
+
+**Category:** Augmentation
+**What changes:** Orchestration protocol (wherever it lives after concern #1)
+**What is created:** Pre-flight checklist specification in orchestration protocol or production spec
+
+**Current state:** The production pipeline trigger in the CEO agent immediately spawns 5 production tasks after the Decision Record is produced. There is no validation that prerequisites exist before production begins. The infographic pipeline has its own `scripts/preflight.py` for API validation, but the broader production pipeline (PPTX, DOCX, HTML, PDF) has no equivalent.
+
+**What could fail without pre-flight:**
+- Decision Record not fully formed (missing sections)
+- Session output directory not created
+- `.cdp-context/config.md` missing (API key for infographics)
+- Build dependencies not available (Node.js for PPTX/DOCX generation scripts)
+
+**Integration approach:**
+- Add a "Production Pre-Flight" section to the orchestration protocol that executes between Decision Record completion and production task spawning
+- Pre-flight validates: (a) Decision Record completeness (all mandatory sections present), (b) session output directory exists with correct structure, (c) `.cdp-context/config.md` accessible (for infographic generation), (d) RECORD.md written to session directory
+- This is a spec addition, not code -- the CEO agent (or orchestrator) follows these steps as part of the protocol
+- Failure at any step produces a structured error message and does not spawn production tasks
+
+**Dependency:** Benefits from concern #1 being done first (adds to extracted orchestration protocol rather than bloating CEO agent further). But can be done independently by adding to whichever document owns the production pipeline trigger.
+
+**Files affected:**
+| File | Action | Scope |
+|------|--------|-------|
+| Orchestration protocol (wherever it lives) | MODIFY -- add pre-flight section before production spawn | ~30-40 lines added |
+| `templates/production/infographics.md` | No change -- infographic pre-flight already exists in `scripts/preflight.py` |  |
+
+---
+
+### Concern 3: CSO Phase 1.5 Timeout Handling
+
+**Category:** Augmentation
+**What changes:** Orchestration protocol (Phase 1.5 section), `agents/c-suite/cso.md`
+**What stays:** CSO identity, research process, dossier format
+
+**Current state:** Phase 1.5 describes the CSO research investigation but has no timeout or error handling. If the CSO research takes too long, stalls, or produces incomplete results, there is no specified fallback. The orchestration protocol says "the CSO produces a Research Dossier" but does not define what happens when the CSO fails to produce one.
+
+**Integration approach:**
+- Add timeout/fallback section to Phase 1.5 in the orchestration protocol
+- Define three failure modes: (a) CSO produces no dossier (timeout/failure), (b) CSO produces partial dossier (some team leads responded, others did not), (c) CSO produces low-quality dossier (Grade D evidence quality)
+- For each failure mode, specify the CEO's response: proceed without dossier (with explicit notation in Decision Record), proceed with partial dossier (flag gaps), request CSO to focus on highest-priority sub-questions only
+- Add a "Research Scope Control" section to the CSO agent that accepts a `priority_subset` directive from the CEO, allowing narrower research scope under time pressure
+
+**Dependency:** Independent. Can be done before or after concern #1. Touches the orchestration protocol (Phase 1.5 section) and the CSO agent spec.
+
+**Files affected:**
+| File | Action | Scope |
+|------|--------|-------|
+| Orchestration protocol (Phase 1.5 section) | MODIFY -- add timeout handling, fallback protocol | ~40-50 lines added |
+| `agents/c-suite/cso.md` | MODIFY -- add priority_subset directive handling, scope control | ~20-30 lines added |
+| `templates/decision-record.md` | MODIFY -- add notation for "Research Dossier unavailable/partial" | ~5 lines |
+
+---
+
+### Concern 4: Executive Summary Layer for C-Suite Agents
+
+**Category:** Augmentation
+**What changes:** All 8 C-suite agent files
+**What stays:** Agent identity, team composition, analytical process
+
+**Current state:** In Tier 2/3 mode, each C-suite agent produces a Domain Recommendation that includes Summary (2-3 sentences), Team Lead Findings (1-2 sentences each, up to 5 team leads), Internal Contradictions, Key Risks, Key Opportunities, and Conditions for Approval. The CEO receives ALL of this from ALL activated agents before synthesizing. For a Tier 3 full-activation with 8 C-suite agents, each with 4-5 team leads, the CEO must process ~40+ team lead findings plus 8 domain syntheses.
+
+**The token cost problem:** The CEO (Opus model) ingests the full output of every activated C-suite agent. More C-suite output = more Opus input tokens = higher cost. The Domain Recommendation format currently includes per-team-lead findings that the CEO should not need -- the CEO is supposed to engage with domain-level synthesis, not individual team lead findings (this is explicitly stated in Phase 3: "You do not see team lead outputs directly -- you see them only as synthesized through the C-suite officer's domain recommendation").
+
+**Integration approach:**
+- Add an "Executive Summary" output requirement to each C-suite agent's Tier 2/3 mode
+- The Executive Summary is a 3-5 sentence structured block placed at the TOP of the Domain Recommendation, containing: recommendation, confidence, most determinative finding, strongest risk, strongest opportunity
+- The CEO ingests only the Executive Summary from each agent for initial synthesis, then can reference the full Domain Recommendation if needed for fault line analysis
+- This does NOT change the Domain Recommendation structure -- it ADDS a structured prefix that enables the CEO to work with compressed input
+- Each C-suite agent adds ~10 lines to their Mode B section defining the Executive Summary format
+
+**Dependency:** Independent of all other concerns. Purely a C-suite agent spec change. Can be done in any order.
+
+**Files affected:**
+| File | Action | Scope |
+|------|--------|-------|
+| `agents/c-suite/cao.md` | MODIFY -- add Executive Summary to Mode B output | ~10 lines |
+| `agents/c-suite/cfo.md` | MODIFY -- add Executive Summary to Mode B output | ~10 lines |
+| `agents/c-suite/ciso.md` | MODIFY -- add Executive Summary to Mode B output | ~10 lines |
+| `agents/c-suite/coo.md` | MODIFY -- add Executive Summary to Mode B output | ~10 lines |
+| `agents/c-suite/cso.md` | N/A -- CSO produces Research Dossier, not Domain Recommendation | No change |
+| `agents/c-suite/cto.md` | MODIFY -- add Executive Summary to Mode B output | ~10 lines |
+| `agents/c-suite/vp-delivery.md` | MODIFY -- add Executive Summary to Mode B output | ~10 lines |
+| `agents/c-suite/vp-sales.md` | MODIFY -- add Executive Summary to Mode B output | ~10 lines |
+| Orchestration protocol (Phase 4) | MODIFY -- specify CEO ingests Executive Summaries first | ~10 lines |
+
+---
+
+### Concern 5: Formalize Routing Thresholds into Decision Trees
+
+**Category:** Extraction + Formalization
+**What changes:** `config/routing-table.md`
+**What stays:** Routing logic semantics (the actual rules do not change)
+
+**Current state:** The routing table specifies 5 full-activation threshold conditions as prose descriptions:
+1. Irreversibility
+2. Headcount Impact (>30%)
+3. Market Position Change
+4. Existential Financial Risk
+5. Domain Uncertainty
+
+These are currently described in natural language in both `config/routing-table.md` AND duplicated in `agents/ceo.md` (Step 4 of Phase 1). The CEO must interpret prose to make routing decisions. There are no structured decision criteria, branching logic, or explicit examples distinguishing "triggered" from "not triggered."
+
+**Integration approach:**
+- Formalize each threshold condition into a structured decision tree with explicit criteria, examples of triggered vs. not-triggered, and edge cases
+- Keep the decision trees in `config/routing-table.md` (its natural home)
+- Remove the duplicated threshold prose from `agents/ceo.md` (or the extracted orchestration protocol) and replace with a reference to `config/routing-table.md`
+- Each decision tree should have: condition name, trigger question (yes/no), positive examples, negative examples, edge cases, and escalation guidance
+
+**Dependency:** Benefits from concern #1 (duplication in CEO agent is easier to clean up if orchestration is already extracted). But can proceed independently -- just needs to update both `config/routing-table.md` and `agents/ceo.md`.
+
+**Files affected:**
+| File | Action | Scope |
+|------|--------|-------|
+| `config/routing-table.md` | MODIFY -- expand threshold conditions into decision trees | Major expansion (~100-150 lines added) |
+| `agents/ceo.md` or orchestration protocol | MODIFY -- remove duplicated threshold prose, add reference | Lines removed |
+
+---
+
+### Concern 6: Explicit Mode-to-Weighting Mappings
+
+**Category:** Formalization
+**What changes:** `config/decision-modes.md`
+**What stays:** Mode semantics, mode/tier interaction matrix
+
+**Current state:** Each decision mode has a "Resolution Pattern" description and a "CEO Prompt Modifier" block. The Resolution Pattern says things like "Weights skeptic roles (CISO, CFO, COO, VP Delivery) more heavily" (Guardian) or "Weights advocate roles (VP Sales, CTO) more heavily" (Pioneer). But there are no explicit condition-to-weighting tables showing HOW the weighting works. The CEO interprets prose modifiers to determine weighting.
+
+**Integration approach:**
+- Add a "Weighting Table" to each mode in `config/decision-modes.md`
+- Each table maps: role -> base weight (equal) -> mode modifier -> effective weight direction
+- Example for Guardian mode: `CISO: base + skeptic bonus = HIGH`, `CTO: base - advocate penalty = MODERATE`, `CFO: base + skeptic bonus = HIGH`
+- These are directional indicators (HIGH/MODERATE/LOW), not numeric weights -- the CEO still exercises judgment, but the direction is formalized
+- Add a "Conflict Resolution Rule" for each mode: what happens when two HIGH-weight roles disagree
+- This makes implicit weighting explicit and auditable
+
+**Dependency:** Independent. Modifies only `config/decision-modes.md`. Can proceed in any order.
+
+**Files affected:**
+| File | Action | Scope |
+|------|--------|-------|
+| `config/decision-modes.md` | MODIFY -- add weighting tables and conflict resolution rules per mode | ~100-120 lines added |
+
+---
+
+### Concern 7: Document Multi-Mode Cost Formula
+
+**Category:** Creation (documentation)
+**What changes:** `config/decision-modes.md` (Multi-Mode Comparison section)
+**What stays:** Multi-mode comparison protocol
+
+**Current state:** The multi-mode comparison section says "Approximately 1.1x a single deliberation for 5x the strategic insight" but does not show how this is calculated. The claim "domain analysis runs once; CEO synthesis runs N times" is stated but not quantified in terms of actual token costs, agent invocations, or practical cost implications.
+
+**Integration approach:**
+- Add a "Cost Model" subsection to the Multi-Mode Comparison section of `config/decision-modes.md`
+- Document the actual cost components: (a) Phase 0-4 agent invocations (mode-independent, runs once), (b) Phase 5 CEO synthesis (mode-dependent, runs N times), (c) Phase 4.5 pre-mortem (mode-independent, runs once if Tier 3)
+- Provide a formula: `Total cost = C(phases 0-4) + N * C(phase 5)` where N = number of modes
+- Show example calculations for common scenarios: single mode Tier 2, single mode Tier 3, 2-mode comparison, all-modes (5x)
+- Include the model cost basis: CEO = Opus, C-suite = Sonnet, Team leads = Haiku
+
+**Dependency:** Independent. Documentation-only change to `config/decision-modes.md`.
+
+**Files affected:**
+| File | Action | Scope |
+|------|--------|-------|
+| `config/decision-modes.md` | MODIFY -- add Cost Model subsection | ~40-60 lines added |
+
+---
+
+### Concern 8: Session Output Cleanup Mechanism
+
+**Category:** Creation (new component)
+**What changes:** Nothing existing
+**What is created:** New specification or script for session cleanup
+
+**Current state:** Session output directories (`.cdp-output/YYYY-MM-DD_<slug>/`) are created during production and never cleaned up. Over time, this directory accumulates session directories with images, build artifacts, PPTX/DOCX/HTML/PDF files. There is no archive, cleanup, or lifecycle management.
+
+**Integration approach:**
+- Create a cleanup specification that can be invoked via a new slash command (`/cdp:cleanup`) or as a script
+- Two options exist:
+  - **Option A (Spec-only):** Add a cleanup protocol to `SKILL.md` that the CEO agent follows when invoked. Lists sessions, lets user confirm deletion, removes selected directories.
+  - **Option B (Script):** Add a Python script `scripts/cleanup.py` that lists sessions with metadata (date, slug, file count, total size), supports `--older-than N` days, `--dry-run`, and `--confirm` flags.
+- **Recommendation: Option B (Script)** -- cleanup is mechanical and benefits from actual code rather than prompt-based execution. File enumeration, size calculation, and date comparison are more reliable in Python than in an LLM prompt.
+- The script should: (a) scan `.cdp-output/` for session directories, (b) parse date from directory name prefix, (c) calculate total size per session, (d) support `--older-than` days filter, (e) support `--dry-run` to preview without deleting, (f) require `--confirm` for actual deletion
+
+**Dependency:** Fully independent. New component with no dependencies on any other concern.
+
+**Files affected:**
+| File | Action | Scope |
+|------|--------|-------|
+| `scripts/cleanup.py` (NEW) | CREATE -- session cleanup script | ~100-150 lines |
+| `tests/test_cleanup.py` (NEW) | CREATE -- tests for cleanup script | ~80-120 lines |
+| `SKILL.md` | MODIFY -- add `/cdp:cleanup` invocation documentation | ~15-20 lines |
+
+---
+
+### Concern 9: Test Scenario -- Tier 2 Routing Partial Activation Exclusion
+
+**Category:** Creation (test specification)
+**What changes:** Nothing existing
+**What is created:** Test scenario document
+
+**Current state:** Tier 2 routing activates 2-4 C-suite members. The routing table specifies default activation per decision type. But there is no test scenario that validates: (a) excluded agents are actually excluded (not consulted), (b) partial activation produces coherent output without missing domain coverage, (c) the CEO's exclusion reasoning is stated and justified.
+
+**Integration approach:**
+- Create a test scenario document that defines specific test cases for Tier 2 routing
+- Each test case specifies: input issue, expected decision type classification, expected activated roles, expected excluded roles, validation criteria for exclusion reasoning
+- Test cases should cover: (a) a pure Financial decision (only CEO, CFO, COO activated -- verify CISO, CTO, VP Sales, VP Delivery, CAO are excluded), (b) a multi-type decision (e.g., Financial + Technical) where activation sets merge, (c) an edge case where threshold conditions should trigger full activation but the issue was presented as narrow-scope
+- These are specification-level test scenarios (manual or prompt-based validation), not pytest unit tests
+
+**Dependency:** Benefits from concern #5 (formalized routing thresholds make test criteria clearer). But can proceed independently.
+
+**Files affected:**
+| File | Action | Scope |
+|------|--------|-------|
+| `tests/scenarios/tier-2-routing.md` (NEW) | CREATE -- test scenarios for partial activation | ~80-100 lines |
+
+---
+
+### Concern 10: Test Scenario -- Pre-Mortem Phase 4.5 with Partial/Missing Responses
+
+**Category:** Creation (test specification)
+**What changes:** Nothing existing
+**What is created:** Test scenario document
+
+**Current state:** Phase 4.5 pre-mortem requires each activated C-suite agent to produce a pre-mortem response. But the spec does not define what happens when: (a) an agent fails to produce a pre-mortem response, (b) an agent's pre-mortem is low-quality or tautological ("the decision fails because it was a bad decision"), (c) the CSO's evidence-gap-focused pre-mortem contradicts other agents' pre-mortem findings.
+
+**Integration approach:**
+- Create test scenarios for Phase 4.5 edge cases
+- Test cases: (a) one C-suite agent produces no pre-mortem (CEO synthesis should note the gap), (b) pre-mortem responses that merely restate Phase 4 domain risks (quality validation), (c) CSO evidence-gap pre-mortem that invalidates assumptions used in other agents' pre-mortem responses (cross-reference validation)
+- Include both "expected behavior" and "anti-pattern" examples
+- May also surface a need to add fallback handling to the orchestration protocol (Phase 4.5 section)
+
+**Dependency:** Independent. Can inform a future augmentation of Phase 4.5 in the orchestration protocol.
+
+**Files affected:**
+| File | Action | Scope |
+|------|--------|-------|
+| `tests/scenarios/pre-mortem-phase-4-5.md` (NEW) | CREATE -- test scenarios for pre-mortem edge cases | ~80-100 lines |
+
+---
+
+### Concern 11: Mode Sensitivity Criteria and Test
+
+**Category:** Creation (specification + test)
+**What changes:** `config/decision-modes.md` (Mode Sensitivity section)
+**What is created:** Formal sensitivity criteria + test scenario document
+
+**Current state:** Mode Sensitivity is defined in the Comparative Decision Record template as LOW/MEDIUM/HIGH with informal descriptions:
+- LOW: "All modes converge on the same answer"
+- MEDIUM: "Modes agree on direction but differ on conditions, pace, or scope"
+- HIGH: "Modes produce fundamentally different decisions"
+
+There are no formal criteria for what constitutes "same answer" vs "different direction" vs "fundamentally different." The CEO currently makes this judgment without guidance.
+
+**Integration approach:**
+- Formalize sensitivity criteria in `config/decision-modes.md`:
+  - LOW: All modes produce the same recommendation category (Approve/Oppose/Defer) AND the same or compatible conditions
+  - MEDIUM: All modes produce the same recommendation category but with materially different conditions, scope, or timeline
+  - HIGH: Modes produce different recommendation categories (some Approve, some Oppose) or incompatible conditions
+- Create test scenarios that exercise multi-mode comparison with known inputs to verify consistent sensitivity classification
+- Test cases should include: (a) a clear-cut decision where all modes should converge (expected: LOW), (b) a balanced decision where modes agree on direction but differ on risk framing (expected: MEDIUM), (c) a polarizing decision where risk appetite is the deciding factor (expected: HIGH)
+
+**Dependency:** Benefits from concern #6 (explicit mode weightings make sensitivity analysis more rigorous). Can proceed independently.
+
+**Files affected:**
+| File | Action | Scope |
+|------|--------|-------|
+| `config/decision-modes.md` | MODIFY -- formalize Mode Sensitivity criteria | ~30-40 lines added |
+| `tests/scenarios/mode-sensitivity.md` (NEW) | CREATE -- test scenarios for sensitivity classification | ~80-100 lines |
+
+---
+
+## Component Dependency Map
 
 ```
-API Call
-    │
-    ├── HTTP 429 / 503 → retry with backoff (up to max_retries)
-    │
-    ├── HTTP 400 INVALID_ARGUMENT → log error, skip retry, write placeholder
-    │
-    ├── HTTP 403 PERMISSION_DENIED → abort all infographics, report key error
-    │
-    ├── finish_reason SAFETY / OTHER / IMAGE_SAFETY → write placeholder + prompt JSON
-    │
-    └── All retries exhausted → write placeholder + prompt JSON
-                                 (pipeline continues, Tasks B/C/D not blocked)
+Concern 1 (CEO Extraction)
+    |
+    |-- enables cleaner implementation of:
+    |       Concern 2 (Production Pre-Flight)
+    |       Concern 3 (CSO Timeout)
+    |       Concern 5 (Routing Decision Trees)
+    |
+    v
+Concern 5 (Routing Decision Trees)
+    |
+    |-- informs test criteria for:
+    |       Concern 9 (Tier 2 Routing Test)
+    |
+    v
+Concern 6 (Mode Weightings)
+    |
+    |-- informs sensitivity analysis for:
+    |       Concern 11 (Mode Sensitivity)
+    |
+    v
+
+Independent concerns (no dependencies):
+    Concern 4 (Executive Summaries) -- touches only C-suite agents
+    Concern 7 (Cost Formula) -- documentation only
+    Concern 8 (Session Cleanup) -- new component, no existing deps
+    Concern 10 (Pre-Mortem Test) -- new test scenario
 ```
 
-### Config File Data Flow
+## Recommended Build Order
 
-```
-.cdp-context/config.md
-    │
-    │  Parsed by: scripts/generate_infographic.py at startup
-    │  Fields read:
-    │    - "Gemini API Key:" → passed to genai.Client(api_key=...)
-    │    - "Platform:" → checked; script only runs if value is "gemini"
-    │
-    ▼
-genai.Client(api_key=KEY)
-    │  Client instantiated once, reused for all 5-6 infographic calls
-    ▼
-Per-infographic generate_content() calls
-```
+The build order optimizes for: (1) foundational changes first, (2) dependent changes after their prerequisites, (3) independent concerns parallelized or interleaved freely.
 
-## Scaling Considerations
+### Phase 1: Foundation (do first)
 
-This is a Claude Code skill running locally — scaling in the traditional sense does not apply. Relevant constraints instead:
+| Order | Concern | Rationale |
+|-------|---------|-----------|
+| 1.1 | **#1: CEO Extraction** | Foundational. Creates clean separation between CEO identity and orchestration protocol. All subsequent orchestration changes go into the extracted spec instead of bloating the CEO agent further. |
+| 1.2 | **#4: Executive Summaries** | Independent but high-value. Reduces CEO token ingestion. Touches only C-suite agents (no conflict with CEO extraction). |
 
-| Concern | Reality | Guidance |
-|---------|---------|----------|
-| Rate limits (RPM) | Free tier: ~10 RPM; paid: varies by tier | Sequential generation (5-6 calls) rarely hits RPM unless retrying aggressively |
-| Rate limits (RPD) | Free tier: ~1500 RPD; paid: higher | Not a practical constraint for CDP usage patterns |
-| Latency per call | 5-30 seconds per image (model-dependent) | Sequential generation of 6 infographics can take 1-3 minutes total |
-| Concurrent calls | Possible in theory | Out of scope per PROJECT.md; sequential is safer for rate limits |
-| Key exposure | API key in `.cdp-context/config.md` (gitignored) | Acceptable; consistent with CDP config pattern |
+### Phase 2: Orchestration Hardening (requires Phase 1)
 
-## Anti-Patterns
+| Order | Concern | Rationale |
+|-------|---------|-----------|
+| 2.1 | **#2: Production Pre-Flight** | Adds to extracted orchestration protocol. |
+| 2.2 | **#3: CSO Timeout** | Adds to extracted orchestration protocol (Phase 1.5). |
+| 2.3 | **#8: Session Cleanup** | Independent but groups naturally with production pipeline work. |
 
-### Anti-Pattern 1: Accessing response.candidates[0] Without Checking finish_reason
+### Phase 3: Specification Formalization (benefits from Phase 1)
 
-**What people do:** Immediately index into `response.candidates[0].content.parts` assuming success.
+| Order | Concern | Rationale |
+|-------|---------|-----------|
+| 3.1 | **#5: Routing Decision Trees** | Removes duplication created/revealed by CEO extraction. |
+| 3.2 | **#6: Mode Weightings** | Formalizes implicit weighting in decision modes. |
+| 3.3 | **#7: Cost Formula** | Documentation addition to decision modes. Natural to do alongside #6. |
 
-**Why it's wrong:** When Gemini blocks a request (SAFETY, OTHER, IMAGE_SAFETY, NO_IMAGE), `content` may be `None` or `parts` may be empty. The SDK has a known hang bug on certain `finish_reason` enum values during image generation (python-genai issue #2024). This causes an `AttributeError`, `IndexError`, or infinite hang.
+### Phase 4: Test Scenarios (benefits from Phases 2-3)
 
-**Do this instead:** Check `response.candidates` is non-empty, then check `candidate.finish_reason` as a string before accessing `content.parts`. See Pattern 3 above.
+| Order | Concern | Rationale |
+|-------|---------|-----------|
+| 4.1 | **#9: Tier 2 Routing Test** | Tests routing logic formalized in #5. |
+| 4.2 | **#10: Pre-Mortem Test** | Tests Phase 4.5 (benefits from orchestration hardening in Phase 2). |
+| 4.3 | **#11: Mode Sensitivity** | Tests mode mechanics formalized in #6. |
 
-### Anti-Pattern 2: Retrying on Content-Policy Blocks
+### Phase ordering rationale
 
-**What people do:** Retry on any non-200 response or any absence of image data, including when Gemini returns `finish_reason: OTHER` due to copyright or content policy.
+- **Phase 1 before Phase 2:** The CEO extraction (#1) creates the document where production pre-flight (#2) and CSO timeout (#3) will be added. Without extraction, those additions bloat the already-682-line CEO agent.
+- **Phase 1 before Phase 3:** Routing decision trees (#5) need to clean up duplication between CEO agent and routing table. Extraction makes this cleaner -- the duplication in the CEO agent is removed as part of extraction, and the routing table becomes the single source of truth.
+- **Phase 3 before Phase 4:** Test scenarios (#9, #10, #11) validate the specifications formalized in Phase 3. Writing tests before the specs are formalized means testing against ambiguous criteria.
+- **Executive Summaries (#4) in Phase 1:** This is independent of all other concerns and high-value (token cost reduction). It can run in parallel with CEO extraction since it touches only C-suite agents, not the CEO agent.
 
-**Why it's wrong:** Content policy blocks are deterministic. Retrying the same prompt produces the same block. It wastes API quota and causes false delays.
+---
 
-**Do this instead:** Distinguish transient errors (429, 503, 500) from content decisions (SAFETY, OTHER, IMAGE_SAFETY). Only retry transient errors. On a content block, immediately fall through to the simplified prompt or placeholder.
+## Change Impact Summary
 
-### Anti-Pattern 3: Using the Legacy google-generativeai Package
+### Files Modified
 
-**What people do:** `pip install google-generativeai` and use `import google.generativeai as genai`.
+| File | Concerns | Total Change Estimate |
+|------|----------|----------------------|
+| `agents/ceo.md` | #1, #5 | Major reduction (~350 lines removed, ~20 lines reference added) |
+| `agents/c-suite/cao.md` | #4 | Minor (~10 lines added) |
+| `agents/c-suite/cfo.md` | #4 | Minor (~10 lines added) |
+| `agents/c-suite/ciso.md` | #4 | Minor (~10 lines added) |
+| `agents/c-suite/coo.md` | #4 | Minor (~10 lines added) |
+| `agents/c-suite/cso.md` | #3, (no #4) | Minor (~20-30 lines added for timeout handling) |
+| `agents/c-suite/cto.md` | #4 | Minor (~10 lines added) |
+| `agents/c-suite/vp-delivery.md` | #4 | Minor (~10 lines added) |
+| `agents/c-suite/vp-sales.md` | #4 | Minor (~10 lines added) |
+| `config/routing-table.md` | #5 | Major expansion (~100-150 lines added) |
+| `config/decision-modes.md` | #6, #7, #11 | Moderate expansion (~170-220 lines added) |
+| `templates/decision-record.md` | #3 | Minor (~5 lines added) |
+| `SKILL.md` | #1, #8 | Minor (~20-35 lines changed) |
 
-**Why it's wrong:** `google-generativeai` was deprecated with a sunset deadline of August 31, 2025. The package is no longer updated, and image generation support lags behind the current model lineup.
+### Files Created
 
-**Do this instead:** Use `pip install google-genai` and `from google import genai`. This is the unified Gen AI SDK covering all Gemini and Imagen models.
+| File | Concern | Type | Size Estimate |
+|------|---------|------|---------------|
+| `config/orchestration-protocol.md` | #1 | Specification | ~350 lines |
+| `scripts/cleanup.py` | #8 | Python script | ~100-150 lines |
+| `tests/test_cleanup.py` | #8 | Python tests | ~80-120 lines |
+| `tests/scenarios/tier-2-routing.md` | #9 | Test scenario | ~80-100 lines |
+| `tests/scenarios/pre-mortem-phase-4-5.md` | #10 | Test scenario | ~80-100 lines |
+| `tests/scenarios/mode-sensitivity.md` | #11 | Test scenario | ~80-100 lines |
 
-### Anti-Pattern 4: Storing API Key in Environment Variables Only
+### Files Unchanged
 
-**What people do:** Rely on `GEMINI_API_KEY` environment variable exclusively, and don't document where the key comes from.
+- `agents/team-leads/**/*` -- No team lead agents are affected
+- `config/company-profile.md` -- Company profile is not involved in any concern
+- `scripts/config.py`, `scripts/generate_infographic.py`, `scripts/validation.py`, `scripts/session.py` -- Existing Python scripts are not affected
+- `templates/production/*` -- Production templates are not affected
+- `templates/comparative-decision-record.md`, `templates/panel-assessment.md`, `templates/advisory-note.md` -- Not affected
 
-**Why it's wrong:** CDP's configuration model uses `.cdp-context/config.md` as the canonical user-facing config file. Requiring a separate env var breaks the skill's configuration coherence and requires out-of-band setup that isn't in the CDP documentation flow.
+---
 
-**Do this instead:** Read the API key from `.cdp-context/config.md`. The script can fall back to `os.environ.get("GEMINI_API_KEY")` as a secondary option for power users, but the primary path must be the config file.
+## Anti-Patterns to Avoid
 
-### Anti-Pattern 5: Hardcoding the Model String
+### Anti-Pattern 1: Duplicating Orchestration Protocol After Extraction
+**What:** Extracting the protocol from `ceo.md` but leaving a "summary" version in the CEO agent that drifts from the canonical spec.
+**Why bad:** Two sources of truth for the same protocol = guaranteed inconsistency.
+**Instead:** CEO agent references the extracted protocol by filepath. Zero duplication of procedural content.
 
-**What people do:** Hardcode `"gemini-2.0-flash-exp-image-generation"` in the script.
+### Anti-Pattern 2: Executive Summaries That Replace Domain Recommendations
+**What:** Making Executive Summaries the ONLY output the CEO sees, eliminating the full Domain Recommendation.
+**Why bad:** The CEO needs full Domain Recommendations for fault line analysis. Executive Summaries are for initial triage and token reduction, not for replacing the analytical substrate.
+**Instead:** Executive Summary is a structured PREFIX added to the Domain Recommendation. The CEO reads summaries first, then drills into full recommendations for synthesis.
 
-**Why it's wrong:** Google's image generation model names have changed multiple times (gemini-2.0-flash-exp → gemini-2.5-flash-image → gemini-3.1-flash-image-preview). The `-exp` suffix indicates experimental and may stop working without warning.
+### Anti-Pattern 3: Overengineering Session Cleanup
+**What:** Building a complex archive system with compression, cloud backup, retention policies.
+**Why bad:** Sessions are local development artifacts. Users can manually delete old directories. The cleanup script should be simple and mechanical.
+**Instead:** List, filter by age, delete with confirmation. Nothing more.
 
-**Do this instead:** Put the model name in `.cdp-context/config.md` with a sensible default. Read it at runtime. The infographics.md Task A spec should document the current recommended model.
+### Anti-Pattern 4: Numeric Weights for Decision Modes
+**What:** Assigning specific numeric weights (e.g., "CISO gets 1.5x weight in Guardian mode") to mode weightings.
+**Why bad:** The CEO is an LLM following a prompt. Numeric weights create false precision. The LLM will not reliably apply "1.5x" weighting.
+**Instead:** Use directional indicators (HIGH/MODERATE/LOW priority) that guide the LLM's attention without pretending to be quantitative.
 
-## Integration Points
+### Anti-Pattern 5: Test Scenarios as Pytest Tests
+**What:** Writing the routing, pre-mortem, and mode sensitivity test scenarios as automated pytest tests.
+**Why bad:** These test the behavior of LLM agents following markdown specifications. They cannot be deterministically tested with unit tests. The "test" is a structured prompt scenario with expected-behavior criteria, not an assertion.
+**Instead:** Test scenario documents with input, expected behavior, and validation criteria that can be manually or semi-automatically evaluated by running the CDP system.
 
-### External Services
+---
 
-| Service | Integration Pattern | Notes |
-|---------|---------------------|-------|
-| Gemini API | `google-genai` SDK; `client.models.generate_content()` | Use `google-genai` (not legacy `google-generativeai`); API key in config file |
-| Gemini API auth | `genai.Client(api_key=KEY)` | Key from `.cdp-context/config.md`; do not commit; already gitignored |
+## Scalability Considerations
 
-### Internal Boundaries
-
-| Boundary | Communication | Notes |
-|----------|---------------|-------|
-| Image Agent → Script | Agent calls Bash tool: `python3 scripts/generate_infographic.py <args>` | Script receives template path, Decision Record data, output path as args or stdin |
-| Script → Config | Script reads `.cdp-context/config.md` at startup | Must gracefully fail with a clear error if key missing |
-| Script → Templates | Script reads `templates/infographic-prompts/<type>.json` | Type slug passed as argument from agent |
-| Script → Output | Script writes `{session}/images/INFOGRAPHIC_<type>.png` | Always writes a file (real or placeholder); never leaves path empty |
-| Task A → Tasks B/C/D | File system — Task D reads from `{session}/images/` | Output path contract must be stable; placeholder ensures no downstream break |
-
-## Build Order Implications
-
-The migration creates a dependency chain that affects what gets built first:
-
-1. **Config schema first** — Define the `Gemini API Key:` field syntax in `config.md` template and `config-context.md`. All other components depend on this format.
-
-2. **Script skeleton second** — Build `scripts/generate_infographic.py` with config reading, template loading, and PNG writing logic. Test independently before wiring into the agent.
-
-3. **API call integration third** — Wire `google-genai` call into the script. Test with a single infographic type using a real key before handling all six types.
-
-4. **Error and retry handling fourth** — Add retry logic, finish_reason guards, placeholder generation. Test failure paths explicitly (bad key, content block, rate limit simulation).
-
-5. **infographics.md update last** — Replace browser automation steps with the script invocation pattern. Update Task A spawn instruction in `agents/ceo.md` to remove browser references.
-
-6. **Config template update alongside Step 1** — Update `templates/config-context.md` and `config/platform-configuration.md` references to add the API key field.
-
-This order ensures the script works correctly in isolation before the agent instruction document depends on it.
+| Concern | At current scale (8 C-suite, 34 team leads) | If roster grows (12+ C-suite) |
+|---------|----------------------------------------------|-------------------------------|
+| CEO Extraction (#1) | Clean separation enables independent updates | Essential -- a 682-line agent only gets worse with more roles |
+| Executive Summaries (#4) | Reduces Opus token cost by ~30-50% for Tier 3 | Critical -- token cost scales linearly with activated agents |
+| Routing Decision Trees (#5) | Clearer routing for 6 decision types | Must scale to new decision types without combinatorial explosion |
+| Mode Weightings (#6) | 5 modes x 8 roles = 40 directional weights | Must scale to new roles without redesigning weight tables |
+| Session Cleanup (#8) | Manageable with manual cleanup | Essential with high session volume |
 
 ## Sources
 
-- Google Gen AI Python SDK (official): https://googleapis.github.io/python-genai/
-- Gemini API image generation docs (official): https://ai.google.dev/gemini-api/docs/image-generation
-- Gemini API troubleshooting guide (official): https://ai.google.dev/gemini-api/docs/troubleshooting
-- google-generativeai deprecation notice: https://github.com/google-gemini/deprecated-generative-ai-python
-- python-genai GitHub (official SDK): https://github.com/googleapis/python-genai
-- finishReason blocking behavior: https://help.apiyi.com/en/gemini-api-image-blocked-finishreason-other-solution-en.html
-- Image generation examples by example: https://geminibyexample.com/005-image-generation/
-
----
-*Architecture research for: Gemini API image generation integration into Corporate Decision Panel*
-*Researched: 2026-03-04*
+- `agents/ceo.md` -- 682-line CEO agent (direct reading, lines 1-682)
+- `agents/c-suite/*.md` -- All 8 C-suite agent specifications (direct reading)
+- `config/routing-table.md` -- Routing rules and threshold conditions (direct reading)
+- `config/decision-modes.md` -- 5 decision modes and multi-mode comparison (direct reading)
+- `config/company-profile.md` -- Archetype presets (direct reading)
+- `templates/decision-record.md` -- Tier 3 output template (direct reading)
+- `templates/production/infographics.md` -- Production pipeline spec (direct reading)
+- `scripts/session.py`, `scripts/preflight.py` -- Python infrastructure (direct reading)
+- `SKILL.md` -- Skill entry point and orchestration overview (direct reading)
+- `docs/ARCHITECTURE.md` -- Technical reference (direct reading)
+- `.planning/PROJECT.md` -- Project context and v1.1 scope (direct reading)
+- `.planning/milestones/v1.0-MILESTONE-AUDIT.md` -- v1.0 audit findings (direct reading)
