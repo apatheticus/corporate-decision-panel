@@ -3,7 +3,7 @@
 ## Milestones
 
 - ✅ **v1.0 MVP** — Phases 1-4 (shipped 2026-03-04)
-- 🚧 **v1.1 Initial Design Concerns** — Phases 5-8 (in progress)
+- 🚧 **v1.1 Initial Design Concerns** — Phases 5-9 (in progress)
 
 ## Phases
 
@@ -17,7 +17,7 @@
 
 </details>
 
-### 🚧 v1.1 Initial Design Concerns (Phases 5-8)
+### 🚧 v1.1 Initial Design Concerns (Phases 5-9)
 
 **Milestone Goal:** Address architectural, specification, and testing concerns identified in the codebase audit to improve reliability, clarity, and maintainability.
 
@@ -25,6 +25,7 @@
 - [ ] **Phase 6: Orchestration Hardening** - Add pre-flight validation, CSO timeout handling, and session cleanup to the production pipeline
 - [ ] **Phase 7: Specification Formalization** - Formalize routing thresholds, decision mode weightings, and multi-mode cost calculations into structured specs
 - [ ] **Phase 8: Test Scenarios** - Validate routing, pre-mortem, and mode sensitivity behavior against formalized specifications
+- [ ] **Phase 9: Integration Polish** - Close integration gaps INT-01 and INT-02 from milestone audit
 
 ## Phase Details
 
@@ -92,6 +93,19 @@ Plans:
 - [ ] 08-01-PLAN.md — Clarify Tier 2 threshold scoping and create routing and pre-mortem test scenarios
 - [ ] 08-02-PLAN.md — Add quantitative mode sensitivity criteria and create paired consistency scenarios
 
+### Phase 9: Integration Polish
+**Goal**: Close non-blocking integration gaps identified by the v1.1 milestone audit — threshold-driven escalation slot in panel-assessment template and /cdp:cleanup discoverability in SKILL.md
+**Depends on**: Phase 8 (audit completed against all prior phases)
+**Requirements**: TEST-01, SPEC-03, ORCH-05 (integration hardening for already-satisfied requirements)
+**Gap Closure:** Closes INT-01, INT-02 from v1.1-MILESTONE-AUDIT.md
+**Success Criteria** (what must be TRUE):
+  1. panel-assessment.md Escalation Note section includes a named field for triggered-threshold enumeration
+  2. SKILL.md invocation frontmatter lists /cdp:cleanup and body includes cleanup entry in Invocation Grammar
+**Plans**: 1 plan
+
+Plans:
+- [ ] 09-01-PLAN.md — Fix integration gaps: threshold escalation template field and cleanup command discoverability
+
 ## Progress
 
 **Execution Order:**
@@ -107,3 +121,4 @@ Phases execute in numeric order: 5 -> 6 -> 7 -> 8
 | 6. Orchestration Hardening | v1.1 | 1/3 | In Progress | - |
 | 7. Specification Formalization | v1.1 | 0/3 | Not started | - |
 | 8. Test Scenarios | v1.1 | 1/2 | In Progress | - |
+| 9. Integration Polish | v1.1 | 0/1 | Not started | - |

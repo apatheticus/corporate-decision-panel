@@ -92,14 +92,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ORCH-02 | Phase 6 | Complete |
 | ORCH-03 | Phase 6 | Complete |
 | ORCH-04 | Phase 6 | Complete |
-| ORCH-05 | Phase 6 | Complete |
+| ORCH-05 | Phase 6, 9 | Complete |
 | SPEC-01 | Phase 7 | Complete |
 | SPEC-02 | Phase 7 | Complete |
-| SPEC-03 | Phase 7 | Complete |
+| SPEC-03 | Phase 7, 9 | Complete |
 | SPEC-04 | Phase 7 | Complete |
 | SPEC-05 | Phase 7 | Complete |
 | SPEC-06 | Phase 7 | Complete |
-| TEST-01 | Phase 8 | Complete |
+| TEST-01 | Phase 8, 9 | Complete |
 | TEST-02 | Phase 8 | Complete |
 | TEST-03 | Phase 8 | Complete |
 | TEST-04 | Phase 8 | Complete |
