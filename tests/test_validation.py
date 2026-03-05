@@ -117,11 +117,11 @@ class TestResponseParsing:
         assert "Label X truncated" in result.warnings
 
     def test_parse_malformed_response(self):
-        """Malformed response returns pass-with-warning (non-blocking)."""
+        """Malformed response returns fail-closed."""
         text = "This is not a structured response at all."
         result = _parse_validation_response(text)
-        assert result.passed is True
-        assert result.warning_only is True
+        assert result.passed is False
+        assert result.warning_only is False
         assert "unparseable" in result.feedback.lower()
 
     def test_parse_case_insensitive(self):
@@ -146,6 +146,45 @@ class TestResponseParsing:
         result = _parse_validation_response(text)
         assert result.passed is False
         assert len(result.missing) == 2
+
+    def test_parse_garbled_field(self):
+        """GARBLED line is parsed into result.garbled list."""
+        text = (
+            "VERDICT: FAIL\n"
+            "WARNINGS: none\n"
+            "MISSING: none\n"
+            "GARBLED: Emmerruation, Recommendians\n"
+            "FEEDBACK: Fix garbled text"
+        )
+        result = _parse_validation_response(text)
+        assert result.passed is False
+        assert "Emmerruation" in result.garbled
+        assert "Recommendians" in result.garbled
+
+    def test_parse_garbled_none(self):
+        """GARBLED: none results in empty garbled list."""
+        text = (
+            "VERDICT: PASS\n"
+            "WARNINGS: none\n"
+            "MISSING: none\n"
+            "GARBLED: none\n"
+            "FEEDBACK: none"
+        )
+        result = _parse_validation_response(text)
+        assert result.passed is True
+        assert result.garbled == []
+
+    def test_garbled_field_default_empty(self):
+        """Clean pass has empty garbled list."""
+        text = (
+            "VERDICT: PASS\n"
+            "WARNINGS: none\n"
+            "MISSING: none\n"
+            "FEEDBACK: none"
+        )
+        result = _parse_validation_response(text)
+        assert result.passed is True
+        assert result.garbled == []
 
 
 class TestValidateInfographic:
@@ -211,12 +250,12 @@ class TestValidateInfographic:
         assert result.passed is False
         assert "Revenue label" in result.missing
 
-    def test_api_error_returns_pass_with_warning(
+    def test_api_error_returns_fail_closed(
         self,
         tmp_path,
         sample_data,
     ):
-        """validate_infographic returns pass-with-warning on API error (non-blocking)."""
+        """validate_infographic returns fail-closed on API error."""
         from google.genai.errors import ClientError
 
         image_path, data_path, config_dir = self._setup_env(tmp_path, sample_data)
@@ -230,8 +269,8 @@ class TestValidateInfographic:
             mock_genai.Client.return_value = mock_client
             result = validate_infographic(image_path, data_path, config_dir)
 
-        assert result.passed is True
-        assert result.warning_only is True
+        assert result.passed is False
+        assert result.warning_only is False
 
     def test_disables_sdk_retry(
         self,

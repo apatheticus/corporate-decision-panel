@@ -1271,8 +1271,8 @@ class TestRetryWithFeedback:
         # Second call has the corrective feedback
         assert "Revenue label" in call_kwargs[1].get("style_override_extra", "")
 
-    def test_warning_only_does_not_retry(self, tmp_path):
-        """Validation with warning_only=True does NOT trigger retry."""
+    def test_warning_only_triggers_retry(self, tmp_path):
+        """Validation with warning_only=True triggers retry, then clean pass succeeds."""
         from scripts.generate_infographic import generate_with_retry
 
         output_path = tmp_path / "output.png"
@@ -1284,8 +1284,16 @@ class TestRetryWithFeedback:
                 prompt_path=tmp_path / "prompt.txt",
             )
 
+        validate_calls = [0]
+
         def mock_validate(image_path, data_path, config_dir):
-            return MagicMock(passed=True, warning_only=True)
+            validate_calls[0] += 1
+            if validate_calls[0] == 1:
+                return MagicMock(
+                    passed=True, warning_only=True,
+                    feedback="Label X truncated", warnings=["Label X truncated"],
+                )
+            return MagicMock(passed=True, warning_only=False)
 
         with (
             patch("scripts.generate_infographic.generate_infographic", side_effect=mock_generate) as mock_gen,
@@ -1300,8 +1308,45 @@ class TestRetryWithFeedback:
             )
 
         assert result.success is True
-        # Only called once -- no retry for warning_only
-        assert mock_gen.call_count == 1
+        assert result.warning_only is False
+        # Called twice -- warning_only triggered one retry
+        assert mock_gen.call_count == 2
+
+    def test_warning_only_accepted_on_budget_exhaustion(self, tmp_path):
+        """When all attempts return warning_only, accept with warning_only=True."""
+        from scripts.generate_infographic import generate_with_retry
+
+        output_path = tmp_path / "output.png"
+
+        def mock_generate(infographic_type, data_path, out_path, **kwargs):
+            return GenerationResult(
+                success=True,
+                output_path=out_path,
+                prompt_path=tmp_path / "prompt.txt",
+            )
+
+        def mock_validate(image_path, data_path, config_dir):
+            return MagicMock(
+                passed=True, warning_only=True,
+                feedback="Label X truncated", warnings=["Label X truncated"],
+            )
+
+        with (
+            patch("scripts.generate_infographic.generate_infographic", side_effect=mock_generate) as mock_gen,
+            patch("scripts.generate_infographic.validate_infographic", side_effect=mock_validate),
+        ):
+            result = generate_with_retry(
+                "domain-scorecard",
+                tmp_path / "data.json",
+                output_path,
+                retry_limit=2,
+                config_dir=tmp_path,
+            )
+
+        assert result.success is True
+        assert result.warning_only is True
+        # All 3 attempts used (retry_limit=2 → max_attempts=3)
+        assert mock_gen.call_count == 3
 
 
 class TestSDKRetryDisabled:
@@ -1522,7 +1567,7 @@ class TestWarningOnlyPropagation:
         assert result.warning_only is False
 
     def test_warning_only_set_on_validation_warning(self, tmp_path):
-        """When validation returns warning_only=True, GenerationResult.warning_only is True."""
+        """When all validation attempts return warning_only=True, GenerationResult.warning_only is True."""
         from scripts.generate_infographic import generate_with_retry
 
         output_path = tmp_path / "output.png"
@@ -1535,10 +1580,13 @@ class TestWarningOnlyPropagation:
             )
 
         def mock_validate(image_path, data_path, config_dir):
-            return MagicMock(passed=True, warning_only=True)
+            return MagicMock(
+                passed=True, warning_only=True,
+                feedback="Label X truncated", warnings=["Label X truncated"],
+            )
 
         with (
-            patch("scripts.generate_infographic.generate_infographic", side_effect=mock_generate),
+            patch("scripts.generate_infographic.generate_infographic", side_effect=mock_generate) as mock_gen,
             patch("scripts.generate_infographic.validate_infographic", side_effect=mock_validate),
         ):
             result = generate_with_retry(
@@ -1551,6 +1599,8 @@ class TestWarningOnlyPropagation:
 
         assert result.success is True
         assert result.warning_only is True
+        # All 3 attempts used since warning_only triggers retry (retry_limit=2 → max_attempts=3)
+        assert mock_gen.call_count == 3
 
     def test_warning_only_false_on_clean_pass(self, tmp_path):
         """When validation returns warning_only=False, GenerationResult.warning_only is False."""

@@ -41,6 +41,7 @@ class ValidationResult:
         feedback:     Corrective feedback text for retry (None if passed clean).
         warnings:     List of warning messages (e.g. truncated labels).
         missing:      List of missing labels detected by vision model.
+        garbled:      List of garbled/misspelled text detected by vision model.
     """
 
     passed: bool
@@ -48,6 +49,7 @@ class ValidationResult:
     feedback: str | None = None
     warnings: list[str] = field(default_factory=list)
     missing: list[str] = field(default_factory=list)
+    garbled: list[str] = field(default_factory=list)
 
 
 # ---------------------------------------------------------------------------
@@ -111,10 +113,11 @@ def _parse_validation_response(text: str) -> ValidationResult:
         VERDICT: PASS|FAIL
         WARNINGS: [labels or 'none']
         MISSING: [labels or 'none']
+        GARBLED: [garbled text or 'none']
         FEEDBACK: [guidance or 'none']
 
-    If the response is unparseable, returns a pass-with-warning result
-    (validation failure should not block generation).
+    If the response is unparseable, returns a fail-closed result
+    (validation must not silently pass bad images).
 
     Args:
         text: Raw text response from the vision model.
@@ -127,6 +130,7 @@ def _parse_validation_response(text: str) -> ValidationResult:
     verdict = None
     warnings: list[str] = []
     missing: list[str] = []
+    garbled: list[str] = []
     feedback: str | None = None
 
     for line in lines:
@@ -149,17 +153,22 @@ def _parse_validation_response(text: str) -> ValidationResult:
             if content.lower() != "none" and content:
                 missing = [m.strip() for m in content.split(",") if m.strip()]
 
+        elif line_lower.startswith("garbled:"):
+            content = line.split(":", 1)[1].strip()
+            if content.lower() != "none" and content:
+                garbled = [g.strip() for g in content.split(",") if g.strip()]
+
         elif line_lower.startswith("feedback:"):
             content = line.split(":", 1)[1].strip()
             if content.lower() != "none" and content:
                 feedback = content
 
-    # Handle unparseable response
+    # Handle unparseable response -- fail closed
     if verdict is None:
         return ValidationResult(
-            passed=True,
-            warning_only=True,
-            feedback="Validation response unparseable -- treating as pass with warning",
+            passed=False,
+            warning_only=False,
+            feedback="Validation response unparseable -- treating as fail",
         )
 
     passed = verdict == "PASS"
@@ -171,6 +180,7 @@ def _parse_validation_response(text: str) -> ValidationResult:
         feedback=feedback,
         warnings=warnings,
         missing=missing,
+        garbled=garbled,
     )
 
 
@@ -212,8 +222,8 @@ def validate_infographic(
     SDK retry is disabled (``HttpRetryOptions(attempts=1)``) so the
     application layer controls retry budget.
 
-    On API error, returns ``passed=True`` with ``warning_only=True`` --
-    validation failure should not block generation.
+    On API error, returns ``passed=False`` -- validation fails closed
+    to prevent bad images from passing silently.
 
     Args:
         image_path: Path to the generated PNG file.
@@ -241,19 +251,29 @@ def validate_infographic(
     _status("VALIDATING", type_slug)
 
     prompt = (
-        "You are a quality checker for data infographics. "
-        "Examine this infographic and verify that the following data labels "
-        "are present and clearly readable:\n\n"
+        "You are a strict quality checker for data infographics.\n\n"
+        "TASK 1 — DATA LABELS\n"
+        "Verify that the following data labels are present and clearly readable:\n\n"
         + "\n".join(f"- {label}" for label in expected_labels)
         + "\n\nFor each label, report: FOUND (clearly readable), "
-        "PARTIAL (present but truncated/hard to read), or MISSING.\n\n"
-        "Then provide an overall verdict: PASS if all labels are FOUND or PARTIAL, "
-        "FAIL if any label is MISSING.\n\n"
-        "Format your response as:\n"
+        "PARTIAL (present but truncated/hard to read), or MISSING.\n"
+        "A PARTIAL label counts as a failure — only FOUND is acceptable.\n\n"
+        "TASK 2 — ALL VISIBLE TEXT\n"
+        "Scan ALL visible text in the infographic (titles, axis labels, "
+        "legends, annotations, captions — everything). Report any text that "
+        "is garbled, misspelled, nonsensical, or not a real English word "
+        "(e.g. 'Emmerruation' instead of 'Enumeration', 'Recommendians' "
+        "instead of 'Recommendations').\n\n"
+        "VERDICT RULES:\n"
+        "- FAIL if any label is MISSING or PARTIAL\n"
+        "- FAIL if any garbled/misspelled text is found\n"
+        "- PASS only when all labels are FOUND and no garbled text exists\n\n"
+        "Format your response EXACTLY as:\n"
         "VERDICT: PASS|FAIL\n"
         "WARNINGS: [any PARTIAL labels, or 'none']\n"
         "MISSING: [any MISSING labels, or 'none']\n"
-        "FEEDBACK: [if FAIL, specific guidance for regeneration]"
+        "GARBLED: [any garbled/misspelled text found, or 'none']\n"
+        "FEEDBACK: [if FAIL, specific guidance for regeneration, or 'none']"
     )
 
     try:
@@ -273,8 +293,8 @@ def validate_infographic(
     except (APIError, Exception) as e:
         _status("VALIDATION", f"ERROR {e}")
         return ValidationResult(
-            passed=True,
-            warning_only=True,
+            passed=False,
+            warning_only=False,
             feedback=f"Validation API error: {e}",
         )
 
