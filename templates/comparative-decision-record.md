@@ -30,6 +30,8 @@ Use multi-mode when:
 - **Medium sensitivity**: Some modes converge, others diverge. Specific aspects of the decision are clear while others depend on posture.
 - **Low sensitivity**: All or most modes converge on the same answer. The evidence speaks for itself regardless of risk appetite. This is a strong signal that the decision is clear-cut.
 
+See Quantitative Sensitivity Criteria below for the structured assessment methodology.
+
 ---
 
 ## Template
@@ -275,3 +277,70 @@ Example: All modes approve the hire, but Guardian requires 6 months of runway bu
 All modes reach essentially the same decision with similar conditions. The evidence is clear enough that synthesis posture does not materially change the outcome.
 
 Example: All modes agree the security vulnerability must be patched immediately. The decision does not depend on risk appetite -- the risk is unambiguous.
+
+---
+
+## Quantitative Sensitivity Criteria
+
+To assign a Mode Sensitivity rating, assess these three countable dimensions across all compared modes. Each dimension classifies as CONVERGE, PARTIAL, or DIVERGE.
+
+### Dimension 1: Decision Direction
+
+Count the number of distinct decision values (Approve / Approve with Conditions / Oppose / Defer) across all mode syntheses:
+
+| Pattern | Classification |
+|---------|---------------|
+| All modes reach the same decision | CONVERGE |
+| Same direction with at most 1 outlier deferral (e.g., 4 Approve, 1 Defer) | PARTIAL |
+| Approve vs Oppose split, OR 3+ distinct decision values | DIVERGE |
+
+### Dimension 2: Determinative Perspective
+
+Count how many different C-suite roles are cited as "Most Determinative Perspective" across all mode syntheses:
+
+| Pattern | Classification |
+|---------|---------------|
+| 1-2 distinct roles cited across all modes | CONVERGE |
+| 3 distinct roles cited | PARTIAL |
+| 4+ distinct roles cited | DIVERGE |
+
+### Dimension 3: Condition Overlap
+
+Compare the conditions, guardrails, and key caveats across mode syntheses:
+
+| Pattern | Classification |
+|---------|---------------|
+| Conditions are substantively the same across all modes | CONVERGE |
+| Same direction but some modes add additional conditions not present in others | PARTIAL |
+| Contradictory conditions across modes, OR entirely different condition sets | DIVERGE |
+
+### Rating Rule
+
+| Rating | Rule |
+|--------|------|
+| **LOW** (Convergence) | All three dimensions CONVERGE |
+| **MEDIUM** (Conditional Divergence) | Any dimension PARTIAL, no dimension DIVERGE |
+| **HIGH** (Directional Divergence) | Any dimension DIVERGE |
+
+### Worked Examples
+
+**LOW Example: "Patch a critical zero-day vulnerability in production authentication"**
+
+- Decision Direction: All 5 modes produce "Approve" (immediate patch). 1 distinct decision. CONVERGE.
+- Determinative Perspective: CISO cited in all modes (unambiguous security authority). 1 distinct role. CONVERGE.
+- Condition Overlap: All modes require post-patch monitoring and incident review. Substantively the same conditions. CONVERGE.
+- **Rating: LOW** -- All dimensions CONVERGE. The evidence is unambiguous; synthesis posture does not change the outcome.
+
+**MEDIUM Example: "Expand engineering team by 40% to support new product line"**
+
+- Decision Direction: All 5 modes produce "Approve with Conditions." 1 distinct decision. CONVERGE.
+- Determinative Perspective: Guardian cites CFO (cost control), Pioneer cites CTO (technical capacity), Architect cites CAO (organizational absorption). 3 distinct roles. PARTIAL.
+- Condition Overlap: Guardian requires 6 months runway buffer before hiring begins. Pioneer accelerates timeline to 3-month ramp. Architect adds cross-department coordination requirement. Same direction but additional/different conditions. PARTIAL.
+- **Rating: MEDIUM** -- Dimensions 2 and 3 are PARTIAL, none DIVERGE. Modes agree on "what" but differ on "how" and "who matters most."
+
+**HIGH Example: "Acquire competitor in adjacent market for $50M"**
+
+- Decision Direction: Guardian produces "Oppose" (capital risk too high), Pioneer produces "Approve" (competitive window closing), Sentinel produces "Defer" (needs downside investigation), Analyst produces "Approve with Conditions" (evidence supports but medium confidence), Architect produces "Approve with Conditions" (extensive guardrails for organizational alignment). 4 distinct decisions (Oppose, Approve, Defer, Approve with Conditions). DIVERGE.
+- Determinative Perspective: Guardian cites CFO, Pioneer cites VP Sales, Sentinel cites CISO, Analyst cites CTO, Architect cites CAO. 5 distinct roles. DIVERGE.
+- Condition Overlap: Guardian's conditions are designed to prevent the deal. Pioneer's conditions accelerate it. These are contradictory. DIVERGE.
+- **Rating: HIGH** -- All dimensions DIVERGE. The decision fundamentally depends on risk appetite and strategic posture.
