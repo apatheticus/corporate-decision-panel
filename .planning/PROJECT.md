@@ -33,10 +33,35 @@ Infographic generation must work without browser interaction — a single API ca
 
 ### Active
 
+<!-- v1.1 Initial Design Concerns -->
+- [ ] CEO agent refactor — extract orchestration protocol from monolithic 682-line agent
+- [ ] Production pipeline pre-flight — validate dependencies before artifact generation
+- [ ] CSO Phase 1.5 timeout — add error handling for research execution
+- [ ] CEO token usage — C-suite executive summaries to reduce synthesis input
+- [ ] Routing threshold formalization — decision trees for 5 threshold conditions
+- [ ] Decision mode mapping — explicit condition→weighting tables
+- [ ] Multi-mode cost formula — document actual costs, add estimation
+- [ ] Session output cleanup — archive/cleanup mechanism for session directories
+- [ ] Tier 2 routing test — validate partial activation exclusion
+- [ ] Pre-Mortem (Phase 4.5) test — validate with partial/missing responses
+- [ ] Mode sensitivity criteria — define divergence threshold, test consistency
+
+<!-- Deferred from v1.0 backlog -->
 - [ ] Model profile switch — Flash for development, Pro for production
 - [ ] Per-infographic model selection — Pro for text-heavy, Flash for simpler
 - [ ] Concurrent generation with IPM-aware rate limiting
 - [ ] Imagen 4 as alternative model option
+
+## Current Milestone: v1.1 Initial Design Concerns
+
+**Goal:** Address architectural, specification, and testing concerns identified in the codebase audit to improve reliability, clarity, and maintainability.
+
+**Target features:**
+- CEO agent refactoring (orchestration extraction + token optimization)
+- Production pipeline robustness (pre-flight validation + session cleanup)
+- Specification formalization (routing thresholds, decision modes, cost formula)
+- Orchestration resilience (CSO Phase 1.5 timeout handling)
+- Test coverage (Tier 2 routing, Pre-Mortem, mode sensitivity)
 
 ### Out of Scope
 
@@ -77,4 +102,4 @@ All six infographic types verified with live API generation.
 | warning_only propagation to session summary | OK+WARN distinguishes clean vs validated-with-issues | ✓ Good — useful status granularity |
 
 ---
-*Last updated: 2026-03-04 after v1.0 milestone*
+*Last updated: 2026-03-04 after v1.1 milestone started*
