@@ -411,6 +411,39 @@ The **issue slug** is derived from the Issue Title produced in CEO Phase 1: lowe
 
 The placeholder `{session-output}` used throughout this section and in production templates refers to this resolved path.
 
+### Pre-flight Dependency Validation
+
+Before spawning production tasks, the orchestrator validates external dependencies for each task using shell commands. All production tasks are optional -- the Decision Record (`RECORD.md`) is always produced regardless of task availability. "Required" here means required within a specific task: if a task's dependencies are missing, that task is skipped with explicit install instructions, but all other tasks whose dependencies are satisfied continue normally.
+
+**Dependency table:**
+
+| Task | Dependencies | Check Command | Install Command |
+|------|-------------|---------------|-----------------|
+| A (Image Agent) | python3, google-genai, Pillow | `python3 -c "from google import genai; from PIL import Image"` | `pip install google-genai>=1.65.0 Pillow>=10.0.0` |
+| B (Presentation) | node, pptxgenjs | `node -e "require('pptxgenjs')"` | `npm install pptxgenjs` |
+| C (Document) | node, docx | `node -e "require('docx')"` | `npm install docx` |
+| D (Web Page) | none | -- | -- |
+| E (Archivist) | python3, weasyprint | `python3 -c "import weasyprint"` | `pip install weasyprint` |
+
+**Execution protocol:**
+
+1. Run each check command from the table above. A non-zero exit code means the dependency is missing.
+2. Build a summary table showing task readiness:
+
+   | Task | Status | Missing Dependencies |
+   |------|--------|---------------------|
+   | A (Image Agent) | READY / SKIP | -- / `pip install google-genai>=1.65.0 Pillow>=10.0.0` |
+   | B (Presentation) | READY / SKIP | -- / `npm install pptxgenjs` |
+   | ... | ... | ... |
+
+   Use a checkmark for ready tasks and a warning marker for skipped tasks, listing the install command so the user can enable them next time.
+3. Print the summary table for user visibility before spawning any tasks.
+4. Spawn ONLY tasks whose dependencies are satisfied. Do not spawn tasks that failed their check command.
+5. List all skipped tasks with their install instructions so the user can install missing dependencies for next time.
+6. ALWAYS produce `RECORD.md` regardless of which tasks are skipped -- the Decision Record is the primary output, production artifacts are supplementary.
+
+**Note on Task D:** Task D (Web Page) has no external dependencies of its own. It is blocked by Tasks A, B, and C in the DAG, but if some of those are skipped, Task D still runs with whatever artifacts are available. Task D should always be spawned.
+
 ### Dependency Pipeline
 
 ```
