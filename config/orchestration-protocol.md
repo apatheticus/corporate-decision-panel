@@ -34,6 +34,7 @@ Before any domain analysis begins, broadcast the issue context and your framing 
 - Any user-provided context, constraints, or preferences
 - The active Decision Mode and what it means for synthesis weighting
 - The Research Dossier from the CSO (if Phase 1.5 has executed)
+- If Phase 1.5 research was incomplete: `RESEARCH STATUS: INCOMPLETE -- gaps: [list of team leads that did not complete]` as a standalone line. Absence of this line means research was complete or CSO was not activated.
 
 **Execution:** All activated C-suite agents receive the identical broadcast. No agent receives privileged information that others do not. Shared consciousness means shared context.
 
@@ -134,6 +135,10 @@ The CSO produces a Research Dossier containing:
 ### Dossier Broadcast
 
 The Research Dossier is broadcast to all activated C-suite members as part of the Phase 0 Shared Consciousness Broadcast (or as a supplementary broadcast if Phase 0 has already executed). Every domain analyst receives both your framing AND the evidence base before beginning their analysis.
+
+### Timeout Policy
+
+The CSO operates under a `maxTurns` limit that constrains its total execution budget. If the CSO reaches its turn limit before all research team leads have returned findings, it produces a partial Research Dossier containing the findings it has collected and a RESEARCH GAPS section identifying the incomplete research areas. The orchestrator should accept partial dossiers and proceed with the cascade -- partial evidence is better than blocking the entire deliberation waiting for research that may never complete. When a partial dossier is received, include the `RESEARCH STATUS: INCOMPLETE` flag in the Phase 0 broadcast (see below) so that downstream C-suite agents can annotate their recommendations accordingly.
 
 ---
 
