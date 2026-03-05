@@ -533,7 +533,7 @@ no CDN, works from `file://`, PDF-compatible.
 Output: `{session-output}/index.html`
 Spec: `templates/production/decision-briefing-page.md`
 
-**Task E -- Archivist** (blocked by D)
+**Task E -- Archivist** (blocked by D, maxTurns: 15)
 Produces Results PDF (print rendering of index.html) and Deliberation
 Capsule PDF (Cover + 5 layers: Overview, Decision, Analysis, Process,
 Context). Technology: weasyprint (fallback: pdfkit/wkhtmltopdf).

@@ -254,7 +254,7 @@ Task C: Document Agent (DOCX editable report)       --/
                                                       |
 Task D: Web Page Agent (HTML briefing page)    <-- blocked by A + B + C
                                                       |
-Task E: Archivist (Results PDF + Capsule PDF)  <-- blocked by D
+Task E: Archivist (Results PDF + Capsule PDF, maxTurns: 15)  <-- blocked by D
 ```
 
 **Spawn commands:**
