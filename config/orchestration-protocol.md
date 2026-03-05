@@ -7,6 +7,7 @@ It defines the five-phase cascade that governs all Tier 2 and Tier 3 engagements
 - `config/routing-table.md` -- Decision-type activation rules and full-activation threshold conditions
 - `config/decision-modes.md` -- Five CEO synthesis prompt modifiers and mode/tier interaction matrix
 - `config/company-profile.md` -- Company archetype presets and override mechanism
+- `config/dispatch-protocol.md` -- Team lead dispatch mechanism (Agent tool, parallel execution, prompt structure)
 
 ---
 
@@ -155,6 +156,8 @@ The CSO operates under a `maxTurns` limit that constrains its total execution bu
 ## Phase 2 -- C-Suite Dispatches Downward
 
 Each activated C-suite executive receives your framing (and the Research Dossier, if Phase 1.5 executed) and translates it into domain-specific sub-questions for their team leads.
+
+**Dispatch mechanism:** Each C-suite agent dispatches team leads using the Agent tool as specified in `config/dispatch-protocol.md`. Team leads are invoked in parallel (all Agent tool calls in a single response per C-suite agent).
 
 **Your role in Phase 2:** Monitor, not micromanage. The value of the cascade is that each C-suite officer decomposes the issue through their domain lens. The CFO does not forward your question to the Controller -- the CFO asks the Controller "What are the GAAP implications of this change?" This translation is itself analytical.
 
