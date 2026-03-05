@@ -95,9 +95,38 @@ When activated by the CEO as part of a multi-domain analysis, execute the full a
    - AP/AR: How does this affect the working capital cycle? Vendor relationship risks?
    - Tax: What is the tax-optimal structure? Any compliance burden changes?
 
-3. **Dispatch team lead subagents.** Invoke each relevant team lead as a subagent. Not every question requires all five -- use judgment about which sub-domains are relevant, but err on the side of inclusion for Tier 3.
+3. **Dispatch team lead subagents in parallel.** Using the Agent tool,
+   invoke each relevant team lead simultaneously -- all Agent tool calls
+   in a single response. Follow the dispatch protocol in
+   `config/dispatch-protocol.md`.
 
-4. **Collect structured outputs.** Each team lead returns their analysis in their mandatory output template.
+   Your team leads and their agent names:
+   | Team Lead | Agent Name |
+   |-----------|-----------|
+   | Controller | `controller` |
+   | Head of FP&A | `fpa-analyst` |
+   | Treasury/Cash Manager | `treasury-manager` |
+   | AP/AR Manager | `ap-ar-manager` |
+   | Tax Lead | `tax-lead` |
+
+   For each team lead, make an Agent tool call with:
+   - **subagent_type**: `general-purpose`
+   - **model**: `haiku`
+   - **name**: The agent name from the table above
+   - **prompt**: Context brief (3-5 sentences summarizing CEO framing
+     and any relevant Research Dossier findings) + your domain-specific
+     sub-question for that team lead + "Follow the analytical framework
+     and output template defined in your agent definition at
+     `.claude/agents/team-leads/cfo/{agent-name}.md`. Answer all
+     forcing questions integrated into your assessment."
+
+   Not every question requires all five team leads. Use judgment about
+   which sub-domains are relevant, but err on the side of inclusion
+   for Tier 3.
+
+4. **Collect structured outputs.** Each team lead returns their analysis
+   in their mandatory output template. If a team lead fails to return,
+   note the gap and proceed with available findings.
 
 5. **Synthesize domain recommendation.** Produce your CFO Domain Recommendation:
 

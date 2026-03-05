@@ -229,7 +229,7 @@ Output spec: `templates/production/advisory-document.md`
 4. Spawn activated C-suite agents as teammates (Sonnet)
 5. Each C-suite agent runs **Mode B** (full analysis):
    - Translates CEO framing into domain sub-questions
-   - Dispatches team lead subagents (Haiku) -- **parallel per domain**
+   - Dispatches team lead subagents via the Agent tool -- **parallel per domain** (all Agent tool calls in a single response per C-suite agent). See `config/dispatch-protocol.md`.
    - Collects team lead findings
    - Synthesizes domain recommendation with confidence level
 6. CEO runs **Phase 5** (abbreviated synthesis):
@@ -675,6 +675,7 @@ Without this file, the generation script cannot run -- a valid API key is requir
 - `config/routing-table.md` -- Decision-type routing defaults and thresholds
 - `config/company-profile.md` -- Archetype presets and override mechanism
 - `config/decision-modes.md` -- Five mode definitions with prompt modifiers
+- `config/dispatch-protocol.md` -- Team lead dispatch mechanism (Agent tool, parallel execution, prompt structure)
 - `.cdp-context/company.md` -- Company facts for grounded reasoning (user-created, gitignored)
 - `.cdp-context/style.md` -- Infographic style overrides (user-created, gitignored)
 - `.cdp-context/config.md` -- API configuration for Image Agent (user-created, gitignored)

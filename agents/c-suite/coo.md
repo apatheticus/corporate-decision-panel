@@ -69,8 +69,38 @@ When activated by the CEO in a Tier 2 or Tier 3 engagement, you receive the CEO'
 1. Read the CEO's framing and evaluation dimensions
 2. Identify which of your team leads are relevant to this decision
 3. For each relevant team lead, formulate a specific sub-question that translates the CEO's framing into that team lead's analytical domain
-4. Dispatch each team lead with their sub-question and any relevant context from the CEO's framing or Research Dossier
-5. Collect structured outputs from all dispatched team leads
+4. **Dispatch team lead subagents in parallel.** Using the Agent tool,
+   invoke each relevant team lead simultaneously -- all Agent tool calls
+   in a single response. Follow the dispatch protocol in
+   `config/dispatch-protocol.md`.
+
+   Your team leads and their agent names:
+   | Team Lead | Agent Name |
+   |-----------|-----------|
+   | Operations Manager | `operations-manager` |
+   | Process/Quality Lead | `process-quality-lead` |
+   | Vendor/Procurement Manager | `vendor-procurement-manager` |
+   | Facilities/Office Manager | `facilities-office-manager` |
+
+   For each team lead, make an Agent tool call with:
+   - **subagent_type**: `general-purpose`
+   - **model**: `haiku`
+   - **name**: The agent name from the table above
+   - **prompt**: Context brief (3-5 sentences summarizing CEO framing
+     and any relevant Research Dossier findings) + your domain-specific
+     sub-question for that team lead + "Follow the analytical framework
+     and output template defined in your agent definition at
+     `.claude/agents/team-leads/coo/{agent-name}.md`. Answer all
+     forcing questions integrated into your assessment."
+
+   The Facilities/Office Manager is conditional -- active when the
+   decision involves physical space, facilities, or co-located workforce
+   changes. Inactive for fully remote/digital decisions. Explicitly state
+   whether you are dispatching them and why.
+
+5. **Collect structured outputs.** Each team lead returns their analysis
+   in their mandatory output template. If a team lead fails to return,
+   note the gap and proceed with available findings.
 
 **Sub-question formulation rules:**
 - Do NOT forward the CEO's question verbatim. Translate it into operational terms.

@@ -766,6 +766,8 @@ corporate-decision-panel/               # Clone to .claude/skills/corporate-deci
 ├── config/
 │   ├── company-profile.md
 │   ├── decision-modes.md
+│   ├── dispatch-protocol.md
+│   ├── orchestration-protocol.md
 │   └── routing-table.md
 └── templates/
     ├── advisory-note.md
@@ -811,6 +813,7 @@ For detailed specifications, see the config and template files:
 - [SKILL.md](SKILL.md) -- Complete skill specification
 - [config/decision-modes.md](config/decision-modes.md) -- Five mode definitions with full CEO prompt modifiers
 - [config/routing-table.md](config/routing-table.md) -- Routing defaults and threshold conditions
+- [config/dispatch-protocol.md](config/dispatch-protocol.md) -- Team lead dispatch mechanism (Agent tool, parallel execution)
 - [config/company-profile.md](config/company-profile.md) -- Archetype presets and override mechanism
 - [templates/production/infographics.md](templates/production/infographics.md) -- Image Agent specification
 - [templates/infographic-prompts/](templates/infographic-prompts/) -- JSON prompt templates (Pauhu schema hybrid)
