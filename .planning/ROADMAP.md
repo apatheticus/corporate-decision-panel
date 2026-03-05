@@ -104,7 +104,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 09-01-PLAN.md — Fix integration gaps: threshold escalation template field and cleanup command discoverability
+- [x] 09-01-PLAN.md — Fix integration gaps: threshold escalation template field and cleanup command discoverability
 
 ## Progress
 
@@ -121,4 +121,4 @@ Phases execute in numeric order: 5 -> 6 -> 7 -> 8
 | 6. Orchestration Hardening | v1.1 | 1/3 | In Progress | - |
 | 7. Specification Formalization | v1.1 | 0/3 | Not started | - |
 | 8. Test Scenarios | v1.1 | 1/2 | In Progress | - |
-| 9. Integration Polish | v1.1 | 0/1 | Not started | - |
+| 9. Integration Polish | v1.1 | 1/1 | Complete | 2026-03-05 |
