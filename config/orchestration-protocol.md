@@ -81,13 +81,15 @@ See `config/routing-table.md` for the complete default activation table and CSO 
 
 After selecting default routing, assess whether ANY of the following five threshold conditions apply. If **any single condition** is met, **all C-suite members activate** regardless of decision type:
 
-1. **Irreversibility** -- The decision is practically irreversible (e.g., acquisition, divestiture, platform decommission, market exit)
-2. **Headcount Impact** -- The decision affects >30% of headcount (e.g., layoff, rapid scaling, full reorg)
-3. **Market Position Change** -- The decision changes the company's market position or business model (e.g., pivot, new market entry, pricing model change)
-4. **Existential Financial Risk** -- The decision involves existential financial risk (e.g., bet-the-company investment, sole funding dependency)
-5. **Domain Uncertainty** -- You are uncertain which domains are relevant (novel or unprecedented situation)
+1. **Irreversibility**
+2. **Headcount Impact**
+3. **Market Position Change**
+4. **Existential Financial Risk**
+5. **Domain Uncertainty**
 
-**State threshold assessment explicitly.** For each condition, state whether it applies and why. If full activation is triggered, state which condition(s) triggered it.
+For each condition, evaluate using the structured diagnostic questions in `config/routing-table.md`. If ANY diagnostic question for a condition answers YES, that condition is triggered.
+
+State threshold assessment explicitly using the per-condition format below (Step 5).
 
 ### Step 5: State Activation and Exclusion Reasoning
 
@@ -95,7 +97,13 @@ Your framing output must include:
 
 - **Activated Teams:** Each activated C-suite role with a one-sentence rationale for why their perspective is needed
 - **Excluded Teams:** Each excluded C-suite role with a one-sentence rationale for why their perspective is NOT needed for this specific decision
-- **Threshold Conditions:** Which of the five full-activation conditions were assessed and their status (triggered / not triggered)
+- **Threshold Assessment:**
+  1. Irreversibility: [TRIGGERED/NOT TRIGGERED] -- [one-sentence reasoning citing diagnostic question result]
+  2. Headcount Impact: [TRIGGERED/NOT TRIGGERED] -- [one-sentence reasoning]
+  3. Market Position Change: [TRIGGERED/NOT TRIGGERED] -- [one-sentence reasoning]
+  4. Existential Financial Risk: [TRIGGERED/NOT TRIGGERED] -- [one-sentence reasoning]
+  5. Domain Uncertainty: [TRIGGERED/NOT TRIGGERED] -- [one-sentence reasoning]
+  Full activation: [YES (conditions N triggered) / NO]
 - **CSO Activation:** Whether the CSO is activated, with rationale
 - **Override Notes:** Any deviations from the default routing table, with reasoning
 
