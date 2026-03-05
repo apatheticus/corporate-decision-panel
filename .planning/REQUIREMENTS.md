@@ -26,7 +26,7 @@ Requirements for v1.1 milestone. Each maps to roadmap phases.
 
 - [x] **SPEC-01**: Each of the 5 routing threshold conditions has structured diagnostic questions with YES/NO evaluation criteria
 - [x] **SPEC-02**: Routing thresholds include calibration exemplars (concrete decision examples showing how each threshold evaluates)
-- [ ] **SPEC-03**: CEO explicitly evaluates each threshold in Phase 1 framing output, making routing auditable
+- [x] **SPEC-03**: CEO explicitly evaluates each threshold in Phase 1 framing output, making routing auditable
 - [x] **SPEC-04**: Each of the 5 decision modes has an explicit directional weighting table (HIGH/MODERATE/LOW per perspective)
 - [x] **SPEC-05**: Multi-mode cost formula is documented with actual calculation: (1 x Domain Analysis) + (N x CEO Synthesis)
 - [x] **SPEC-06**: Multi-mode documentation includes example cost calculations for typical panel sizes
@@ -95,7 +95,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ORCH-05 | Phase 6 | Complete |
 | SPEC-01 | Phase 7 | Complete |
 | SPEC-02 | Phase 7 | Complete |
-| SPEC-03 | Phase 7 | Pending |
+| SPEC-03 | Phase 7 | Complete |
 | SPEC-04 | Phase 7 | Complete |
 | SPEC-05 | Phase 7 | Complete |
 | SPEC-06 | Phase 7 | Complete |
