@@ -1,7 +1,7 @@
 # Requirements: CDP v1.1 Initial Design Concerns
 
 **Defined:** 2026-03-04
-**Core Value:** Infographic generation must work without browser interaction — a single API call per infographic that returns a PNG, driven by the same Decision Record data.
+**Core Value:** Infographic generation must work without browser interaction -- a single API call per infographic that returns a PNG, driven by the same Decision Record data.
 
 ## v1.1 Requirements
 
@@ -28,7 +28,7 @@ Requirements for v1.1 milestone. Each maps to roadmap phases.
 - [ ] **SPEC-02**: Routing thresholds include calibration exemplars (concrete decision examples showing how each threshold evaluates)
 - [ ] **SPEC-03**: CEO explicitly evaluates each threshold in Phase 1 framing output, making routing auditable
 - [ ] **SPEC-04**: Each of the 5 decision modes has an explicit directional weighting table (HIGH/MODERATE/LOW per perspective)
-- [ ] **SPEC-05**: Multi-mode cost formula is documented with actual calculation: (1 × Domain Analysis) + (N × CEO Synthesis)
+- [ ] **SPEC-05**: Multi-mode cost formula is documented with actual calculation: (1 x Domain Analysis) + (N x CEO Synthesis)
 - [ ] **SPEC-06**: Multi-mode documentation includes example cost calculations for typical panel sizes
 
 ### Test Coverage
@@ -84,31 +84,31 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ARCH-01 | — | Pending |
-| ARCH-02 | — | Pending |
-| ARCH-03 | — | Pending |
-| ARCH-04 | — | Pending |
-| ORCH-01 | — | Pending |
-| ORCH-02 | — | Pending |
-| ORCH-03 | — | Pending |
-| ORCH-04 | — | Pending |
-| ORCH-05 | — | Pending |
-| SPEC-01 | — | Pending |
-| SPEC-02 | — | Pending |
-| SPEC-03 | — | Pending |
-| SPEC-04 | — | Pending |
-| SPEC-05 | — | Pending |
-| SPEC-06 | — | Pending |
-| TEST-01 | — | Pending |
-| TEST-02 | — | Pending |
-| TEST-03 | — | Pending |
-| TEST-04 | — | Pending |
+| ARCH-01 | Phase 5 | Pending |
+| ARCH-02 | Phase 5 | Pending |
+| ARCH-03 | Phase 5 | Pending |
+| ARCH-04 | Phase 5 | Pending |
+| ORCH-01 | Phase 6 | Pending |
+| ORCH-02 | Phase 6 | Pending |
+| ORCH-03 | Phase 6 | Pending |
+| ORCH-04 | Phase 6 | Pending |
+| ORCH-05 | Phase 6 | Pending |
+| SPEC-01 | Phase 7 | Pending |
+| SPEC-02 | Phase 7 | Pending |
+| SPEC-03 | Phase 7 | Pending |
+| SPEC-04 | Phase 7 | Pending |
+| SPEC-05 | Phase 7 | Pending |
+| SPEC-06 | Phase 7 | Pending |
+| TEST-01 | Phase 8 | Pending |
+| TEST-02 | Phase 8 | Pending |
+| TEST-03 | Phase 8 | Pending |
+| TEST-04 | Phase 8 | Pending |
 
 **Coverage:**
 - v1.1 requirements: 19 total
-- Mapped to phases: 0
-- Unmapped: 19 ⚠️
+- Mapped to phases: 19
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-04*
-*Last updated: 2026-03-04 after initial definition*
+*Last updated: 2026-03-04 after roadmap creation*
