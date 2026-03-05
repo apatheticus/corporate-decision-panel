@@ -2,7 +2,7 @@
 
 ## What This Is
 
-Migrated the Corporate Decision Panel's infographic generation system from browser-based automation to direct Gemini API calls via the `google-generativeai` SDK. All six infographic types now generate via a single Python script with automatic retry, vision-based quality validation, and session orchestration.
+The Corporate Decision Panel (CDP) is an AI-powered executive decision framework that orchestrates a panel of C-suite agent perspectives (CEO, CFO, CTO, CISO, CAO, COO, VP Sales, VP Delivery, CSO) through a structured deliberation cascade. It includes infographic generation via Gemini API, formalized routing and specification documents, and comprehensive test scenarios for edge-case validation.
 
 ## Core Value
 
@@ -30,21 +30,21 @@ Infographic generation must work without browser interaction — a single API ca
 - ✓ Session orchestrator with adaptive rate limiting — v1.0
 - ✓ All browser automation references removed — v1.0
 - ✓ Documentation updated for API-based workflow — v1.0
+- ✓ CEO orchestration protocol extracted into standalone config — v1.1
+- ✓ CEO agent under 350 lines with zero orchestration duplication — v1.1
+- ✓ C-suite executive summaries for efficient synthesis — v1.1
+- ✓ CEO summary-first synthesis with conflict-triggered deep-dive — v1.1
+- ✓ Pre-flight dependency validation for production pipeline — v1.1
+- ✓ CSO timeout protection with gap reporting — v1.1
+- ✓ C-suite confidence caveats for incomplete research — v1.1
+- ✓ Session cleanup command (/cdp:cleanup) — v1.1
+- ✓ Structured routing threshold decision trees with calibration exemplars — v1.1
+- ✓ Directional weighting tables for all 5 decision modes — v1.1
+- ✓ Multi-mode cost formula with worked examples — v1.1
+- ✓ CEO per-condition threshold evaluation for audit trail — v1.1
+- ✓ Test scenarios: Tier 2 routing, pre-mortem degraded input, mode sensitivity — v1.1
 
 ### Active
-
-<!-- v1.1 Initial Design Concerns -->
-- [ ] CEO agent refactor — extract orchestration protocol from monolithic 682-line agent
-- [ ] Production pipeline pre-flight — validate dependencies before artifact generation
-- [ ] CSO Phase 1.5 timeout — add error handling for research execution
-- [ ] CEO token usage — C-suite executive summaries to reduce synthesis input
-- [ ] Routing threshold formalization — decision trees for 5 threshold conditions
-- [ ] Decision mode mapping — explicit condition→weighting tables
-- [ ] Multi-mode cost formula — document actual costs, add estimation
-- [ ] Session output cleanup — archive/cleanup mechanism for session directories
-- [ ] Tier 2 routing test — validate partial activation exclusion
-- [ ] Pre-Mortem (Phase 4.5) test — validate with partial/missing responses
-- [ ] Mode sensitivity criteria — define divergence threshold, test consistency
 
 <!-- Deferred from v1.0 backlog -->
 - [ ] Model profile switch — Flash for development, Pro for production
@@ -52,16 +52,7 @@ Infographic generation must work without browser interaction — a single API ca
 - [ ] Concurrent generation with IPM-aware rate limiting
 - [ ] Imagen 4 as alternative model option
 
-## Current Milestone: v1.1 Initial Design Concerns
-
-**Goal:** Address architectural, specification, and testing concerns identified in the codebase audit to improve reliability, clarity, and maintainability.
-
-**Target features:**
-- CEO agent refactoring (orchestration extraction + token optimization)
-- Production pipeline robustness (pre-flight validation + session cleanup)
-- Specification formalization (routing thresholds, decision modes, cost formula)
-- Orchestration resilience (CSO Phase 1.5 timeout handling)
-- Test coverage (Tier 2 routing, Pre-Mortem, mode sensitivity)
+## Current Milestone: Planning next milestone
 
 ### Out of Scope
 
@@ -74,10 +65,11 @@ Infographic generation must work without browser interaction — a single API ca
 
 ## Context
 
-Shipped v1.0 with 4,910 LOC Python (188 tests).
+Shipped v1.1 with 4,910 LOC Python (188 tests) + 15,713 LOC markdown specs/agents.
 Tech stack: Python, google-generativeai SDK, Pillow, pytest.
 Key files: `scripts/config.py`, `scripts/preflight.py`, `scripts/generate_infographic.py`, `scripts/validation.py`, `scripts/session.py`.
-All six infographic types verified with live API generation.
+Agent/config files: `agents/ceo.md`, `config/orchestration-protocol.md`, `config/routing-table.md`, `config/decision-modes.md`, `SKILL.md`.
+All six infographic types verified with live API generation. 19 v1.1 requirements satisfied across 5 phases.
 
 ## Constraints
 
@@ -100,6 +92,12 @@ All six infographic types verified with live API generation.
 | Non-blocking validation (API error = pass-with-warning) | Quality gate shouldn't block generation | ✓ Good — robust in production |
 | 4s inter-call delay with adaptive doubling on 429 | Balance throughput and rate limiting | ✓ Good — full sessions complete cleanly |
 | warning_only propagation to session summary | OK+WARN distinguishes clean vs validated-with-issues | ✓ Good — useful status granularity |
+| Extract orchestration from CEO into config/ | CEO monolith → focused agent + referenced protocol | ✓ Good — 348-line CEO, 307-line protocol, zero duplication |
+| Directional weighting (HIGH/MOD/LOW) not numeric | LLMs can't reliably apply 1.5x multipliers | ✓ Good — explicit out-of-scope constraint validated |
+| maxTurns: 25 as CSO timeout ceiling | Balance research depth with session reliability | ✓ Good — graceful degradation with gap reporting |
+| User-specified roles override threshold routing at Tier 2 | Preserve user intent; thresholds surface as escalation | ✓ Good — clear separation of user intent vs system recommendation |
+| Countable dimensions for mode sensitivity | 3 dimensions with CONVERGE/PARTIAL/DIVERGE, no computed ratios | ✓ Good — LLM-appropriate quantification |
+| Clean session deletion, no archival | Users wanting preservation should version-control | ✓ Good — keeps cleanup simple |
 
 ---
-*Last updated: 2026-03-04 after v1.1 milestone started*
+*Last updated: 2026-03-05 after v1.1 milestone complete*
