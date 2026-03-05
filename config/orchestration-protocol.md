@@ -81,6 +81,8 @@ See `config/routing-table.md` for the complete default activation table and CSO 
 
 After selecting default routing, assess whether ANY of the following five threshold conditions apply. If **any single condition** is met, **all C-suite members activate** regardless of decision type:
 
+> **Tier 2 scoping:** Full-activation threshold override applies to CEO-routed engagements (Tier 3 and auto-routed Tier 2). For Tier 2 engagements where the user has specified roles, user-specified roles take precedence -- the CEO still evaluates all five threshold conditions but does not override the user's role selection. Instead, triggered thresholds are surfaced in the Panel Assessment's Escalation Note as a recommendation to escalate to Tier 3 with full activation. This preserves the diagnostic value of threshold evaluation while respecting user intent.
+
 1. **Irreversibility**
 2. **Headcount Impact**
 3. **Market Position Change**
