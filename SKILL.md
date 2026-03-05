@@ -15,6 +15,7 @@ invocation:
   - /cdp:deliberate
   - /cdp:evaluate
   - /cdp:production
+  - /cdp:cleanup
 ---
 
 # Corporate Decision Panel
@@ -167,6 +168,17 @@ Examples:
 - `/cdp:production` — most recent session
 - `/cdp:production .cdp-output/2026-02-28_should-we-acquire-competitor-x/`
 - `/cdp:production acquire-competitor` — fuzzy slug match
+
+### Session Cleanup
+```
+/cdp:cleanup [--older-than days?]
+```
+Deletes old CDP session directories from `.cdp-output/` with age-based
+filtering and a confirmation prompt before deletion. Default threshold
+is 30 days.
+
+- `/cdp:cleanup` -- delete sessions older than 30 days
+- `/cdp:cleanup --older-than 7` -- delete sessions older than 7 days
 
 ---
 
