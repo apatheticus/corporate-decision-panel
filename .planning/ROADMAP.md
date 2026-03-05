@@ -54,11 +54,12 @@ Plans:
   3. CSO Phase 1.5 research that exceeds its maxTurns limit broadcasts partial results with explicit gap reporting identifying what research was not completed
   4. C-suite agents receiving incomplete CSO research annotate their recommendations with confidence caveats explaining what information was unavailable
   5. A cleanup command deletes old session directories with age-based filtering and confirmation prompt before deletion
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 06-01: TBD
-- [ ] 06-02: TBD
+- [ ] 06-01-PLAN.md — Add pre-flight dependency validation to SKILL.md production section
+- [ ] 06-02-PLAN.md — Add CSO timeout handling with gap reporting and C-suite confidence caveats
+- [ ] 06-03-PLAN.md — Create /cdp:cleanup session cleanup command
 
 ### Phase 7: Specification Formalization
 **Goal**: Routing thresholds, decision mode weightings, and multi-mode costs are documented as structured specifications rather than embedded prose
@@ -101,6 +102,6 @@ Phases execute in numeric order: 5 -> 6 -> 7 -> 8
 | 3. Error Handling and Quality | v1.0 | 3/3 | Complete | 2026-03-04 |
 | 4. Scale and Docs | v1.0 | 3/3 | Complete | 2026-03-04 |
 | 5. CEO Architecture | v1.1 | 1/2 | In Progress | - |
-| 6. Orchestration Hardening | v1.1 | 0/? | Not started | - |
+| 6. Orchestration Hardening | v1.1 | 0/3 | Not started | - |
 | 7. Specification Formalization | v1.1 | 0/? | Not started | - |
 | 8. Test Scenarios | v1.1 | 0/? | Not started | - |
