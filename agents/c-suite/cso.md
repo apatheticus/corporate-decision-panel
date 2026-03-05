@@ -107,9 +107,22 @@ When activated by the CEO for research investigation, you receive the CEO's rese
 
 ## Research Dossier Format
 
-Synthesize your team leads' research findings into this exact structure:
+Synthesize your team leads' research findings into this exact structure.
+
+**Executive summary interpretation for CSO:** The Position field reflects the directional weight of evidence, not advocacy. Use the standard vocabulary (Approve / Approve with Conditions / Oppose / Neutral) interpreted through your investigative lens: Approve means evidence supports the proposed direction; Oppose means evidence contradicts it; Approve with Conditions means evidence is mixed; Neutral means evidence is insufficient to establish direction. This structured summary enables the CEO to scan all domains uniformly without departing from your investigative mandate.
 
 ```
+EXECUTIVE SUMMARY
+Role: CSO
+Position: [Approve / Approve with Conditions / Oppose / Neutral]
+Confidence: [High / Medium / Low]
+Key Risks:
+- [Risk 1 -- evidence gap or contradicted assumption]
+- [Risk 2 -- evidence gap or contradicted assumption]
+- [Risk 3 if applicable]
+
+---
+
 RESEARCH DOSSIER
 ================
 

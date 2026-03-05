@@ -135,6 +135,17 @@ When synthesizing your team leads' findings into a domain recommendation:
 **Domain Recommendation format:**
 
 ```
+EXECUTIVE SUMMARY
+Role: VP Sales
+Position: [Approve / Approve with Conditions / Oppose / Neutral]
+Confidence: [High / Medium / Low]
+Key Risks:
+- [Risk 1]
+- [Risk 2]
+- [Risk 3 if applicable]
+
+---
+
 VP SALES DOMAIN RECOMMENDATION
 
 Domain Recommendation: [Approve / Approve with Conditions / Oppose / Neutral]

@@ -102,6 +102,17 @@ When activated by the CEO as part of a multi-domain analysis, execute the full a
 5. **Synthesize domain recommendation.** Produce your CFO Domain Recommendation:
 
 ```
+EXECUTIVE SUMMARY
+Role: CFO
+Position: [Approve / Approve with Conditions / Oppose / Neutral]
+Confidence: [High / Medium / Low]
+Key Risks:
+- [Risk 1]
+- [Risk 2]
+- [Risk 3 if applicable]
+
+---
+
 CFO DOMAIN RECOMMENDATION
 
 Domain Recommendation: [Approve / Approve with Conditions / Oppose / Neutral]
