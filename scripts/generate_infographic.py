@@ -824,13 +824,27 @@ def generate_with_retry(
             result.output_path, data_path, config_dir
         )
 
-        if validation.passed:  # includes warning_only
-            status_detail = type_slug
-            if validation.warning_only:
-                status_detail += " (warnings)"
-            _status("VALIDATED", status_detail)
+        if validation.passed and not validation.warning_only:
+            # Clean pass -- return immediately
+            _status("VALIDATED", type_slug)
             result.had_rate_limit = had_rate_limit
-            result.warning_only = validation.warning_only
+            result.warning_only = False
+            return result
+
+        if validation.passed and validation.warning_only:
+            # Pass with warnings -- retry with corrective feedback
+            if attempt < max_attempts - 1:
+                corrective_feedback = validation.feedback or "; ".join(validation.warnings)
+                _status(
+                    "VALIDATION_WARNED",
+                    f"{type_slug} -- retrying with feedback",
+                )
+                continue
+
+            # Budget exhausted -- accept with warning_only
+            _status("VALIDATED", f"{type_slug} (warnings)")
+            result.had_rate_limit = had_rate_limit
+            result.warning_only = True
             return result
 
         # Validation failed -- retry with corrective feedback

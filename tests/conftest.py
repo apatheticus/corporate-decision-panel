@@ -243,6 +243,7 @@ def mock_validation_pass_response():
         "VERDICT: PASS\n"
         "WARNINGS: none\n"
         "MISSING: none\n"
+        "GARBLED: none\n"
         "FEEDBACK: none"
     )
     return response
@@ -259,6 +260,24 @@ def mock_validation_fail_response():
         "VERDICT: FAIL\n"
         "WARNINGS: none\n"
         "MISSING: Revenue label\n"
+        "GARBLED: none\n"
         "FEEDBACK: Ensure Revenue label appears clearly"
+    )
+    return response
+
+
+@pytest.fixture
+def mock_validation_garbled_response():
+    """A mock Gemini vision response indicating garbled text detected.
+
+    Returns structured text with VERDICT: FAIL and garbled text items.
+    """
+    response = MagicMock()
+    response.text = (
+        "VERDICT: FAIL\n"
+        "WARNINGS: none\n"
+        "MISSING: none\n"
+        "GARBLED: Emmerruation, Recommendians\n"
+        "FEEDBACK: Fix garbled text: 'Emmerruation' should be 'Enumeration'"
     )
     return response
