@@ -70,11 +70,12 @@ Plans:
   2. CEO Phase 1 framing output explicitly evaluates each threshold condition, making the routing decision auditable
   3. Each of the 5 decision modes has a directional weighting table specifying HIGH/MODERATE/LOW influence per C-suite perspective
   4. Multi-mode cost formula is documented with the actual calculation and includes worked examples for typical panel sizes
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 07-01: TBD
-- [ ] 07-02: TBD
+- [ ] 07-01-PLAN.md — Expand routing threshold conditions into structured decision trees with diagnostic questions and calibration exemplars
+- [ ] 07-02-PLAN.md — Add directional weighting tables to decision modes and expand multi-mode cost formula with worked examples
+- [ ] 07-03-PLAN.md — Update orchestration protocol and CEO template for structured per-condition threshold evaluation
 
 ### Phase 8: Test Scenarios
 **Goal**: Specification-level test scenarios validate routing, pre-mortem, and mode sensitivity behavior against formalized specs
@@ -103,5 +104,5 @@ Phases execute in numeric order: 5 -> 6 -> 7 -> 8
 | 4. Scale and Docs | v1.0 | 3/3 | Complete | 2026-03-04 |
 | 5. CEO Architecture | v1.1 | 2/2 | Complete | 2026-03-04 |
 | 6. Orchestration Hardening | v1.1 | 1/3 | In Progress | - |
-| 7. Specification Formalization | v1.1 | 0/? | Not started | - |
+| 7. Specification Formalization | v1.1 | 0/3 | Not started | - |
 | 8. Test Scenarios | v1.1 | 0/? | Not started | - |
