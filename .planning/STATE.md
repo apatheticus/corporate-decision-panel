@@ -4,14 +4,14 @@ milestone: v1.1
 milestone_name: Initial Design Concerns
 status: executing
 stopped_at: Completed 07-02-PLAN.md
-last_updated: "2026-03-05T10:58:41Z"
+last_updated: "2026-03-05T11:00:18.117Z"
 last_activity: 2026-03-05 -- Completed 07-02 decision mode weighting tables and cost formula
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 8
-  completed_plans: 7
-  percent: 75
+  completed_plans: 8
+  percent: 88
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-03-04)
 ## Current Position
 
 Phase: 7 of 8 (Specification Formalization) -- v1.1
-Plan: 1 of 3 complete (07-01)
+Plan: 2 of 3 complete (07-02)
 Status: In progress
-Last activity: 2026-03-05 -- Completed 07-01 routing threshold decision trees
+Last activity: 2026-03-05 -- Completed 07-02 decision mode weighting tables and cost formula
 
-Progress: [████████░░] 75%
+Progress: [█████████░] 88%
 
 ## Performance Metrics
 
@@ -56,6 +56,7 @@ Progress: [████████░░] 75%
 | Phase 06 P01 | 1min | 1 tasks | 1 files |
 | Phase 06 P02 | 3min | 2 tasks | 9 files |
 | Phase 07 P01 | 2min | 1 tasks | 1 files |
+| Phase 07 P02 | 3min | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -77,6 +78,7 @@ Recent decisions affecting current work:
 - [Phase 06]: Pre-flight validation is agent-readable markdown instructions, not a Python script; Task D always spawns (06-01)
 - [Phase 06]: maxTurns: 25 as CSO ceiling; RESEARCH STATUS is standalone pattern-matchable flag; Research Basis: Partial only on incomplete (06-02)
 - [Phase 07]: Three diagnostic questions per threshold for comprehensive coverage; all exemplars include borderline case (07-01)
+- [Phase 07]: Architect/Analyst/Sentinel use uniform MODERATE with criteria-based qualifying notes; cost formula uses generic K/L/N variables (07-02)
 
 ### Pending Todos
 
@@ -89,6 +91,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-05T10:59:04.908Z
-Stopped at: Completed 07-01-PLAN.md
+Last session: 2026-03-05T11:00:17.300Z
+Stopped at: Completed 07-02-PLAN.md
 Resume file: None
