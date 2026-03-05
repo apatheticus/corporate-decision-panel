@@ -154,14 +154,51 @@ Each mode produces distinct behavioral patterns at each engagement tier:
 
 Domain analysis is mode-independent. Multi-mode comparison runs domain analysis once (the expensive part) and CEO synthesis multiple times (cheap, single-agent passes).
 
-**Cost:** Approximately 1.1x a single deliberation for 5x the strategic insight.
-
 **Invocation patterns:**
 - Single mode: `/deliberate guardian: [issue]`
 - Two-mode comparison: `/deliberate guardian vs pioneer: [issue]`
 - All modes: `/deliberate all-modes: [issue]`
 - Tier 1 with mode: `/consult cfo guardian: [question]`
 - Tier 2 with mode: `/panel pioneer finance tech: [issue]`
+
+### Multi-Mode Cost Formula
+
+**Formula:** Total Cost = (1 x Full Domain Analysis) + (N x CEO Synthesis Pass)
+
+Where:
+- **Full Domain Analysis** = Phase 0 broadcast + Phase 1 framing + Phase 1.5 research (if CSO activated) + Phase 2 C-suite dispatch + Phase 3 team lead analysis + Phase 4 C-suite synthesis + Phase 4.5 pre-mortem (Tier 3 only)
+- **CEO Synthesis Pass** = Phase 5 only (CEO reads recommendations and produces Decision Record with one mode's prompt modifier)
+- **N** = number of modes requested (1 for single mode, 2 for comparison, 5 for all-modes)
+
+### Why the Marginal Cost Is Low
+
+The domain analysis (Phases 0-4/4.5) is the expensive part: it involves spawning K C-suite agents, each dispatching to their team leads (L total team lead invocations for full activation). The CEO synthesis pass (Phase 5) is a single agent producing a single document from already-collected inputs -- no subagent spawning, no new analysis.
+
+**Generic formula:** Cost ratio for N modes = (K + L + N) / (K + L + 1)
+
+As K + L grows, the marginal cost of additional synthesis passes approaches zero.
+
+### Worked Examples
+
+**Example 1: Two-mode comparison (Guardian vs Pioneer), Tier 3, full activation**
+- Domain analysis (once): 1 CEO framing + 8 C-suite + 29 team leads = 38 agent invocations
+- CEO synthesis (2x): 2 invocations
+- Total: 40 invocations vs. 39 for single-mode = 1.03x cost
+
+**Example 2: All-modes comparison (5 modes), Tier 3, full activation**
+- Domain analysis (once): 1 CEO framing + 8 C-suite + 29 team leads = 38 agent invocations
+- CEO synthesis (5x): 5 invocations
+- Total: 43 invocations vs. 39 for single-mode = 1.10x cost
+
+**Example 3: Two-mode comparison, Tier 2, partial activation (3 C-suite, ~12 team leads)**
+- Domain analysis (once): 1 CEO framing + 3 C-suite + 12 team leads = 16 agent invocations
+- CEO synthesis (2x): 2 invocations
+- Total: 18 invocations vs. 17 for single-mode = 1.06x cost
+
+**Example 4: All-modes comparison, Tier 2, partial activation (3 C-suite, ~12 team leads)**
+- Domain analysis (once): 1 CEO framing + 3 C-suite + 12 team leads = 16 agent invocations
+- CEO synthesis (5x): 5 invocations
+- Total: 21 invocations vs. 17 for single-mode = 1.24x cost
 
 **Mode Sensitivity** is a novel signal: if all modes produce the same decision, the evidence speaks for itself regardless of risk appetite. If modes diverge dramatically, the user's personal risk appetite is the deciding factor, not the analysis.
 
