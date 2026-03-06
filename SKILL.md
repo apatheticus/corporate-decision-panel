@@ -575,11 +575,11 @@ verbatim. No summarization, no reformatting.
 
 ### Orchestrator Spawn Sequence
 ```
-TaskCreate: "Generate analytical infographics via Gemini API script"  -> task A
-TaskCreate: "Create board presentation (PPTX)"               -> task B
-TaskCreate: "Create board document (DOCX)"                   -> task C
-TaskCreate: "Create interactive decision briefing page"      -> task D
-TaskCreate: "Produce Results PDF and Deliberation Capsule"   -> task E
+TaskCreate: "Generate analytical infographic images via Gemini API script"  -> task A
+TaskCreate: "Create a PowerPoint presentation (.pptx) — the board deck"    -> task B
+TaskCreate: "Create a Word document (.docx) — the board report"            -> task C
+TaskCreate: "Create an interactive web page (HTML) — the decision briefing page"  -> task D
+TaskCreate: "Create PDF documents — the Results PDF and Deliberation Capsule"     -> task E
 
 TaskUpdate: { taskId: D, addBlockedBy: [A, B, C] }
 TaskUpdate: { taskId: E, addBlockedBy: [D] }
@@ -592,7 +592,7 @@ agents behave identically regardless of original vs. re-run invocation.
 
 **Tier 1 Spawn Sequence:** Single TaskCreate for the Advisory Document DOCX. No dependencies, no blocking — one agent, one artifact.
 ```
-TaskCreate: "Create advisory document (DOCX)
+TaskCreate: "Create a Word document (.docx) — the advisory memo
   Session output: <absolute-path>  Issue slug: <issue-slug>"            -> Task C'
 ```
 

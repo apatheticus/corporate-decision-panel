@@ -13,6 +13,12 @@ The board presentation structures the decision briefing for live presentation --
 
 ---
 
+## Supplemental Skills
+
+Before starting implementation, review available skills for any relevant to this artifact type. Invoke applicable skills using the Skill tool to load additional guidance into your context. If no relevant skills are found, proceed — this template is self-contained and sufficient on its own.
+
+---
+
 ## Technology
 
 **Library:** `pptxgenjs` (Node.js)

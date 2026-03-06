@@ -13,6 +13,12 @@ The board document is the editable artifact designed for executive review workfl
 
 ---
 
+## Supplemental Skills
+
+Before starting implementation, review available skills for any relevant to this artifact type. Invoke applicable skills using the Skill tool to load additional guidance into your context. If no relevant skills are found, proceed — this template is self-contained and sufficient on its own.
+
+---
+
 ## Technology
 
 **Library:** `docx` npm package (docx-js)

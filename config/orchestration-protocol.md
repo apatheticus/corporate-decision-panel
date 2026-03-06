@@ -263,18 +263,18 @@ Task E: Archivist (Results PDF + Capsule PDF, maxTurns: 15)  <-- blocked by D
 **Spawn commands:**
 
 ```
-TaskCreate: "Generate analytical infographics via Gemini API script
+TaskCreate: "Generate analytical infographic images via Gemini API script
   Extract data from Decision Record per infographic type
   Write data JSON files to {session}/images/ per type
   Import and call run_session() from scripts.session to generate all types
   Session output: <absolute-path>  Issue slug: <issue-slug>"            -> Task A
-TaskCreate: "Create board presentation (PPTX)
+TaskCreate: "Create a PowerPoint presentation (.pptx) — the board deck
   Session output: <absolute-path>  Issue slug: <issue-slug>"            -> Task B
-TaskCreate: "Create board document (DOCX)
+TaskCreate: "Create a Word document (.docx) — the board report
   Session output: <absolute-path>  Issue slug: <issue-slug>"            -> Task C
-TaskCreate: "Create interactive decision briefing page
+TaskCreate: "Create an interactive web page (HTML) — the decision briefing page
   Session output: <absolute-path>  Issue slug: <issue-slug>"            -> Task D
-TaskCreate: "Produce Results PDF and Deliberation Capsule
+TaskCreate: "Create PDF documents — the Results PDF and Deliberation Capsule
   Session output: <absolute-path>  Issue slug: <issue-slug>"            -> Task E
 
 TaskUpdate: { taskId: D, addBlockedBy: [A, B, C] }

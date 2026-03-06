@@ -17,6 +17,12 @@ The Archivist produces two PDF artifacts:
 
 ---
 
+## Supplemental Skills
+
+Before starting implementation, review available skills for any relevant to this artifact type. Invoke applicable skills using the Skill tool to load additional guidance into your context. If no relevant skills are found, proceed — this template is self-contained and sufficient on its own.
+
+---
+
 ## Technology
 
 **Primary:** Python build script using `weasyprint` for HTML-to-PDF rendering.

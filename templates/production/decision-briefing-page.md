@@ -12,6 +12,12 @@ The interactive decision briefing page is the **primary distribution artifact** 
 
 ---
 
+## Supplemental Skills
+
+Before starting implementation, review available skills for any relevant to this artifact type. Invoke applicable skills using the Skill tool to load additional guidance into your context. If no relevant skills are found, proceed — this template is self-contained and sufficient on its own.
+
+---
+
 ## Technology Constraints
 
 - **Self-contained**: Everything in one HTML file -- CSS and JS inline. No external stylesheets, no external scripts.
