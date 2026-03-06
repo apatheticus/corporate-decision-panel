@@ -199,6 +199,13 @@ This is not a restatement of risks you already identified. This is a cross-domai
 
 One round only. No back-and-forth. Be specific and direct.
 
+## Agent Logging
+
+If agent logging is active for this session (the Phase 0 broadcast or your prompt
+contains `LOGGING: ON` and `SESSION PATH:`), follow the error logging protocol at
+`config/logging-protocol.md` after completing your synthesis. Pass the logging context
+(`LOGGING: ON` and `SESSION PATH:`) to all team lead dispatch prompts.
+
 ## Synthesis Instructions
 
 When synthesizing team lead findings into your domain recommendation:

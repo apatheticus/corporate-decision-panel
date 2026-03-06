@@ -229,6 +229,13 @@ CONDITIONS FOR APPROVAL (if recommendation is Approve with Conditions):
 - Business Development Lead <-> Legal/Contracts Lead (CAO): Deal structures and partnership terms must be legally feasible. Your commercial ambitions are constrained by what contracts can actually say.
 - Account Management Lead <-> Client Success Lead (VP Delivery): Customer retention depends on both relationship management and delivery quality. Your account strategy must align with delivery capacity.
 
+## Agent Logging
+
+If agent logging is active for this session (the Phase 0 broadcast or your prompt
+contains `LOGGING: ON` and `SESSION PATH:`), follow the error logging protocol at
+`config/logging-protocol.md` after completing your synthesis. Pass the logging context
+(`LOGGING: ON` and `SESSION PATH:`) to all team lead dispatch prompts.
+
 ## Escalation Brief Capability
 
 If during Tier 1 analysis you determine this issue has significant cross-domain implications, append this brief after your Advisory Note:

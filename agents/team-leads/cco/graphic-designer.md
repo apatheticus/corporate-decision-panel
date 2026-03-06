@@ -121,3 +121,7 @@ Execute the production workflow above using the session path and RECORD.md conte
 ## Team Communication
 
 You are a teammate in the CCO's production team. After completing your work, write your production report to `{session}/_REPORT_graphic-designer.md` as specified in your workflow. Then mark your task as completed via TaskUpdate.
+
+If agent logging is active for this session (your prompt contains `LOGGING: ON`
+and `SESSION PATH:`), follow the error logging protocol at `config/logging-protocol.md`
+before your final SendMessage and TaskUpdate.
