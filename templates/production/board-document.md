@@ -4,7 +4,7 @@
 
 The board document is the editable artifact designed for executive review workflows: comments, tracked changes, annotation, redlining, and formal approval processes. Where the HTML page is for browsing and the PPTX is for presenting, the DOCX is for **collaborative editing**. The content is identical to the HTML and PPTX -- the format serves the editing and review consumption context.
 
-**Filename:** `{session-output}/REPORT_<issue-slug>.docx`
+**Filename:** `{session-output}/REPORT_<issue-slug>.docx` — This is the ONLY output filename. Do not produce copies with alternative names.
 **Build script:** `{session-output}/build/build_report.js`
 
 > `{session-output}` and `<issue-slug>` are provided by the CCO in your prompt. Use them directly.

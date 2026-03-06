@@ -4,7 +4,7 @@
 
 The board presentation structures the decision briefing for live presentation -- one concept per slide, visual aids, speaker-note-ready. Built for the meeting room. The content is identical to the HTML and DOCX artifacts; the format serves the presentation consumption context.
 
-**Filename:** `{session-output}/PRESENTATION_<issue-slug>.pptx`
+**Filename:** `{session-output}/PRESENTATION_<issue-slug>.pptx` — This is the ONLY output filename. Do not produce copies with alternative names.
 **Build script:** `{session-output}/build/build_presentation.js`
 
 > `{session-output}` and `<issue-slug>` are provided by the CCO in your prompt. Use them directly.

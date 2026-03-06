@@ -44,13 +44,21 @@ Wave 3: Publisher                  (sequential -- incorporates editorial notes)
 
 Dispatch **both agents simultaneously** in a single response with two Agent tool calls. Both receive the Creative Brief, complete RECORD.md content, and session context.
 
+**After Wave 1 completes:** Read the report files to obtain production reports:
+- `{session}/_REPORT_graphic-designer.md`
+- `{session}/_REPORT_writer.md`
+
 ### Wave 2: Editor
 
-Dispatch **after Wave 1 completes**. The Editor receives everything from Wave 1 plus both production reports (Graphic Designer's and Writer's) for review.
+Dispatch **after reading Wave 1 report files**. The Editor receives everything from Wave 1 plus both production reports (read from the report files) for review.
+
+**After Wave 2 completes:** Read `{session}/_REPORT_editor.md` to obtain the Editorial Review.
 
 ### Wave 3: Publisher
 
-Dispatch **after Wave 2 completes** and the editorial review gate is passed. The Publisher receives the Creative Brief, RECORD.md, the Editorial Review (with any notes), and session context.
+Dispatch **after reading the Editor's report file** and the editorial review gate is passed. The Publisher receives the Creative Brief, RECORD.md, the Editorial Review (read from `_REPORT_editor.md`, with any notes), and session context.
+
+**After Wave 3 completes:** Read `{session}/_REPORT_publisher.md` to obtain the final production report.
 
 ## Prompt Structure
 
@@ -124,6 +132,22 @@ Agent tool call #2:
 ```
 
 Both Agent tool calls are made in a **single response** so they execute in parallel.
+
+## Report Files
+
+Each production team lead writes a report file to the session directory after completing their work. This convention exists because the Agent tool returns only metadata (agent ID, token count, tool uses, duration) — it does **not** surface the agent's text output. The CCO must read these files to obtain production reports.
+
+| Team Lead | Report File |
+|-----------|-------------|
+| Graphic Designer | `{session}/_REPORT_graphic-designer.md` |
+| Writer | `{session}/_REPORT_writer.md` |
+| Editor | `{session}/_REPORT_editor.md` |
+| Publisher | `{session}/_REPORT_publisher.md` |
+
+The CCO reads the relevant report files after each wave completes:
+- **After Wave 1:** Read `_REPORT_graphic-designer.md` and `_REPORT_writer.md`
+- **After Wave 2:** Read `_REPORT_editor.md`
+- **After Wave 3:** Read `_REPORT_publisher.md`
 
 ## Failure Handling
 
