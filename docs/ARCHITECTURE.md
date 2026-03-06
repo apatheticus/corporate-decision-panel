@@ -52,7 +52,7 @@ flowchart TD
     User["User"]
     CMD["Slash Command\n(/cdp:consult, /cdp:panel,\n/cdp:deliberate, /cdp:evaluate,\n/cdp:production)"]
     CEO["CEO Agent\n(Opus)\nFrame → Route → Synthesize"]
-    CS["C-Suite Agents\n(Sonnet × 8)\nDomain Decomposition"]
+    CS["C-Suite Agents\n(Sonnet × 9)\nDomain Decomposition"]
     TL["Team Lead Agents\n(Haiku × 34)\nSpecialist Analysis"]
     DR["Decision Record\n/ Panel Assessment\n/ Advisory Note"]
     PROD["Production Pipeline\n(5 artifact agents)"]
@@ -87,9 +87,9 @@ The CEO is the sole orchestrator and synthesizer. It frames the issue, routes to
 
 **Definition:** [`agents/ceo.md`](../agents/ceo.md)
 
-### Layer 2: C-Suite (Sonnet × 8)
+### Layer 2: C-Suite (Sonnet × 9)
 
-Eight domain executives translate the CEO's framing into domain-specific sub-questions, dispatch team leads, and synthesize domain recommendations upward. Each has a fixed perspective type (skeptic, advocate, systemic, or investigative) that governs how they interpret evidence.
+Nine domain executives, each spawned as a teammate in the CEO's executive team. Analytical C-suite agents translate the CEO's framing into domain-specific sub-questions, create division teams, spawn team leads as teammates, and synthesize domain recommendations upward. Each has a fixed perspective type (skeptic, advocate, systemic, investigative, or production) that governs how they interpret evidence.
 
 | Role | Disposition | Definition |
 |------|-------------|------------|
@@ -101,10 +101,11 @@ Eight domain executives translate the CEO's framing into domain-specific sub-que
 | VP Sales | Advocate | [`agents/c-suite/vp-sales.md`](../agents/c-suite/vp-sales.md) |
 | VP Delivery | Skeptic | [`agents/c-suite/vp-delivery.md`](../agents/c-suite/vp-delivery.md) |
 | CSO | Investigative | [`agents/c-suite/cso.md`](../agents/c-suite/cso.md) |
+| CCO | Production | [`agents/c-suite/cco.md`](../agents/c-suite/cco.md) |
 
 ### Layer 3: Team Leads (Haiku × 34)
 
-Narrow specialists dispatched by their C-suite parent. Each has a unique analytical framework, mandatory output template, and forcing questions. Team leads report upward to their C-suite parent only -- the CEO never sees raw team lead output.
+Narrow specialists spawned as teammates in their C-suite parent's division team. Each has a unique analytical framework, mandatory output template, and forcing questions. Team leads SendMessage findings to their C-suite parent only -- the CEO never sees raw team lead output.
 
 **Definitions:** [`agents/team-leads/{domain}/*.md`](../agents/team-leads/)
 
@@ -113,7 +114,7 @@ Narrow specialists dispatched by their C-suite parent. Each has a unique analyti
 | Layer | Model | Count | Purpose | Why This Model |
 |-------|-------|-------|---------|----------------|
 | CEO | Opus | 1 | Cross-domain synthesis, weighting competing perspectives | Highest reasoning quality for the hardest analytical task |
-| C-Suite | Sonnet | 8 | Domain decomposition, team lead coordination, domain synthesis | Balances analytical capability with cost |
+| C-Suite | Sonnet | 9 | Domain decomposition, team lead coordination, domain synthesis | Balances analytical capability with cost |
 | Team Leads | Haiku | 34 | Narrow specialist analysis within a single domain | Cost-efficient for focused tasks; model diversity improves system robustness |
 
 The three-model design is intentional. Using Opus for all 43 agents would be prohibitively expensive. Using Haiku for synthesis would sacrifice quality where it matters most. The tiering matches model capability to task complexity.
@@ -206,15 +207,15 @@ If the CEO activates the CSO, the CSO dispatches 5 research team leads (Market I
 
 ### Phase 2 -- C-Suite Dispatches Downward
 
-Each activated C-suite agent translates the CEO's framing into domain-specific sub-questions for their team leads. This is analytical translation -- the CFO does not forward the question; the CFO asks the Controller "What are the GAAP implications?"
+Each activated C-suite agent creates a division team (TeamCreate) and spawns team leads as teammates (Agent with team_name), each running in a separate tmux window. This is analytical translation -- the CFO does not forward the question; the CFO asks the Controller "What are the GAAP implications?" See [`config/dispatch-protocol.md`](../config/dispatch-protocol.md).
 
 ### Phase 3 -- Team Leads Produce Findings
 
-Each team lead performs narrow, focused analysis through their specialist lens using their unique analytical framework and mandatory output template. Different analytical methods produce structurally different outputs.
+Each team lead teammate performs narrow, focused analysis through their specialist lens using their unique analytical framework and mandatory output template. Team leads SendMessage their findings back to their C-suite parent. Different analytical methods produce structurally different outputs.
 
 ### Phase 4 -- C-Suite Synthesizes Upward
 
-Each C-suite agent collects team lead findings and produces a domain recommendation with confidence level, key risks, key opportunities, and flagged internal contradictions between team leads.
+Each C-suite agent collects team lead findings (arriving via SendMessage), produces a domain recommendation with confidence level, key risks, key opportunities, and flagged internal contradictions between team leads, then shuts down its division team.
 
 ### Phase 4.5 -- Pre-Mortem Challenge (Tier 3 only)
 
@@ -243,11 +244,11 @@ Phase 1: CEO decomposes → classifies → routes → states reasoning
   ↓
 Phase 1.5 (if CSO activated): CSO → 5 research leads → Research Dossier → broadcast
   ↓
-Phase 2: Each C-suite agent translates framing → domain sub-questions → dispatches team leads
+Phase 2: Each C-suite agent creates division team → translates framing → dispatches team leads as teammates
   ↓
-Phase 3: Team leads produce specialist findings (parallel per domain)
+Phase 3: Team leads produce specialist findings (parallel per domain, separate tmux windows) → SendMessage back
   ↓
-Phase 4: Each C-suite agent synthesizes team lead findings → domain recommendation
+Phase 4: Each C-suite agent collects findings via SendMessage → synthesizes → domain recommendation → shuts down division team
   ↓
 Phase 4.5 (Tier 3): All C-suite agents receive peer summaries → pre-mortem responses
   ↓
@@ -356,7 +357,7 @@ The system defaults to lightweight engagement. Tier 1 is the daily habit; Tier 3
 
 ## Production Pipeline
 
-After the deliberation cascade completes, the CCO (Chief Communications Officer) manages a production pipeline that generates distributable artifacts. The CCO dispatches production team leads in three waves. The `/cdp:production` command enables re-running this pipeline for an existing session using the persisted `RECORD.md`, without re-running the deliberation cascade.
+After the deliberation cascade completes, the CCO (Chief Communications Officer) manages a production pipeline that generates distributable artifacts. The CCO creates a production team (TeamCreate) and spawns production team leads as teammates in three waves. The `/cdp:production` command enables re-running this pipeline for an existing session using the persisted `RECORD.md`, without re-running the deliberation cascade.
 
 ```mermaid
 flowchart LR
@@ -446,6 +447,8 @@ tools:
   - Grep
   - Glob
   - WebSearch
+  - SendMessage
+  - TaskUpdate
 maxTurns: 5
 ---
 ```
@@ -453,7 +456,7 @@ maxTurns: 5
 - **name** -- Agent identifier
 - **description** -- One-line summary of the agent's role
 - **model** -- Which Claude model to use (haiku for team leads, sonnet for C-suite, opus for CEO)
-- **tools** -- Restricted tool access (team leads get Read, Grep, Glob, WebSearch only)
+- **tools** -- Restricted tool access (analytical team leads get Read, Grep, Glob, WebSearch, SendMessage, TaskUpdate)
 - **maxTurns** -- Maximum agent turns to prevent runaway execution
 
 ### Identity & Mandate
@@ -492,8 +495,9 @@ CDP can be extended in several ways without modifying the core orchestration log
 
 1. Create a new markdown file in the appropriate `agents/team-leads/{domain}/` directory
 2. Follow the [agent anatomy](#agent-anatomy) structure: frontmatter, identity, analytical framework, output template, forcing questions, blind spots
-3. Set `model: haiku` and restrict tools to `Read`, `Grep`, `Glob`, `WebSearch`
-4. The C-suite parent will automatically discover and dispatch the new team lead
+3. Set `model: haiku` and restrict tools to `Read`, `Grep`, `Glob`, `WebSearch`, `SendMessage`, `TaskUpdate`
+4. Add a `## Team Communication` section instructing the team lead to SendMessage findings back to its C-suite parent
+5. The C-suite parent will automatically discover and dispatch the new team lead
 5. Update the routing documentation to reflect the new specialist
 
 ### Adding a New C-Suite Role

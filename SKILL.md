@@ -1,6 +1,6 @@
 ---
 name: corporate-decision-panel
-version: 1.1.07
+version: 1.1.08
 description: >
   A complete organizational reasoning engine that emulates SMB executive
   committee decision-making. Presents any business issue through a structured
@@ -221,23 +221,29 @@ Output spec: `templates/production/advisory-document.md`
 ### Tier 2: Working Session
 
 1. User invokes `/cdp:panel [roles] [mode?]: [issue]`
-2. Create Agent Team. Spawn CEO (Opus)
+2. Create executive team:
+   `TeamCreate: team_name "cdp-{issue-slug}"`
+   The main session acts as CEO (team lead, Opus).
 3. CEO runs **Phase 1** (frame and route):
    - Decomposes issue into evaluation dimensions
    - Classifies decision type
    - Routes to user-specified roles (or auto-routes)
-4. Spawn activated C-suite agents as teammates (Sonnet)
-5. Each C-suite agent runs **Mode B** (full analysis):
-   - Translates CEO framing into domain sub-questions
-   - Dispatches team lead subagents via the Agent tool -- **parallel per domain** (all Agent tool calls in a single response per C-suite agent). See `config/dispatch-protocol.md`.
-   - Collects team lead findings
-   - Synthesizes domain recommendation with confidence level
+4. Spawn activated C-suite agents as teammates:
+   Agent tool with `team_name="cdp-{issue-slug}"` for each activated role
+5. Each C-suite teammate runs **Mode B** (full analysis):
+   - Creates own division team (`TeamCreate: "cdp-{role}-{issue-slug}"`)
+   - Spawns team leads as teammates (Agent with team_name)
+   - Collects findings via SendMessage
+   - SendMessage domain recommendation back to CEO
+   - Shuts down division team
 6. CEO runs **Phase 5** (abbreviated synthesis):
-   - Collects domain recommendations
+   - Collects domain recommendations (arriving via SendMessage)
    - Applies Decision Mode
    - Produces Panel Assessment
-7. Trigger production pipeline
-8. Return Panel Assessment to user
+7. Spawn CCO as teammate for production:
+   Agent tool with `team_name="cdp-{issue-slug}"` for CCO
+8. Shut down executive team
+9. Return Panel Assessment to user
 
 Output template: `templates/panel-assessment.md`
 
@@ -247,6 +253,10 @@ Full five-phase cascade with optional Phase 1.5 (CSO research) and
 Phase 4.5 (pre-mortem challenge). The authoritative phase protocol is
 defined in `config/orchestration-protocol.md`. The overview below
 describes the flow at a summary level.
+
+1. Create executive team:
+   `TeamCreate: team_name "cdp-{issue-slug}"`
+   The main session acts as CEO (team lead, Opus).
 
 **Phase 0 -- Shared Consciousness Broadcast**
 CEO broadcasts issue context to all activated C-suite agents. Everyone
@@ -259,28 +269,35 @@ activation AND exclusion reasoning. Evaluates full-activation threshold
 conditions. Issues CSO research directive if applicable.
 
 **Phase 1.5 -- Research Investigation** (conditional)
-If CEO activates CSO: CSO decomposes research directive into sub-questions,
-dispatches 5 research team leads (Market Intelligence, Competitive
-Intelligence, Technology Scout, Industry & Regulatory Analyst, Precedent
-& Patterns Analyst). CSO synthesizes findings into Research Dossier with
-evidence quality grade and Assumption Registry. Dossier broadcast to all
-activated C-suite. **Skipped if CSO not activated.**
+If CEO activates CSO as teammate (Agent with team_name): CSO creates its
+own division team, spawns 5 research team leads as teammates (Market
+Intelligence, Competitive Intelligence, Technology Scout, Industry &
+Regulatory Analyst, Precedent & Patterns Analyst). CSO collects findings
+via SendMessage, synthesizes into Research Dossier with evidence quality
+grade and Assumption Registry. Dossier broadcast to all activated C-suite.
+**Skipped if CSO not activated.**
 
 **Phase 2 -- C-Suite Dispatches Downward**
-Each activated C-suite agent translates CEO framing into domain-specific
-sub-questions, one per team lead. This translation is analytical -- the
+Spawn activated C-suite agents as teammates:
+Agent tool with `team_name="cdp-{issue-slug}"` for each activated role.
+Each C-suite teammate creates a division team (TeamCreate) and spawns
+team leads as teammates (Agent with team_name). See
+`config/dispatch-protocol.md`. This translation is analytical -- the
 CFO does not forward the question; the CFO asks the Controller "what are
 the GAAP implications?"
 
 **Phase 3 -- Team Leads Produce Findings**
-Each team lead subagent performs narrow, focused analysis through their
+Each team lead teammate performs narrow, focused analysis through their
 specialist lens using their unique analytical framework and mandatory
-output template. Different methods produce structurally different outputs.
+output template. Team leads SendMessage findings back to their C-suite
+parent. Different methods produce structurally different outputs.
 
 **Phase 4 -- C-Suite Synthesizes Upward**
-Each C-suite agent collects team lead findings and synthesizes a domain
-recommendation with confidence level, key risks, and key opportunities.
-Internal contradictions between team leads flagged as analytical signals.
+Each C-suite agent collects team lead findings (via SendMessage),
+synthesizes a domain recommendation with confidence level, key risks,
+and key opportunities. Internal contradictions between team leads flagged
+as analytical signals. Each C-suite agent shuts down its division team
+and SendMessage domain recommendation back to CEO.
 
 **Phase 4.5 -- Pre-Mortem Challenge** (Tier 3 only)
 After producing their own recommendation, each C-suite agent receives
@@ -294,6 +311,7 @@ fault lines, determines most determinative perspective, applies Decision
 Mode, produces the Decision Record.
 
 **Production automatically triggered after Phase 5.**
+Spawn CCO as teammate (Agent with team_name). Shut down executive team.
 
 Output template: `templates/decision-record.md`
 Comparative output: `templates/comparative-decision-record.md`
@@ -328,7 +346,7 @@ When invoked via `/cdp:production`, execute the following steps:
 
 ## Agent Architecture
 
-### Tier 1 Agents: Agent Team Teammates (Sonnet)
+### Layer 1: Executive Team Agents (Sonnet)
 
 | Role | Disposition | Mandate |
 |------|-----------|---------|
@@ -348,12 +366,13 @@ When invoked via `/cdp:production`, execute the following steps:
 counterbalance human optimism bias. The CCO has no role in deliberation --
 it owns only the production pipeline.
 
-### Tier 2 Agents: Analytical Team Lead Subagents (Haiku)
+### Layer 2: Division Team Agents — Analytical Team Leads (Haiku)
 
-34 specialist analysts dispatched by their C-suite parent. Each has a
-unique analytical framework, mandatory output template, three forcing
-questions (Pre-Mortem, Adversarial Empathy, Domain Devil's Advocate),
-and restricted tool access (Read, Grep, Glob, WebSearch only).
+34 specialist analysts spawned as teammates in their C-suite parent's
+division team. Each has a unique analytical framework, mandatory output
+template, three forcing questions (Pre-Mortem, Adversarial Empathy,
+Domain Devil's Advocate), and restricted tool access (Read, Grep, Glob,
+WebSearch, SendMessage, TaskUpdate).
 
 | C-Suite | Team Leads (4-5 each) |
 |---------|----------------------|
@@ -370,10 +389,11 @@ and restricted tool access (Read, Grep, Glob, WebSearch only).
 targeting high-interaction pairs where cross-domain assumptions create
 blind spots.
 
-### Production Agents (CCO Team Leads)
+### Layer 2: Production Team Agents — CCO Team Leads
 
-4 production specialists dispatched by the CCO in three waves. These are
-not analytical agents -- they produce artifacts from completed Decision Records.
+4 production specialists spawned as teammates in the CCO's production
+team, dispatched in three waves. These are not analytical agents -- they
+produce artifacts from completed Decision Records.
 
 | CCO | Team Leads |
 |-----|-----------|
@@ -384,6 +404,8 @@ drafts against source material for accuracy, consistency, and tone --
 requires stronger reasoning. The Editor is read-only by design.
 
 ### Model Tiering
+
+Models are specified in each agent definition's frontmatter (`model` field), not in dispatch syntax. The Agent tool does not accept a `model` parameter — model selection comes from the agent definition.
 
 | Layer | Model | Rationale |
 |-------|-------|-----------|
@@ -599,22 +621,22 @@ verbatim. No summarization, no reformatting.
 
 ### Orchestrator Spawn Sequence (Tier 2/3)
 
-The orchestrator spawns a single CCO agent, which manages the entire
-production pipeline internally:
+The orchestrator spawns a single CCO agent as a teammate in the executive
+team, which manages the entire production pipeline internally:
 
 ```
 Agent tool call:
   subagent_type: "general-purpose"
-  model: "sonnet"
   name: "cco"
-  max_turns: 25
+  team_name: "cdp-{issue-slug}"
   description: "CCO production pipeline"
   prompt: [RECORD.md content + session context + dependency status]
 ```
 
-The CCO reads the Decision Record, produces a Creative Brief, and
-dispatches its team in three waves (Graphic Designer + Writer → Editor →
-Publisher). See `config/cco-dispatch-protocol.md`.
+The CCO reads the Decision Record, produces a Creative Brief, creates
+its own production team (`TeamCreate: "cdp-cco-{issue-slug}"`), and
+dispatches its team leads as teammates in three waves (Graphic Designer
++ Writer → Editor → Publisher). See `config/cco-dispatch-protocol.md`.
 
 **Re-run invocation (`/cdp:production`):** When invoked via production re-run,
 the orchestrator reads record content from `RECORD.md` instead of conversation
@@ -747,7 +769,7 @@ Without this file, the generation script cannot run -- a valid API key is requir
 - `agents/ceo.md` -- CEO identity, judgment criteria, and synthesis logic
 - `config/orchestration-protocol.md` -- Five-phase cascade protocol, production pipeline, organizational roster
 - `agents/c-suite/*.md` -- 9 C-suite agent definitions (COO, CFO, CTO, CISO, CAO, VP Sales, VP Delivery, CSO, CCO)
-- `agents/team-leads/{domain}/*.md` -- 38 team lead subagent definitions across 9 domains (34 analytical + 4 production)
+- `agents/team-leads/{domain}/*.md` -- 38 team lead agent definitions across 9 domains (34 analytical + 4 production)
 - `agents/team-leads/cco/*.md` -- 4 CCO production team leads (Graphic Designer, Writer, Editor, Publisher)
 
 ---

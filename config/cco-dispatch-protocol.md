@@ -1,30 +1,50 @@
 # CCO Production Team Dispatch Protocol
 
-This document defines the dispatch pattern used by the CCO to invoke production team leads during Tier 2 and Tier 3 production.
+This document defines the team-based dispatch pattern used by the CCO to invoke production team leads during Tier 2 and Tier 3 production.
 
 ---
 
-## Dispatch Mechanism
+## Team Lifecycle
 
-**Tool:** Use the **Agent tool** to invoke each production team lead.
+The CCO creates a **production team** for the duration of the production pipeline, spawns production team leads as **teammates**, coordinates three sequential waves, and shuts down the team after the Publisher completes.
+
+### 1. Create Production Team
+
+Before dispatching any team leads, create your production team:
+
+```
+TeamCreate: team_name "cdp-cco-{issue-slug}"
+```
+
+### 2. Dispatch Team Leads as Teammates
+
+**Tool:** Use the **Agent tool** with `team_name` to invoke each production team lead as a **teammate** (separate tmux window).
 
 **Parameters for each Agent tool call:**
 - `subagent_type`: `"general-purpose"`
-- `model`: See team lead parameters table below
 - `name`: The agent name from the team lead table
+- `team_name`: `"cdp-cco-{issue-slug}"` (the team you just created)
 - `prompt`: See Prompt Structure below
 - `description`: Short description of the team lead's task (e.g., `"Graphic Designer infographic production"`)
 
+### 3. Shut Down Production Team
+
+After the Publisher completes and you have read the final production report, send a shutdown request to all teammates:
+
+```
+SendMessage type: "shutdown_request" to each teammate
+```
+
 ## Team Lead Parameters
 
-| Team Lead | Agent Name | Model | maxTurns | Wave |
-|-----------|-----------|-------|----------|------|
-| Graphic Designer | `graphic-designer` | `haiku` | 10 | 1 |
-| Writer | `writer` | `haiku` | 15 | 1 |
-| Editor | `editor` | `sonnet` | 10 | 2 |
-| Publisher | `publisher` | `haiku` | 15 | 3 |
+| Team Lead | Agent Name | maxTurns | Wave |
+|-----------|-----------|----------|------|
+| Graphic Designer | `graphic-designer` | 10 | 1 |
+| Writer | `writer` | 15 | 1 |
+| Editor | `editor` | 10 | 2 |
+| Publisher | `publisher` | 15 | 3 |
 
-**Editor uses `sonnet`** because editorial judgment -- comparing drafts against source material for accuracy, consistency, and tone -- requires stronger reasoning than production execution. The Editor is read-only by design: it judges, it does not modify.
+**Editor uses Sonnet** (specified in its agent definition frontmatter) because editorial judgment -- comparing drafts against source material for accuracy, consistency, and tone -- requires stronger reasoning than production execution. The Editor is read-only by design: it judges, it does not modify.
 
 ## Wave Dispatch Pattern
 
@@ -42,7 +62,7 @@ Wave 3: Publisher                  (sequential -- incorporates editorial notes)
 
 ### Wave 1: Graphic Designer + Writer
 
-Dispatch **both agents simultaneously** in a single response with two Agent tool calls. Both receive the Creative Brief, complete RECORD.md content, and session context.
+Dispatch **both agents simultaneously** in a single response with two Agent tool calls (each with `team_name`). Both receive the Creative Brief, complete RECORD.md content, and session context.
 
 **After Wave 1 completes:** Read the report files to obtain production reports:
 - `{session}/_REPORT_graphic-designer.md`
@@ -90,11 +110,12 @@ Each team lead prompt must contain these sections:
 ## Example Invocation (Wave 1)
 
 ```
+TeamCreate: team_name "cdp-cco-acquire-competitor-x"
+
 Agent tool call #1:
   subagent_type: "general-purpose"
-  model: "haiku"
   name: "graphic-designer"
-  max_turns: 10
+  team_name: "cdp-cco-acquire-competitor-x"
   description: "Graphic Designer infographic production"
   prompt: |
     CREATIVE BRIEF:
@@ -112,9 +133,8 @@ Agent tool call #1:
 
 Agent tool call #2:
   subagent_type: "general-purpose"
-  model: "haiku"
   name: "writer"
-  max_turns: 15
+  team_name: "cdp-cco-acquire-competitor-x"
   description: "Writer document production"
   prompt: |
     CREATIVE BRIEF:
@@ -131,11 +151,11 @@ Agent tool call #2:
     in your agent definition at .claude/agents/team-leads/cco/writer.md.
 ```
 
-Both Agent tool calls are made in a **single response** so they execute in parallel.
+Both Agent tool calls are made in a **single response** so they execute in parallel across separate tmux windows.
 
 ## Report Files
 
-Each production team lead writes a report file to the session directory after completing their work. This convention exists because the Agent tool returns only metadata (agent ID, token count, tool uses, duration) — it does **not** surface the agent's text output. The CCO must read these files to obtain production reports.
+Each production team lead writes a report file to the session directory after completing their work. This convention exists because the Agent tool returns only metadata (agent ID, token count, tool uses, duration) -- it does **not** surface the agent's text output. The CCO must read these files to obtain production reports.
 
 | Team Lead | Report File |
 |-----------|-------------|

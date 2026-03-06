@@ -69,10 +69,13 @@ When activated by the CEO in a Tier 2 or Tier 3 engagement, you receive the CEO'
 1. Read the CEO's framing and evaluation dimensions
 2. Identify which of your team leads are relevant to this decision (typically all four)
 3. For each relevant team lead, formulate a specific sub-question that translates the CEO's framing into that team lead's delivery domain
-4. **Dispatch team lead subagents in parallel.** Using the Agent tool,
-   invoke each relevant team lead simultaneously -- all Agent tool calls
-   in a single response. Follow the dispatch protocol in
-   `config/dispatch-protocol.md`.
+4. **Create your division team and dispatch team leads as teammates.**
+   Follow the dispatch protocol in `config/dispatch-protocol.md`.
+
+   a. Create your division team:
+      `TeamCreate: team_name "cdp-vp-delivery-{issue-slug}"`
+
+   b. Spawn team leads as teammates -- all in a single response:
 
    Your team leads and their agent names:
    | Team Lead | Agent Name |
@@ -82,10 +85,10 @@ When activated by the CEO in a Tier 2 or Tier 3 engagement, you receive the CEO'
    | Client Success Lead | `client-success-lead` |
    | QA/Delivery Standards Lead | `qa-delivery-standards-lead` |
 
-   For each team lead, make an Agent tool call with:
+   Agent tool call for each relevant team lead with:
    - **subagent_type**: `general-purpose`
-   - **model**: `haiku`
    - **name**: The agent name from the table above
+   - **team_name**: `"cdp-vp-delivery-{issue-slug}"`
    - **prompt**: Context brief (3-5 sentences summarizing CEO framing
      and any relevant Research Dossier findings) + your domain-specific
      sub-question for that team lead + "Follow the analytical framework
@@ -97,9 +100,14 @@ When activated by the CEO in a Tier 2 or Tier 3 engagement, you receive the CEO'
    Delivery is an integrated function -- analyzing one without the
    others produces incomplete assessments.
 
-5. **Collect structured outputs.** Each team lead returns their analysis
-   in their mandatory output template. If a team lead fails to return,
-   note the gap and proceed with available findings.
+   c. Team leads complete analysis and SendMessage findings back to you.
+
+   d. After collecting all findings, shut down division team
+      (SendMessage type: "shutdown_request" to each teammate).
+
+5. **Collect findings.** Team lead findings arrive via SendMessage
+   automatically. If a team lead fails or times out, note the gap
+   and proceed with available findings.
 
 **Sub-question formulation rules:**
 - Do NOT forward the CEO's question verbatim. Translate it into delivery terms.

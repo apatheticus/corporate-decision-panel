@@ -1,23 +1,49 @@
 # Team Lead Dispatch Protocol
 
-This document defines the mechanical dispatch pattern used by C-suite agents to invoke team lead subagents during Tier 2 and Tier 3 engagements.
+This document defines the team-based dispatch pattern used by C-suite agents to invoke team leads during Tier 2 and Tier 3 engagements.
 
 ---
 
-## Dispatch Mechanism
+## Team Lifecycle
 
-**Tool:** Use the **Agent tool** to invoke each team lead as a subagent.
+Each C-suite agent creates a **division team** for the duration of their analysis, spawns team leads as **teammates** in that team, collects findings, and shuts down the team when synthesis is complete.
+
+### 1. Create Division Team
+
+Before dispatching any team leads, create your division team:
+
+```
+TeamCreate: team_name "cdp-{role}-{issue-slug}"
+```
+
+Where `{role}` is your C-suite role (e.g., `cfo`, `cto`, `coo`) and `{issue-slug}` is the issue slug from the CEO's framing.
+
+### 2. Dispatch Team Leads as Teammates
+
+**Tool:** Use the **Agent tool** with `team_name` to invoke each team lead as a **teammate** (separate tmux window).
 
 **Parameters for each Agent tool call:**
 - `subagent_type`: `"general-purpose"`
-- `model`: `"haiku"`
 - `name`: The agent name from your team lead mapping table (e.g., `"controller"`, `"engineering-lead"`)
+- `team_name`: `"cdp-{role}-{issue-slug}"` (the team you just created)
 - `prompt`: See Prompt Structure below
 - `description`: Short description of the team lead's task (e.g., `"Controller financial analysis"`)
 
+### 3. Collect Findings
+
+Team leads complete their analysis and SendMessage their findings back to you. Findings arrive automatically as messages in your conversation. If a team lead fails or times out, note the gap and proceed with available findings.
+
+### 4. Shut Down Division Team
+
+After collecting all findings and completing your synthesis, send a shutdown request to each teammate:
+
+```
+SendMessage type: "shutdown_request" to each teammate
+```
+
 ## Parallel Execution
 
-**Critical instruction:** Make ALL Agent tool calls in a single response. Do not dispatch team leads sequentially -- invoke all relevant team leads simultaneously by including multiple Agent tool calls in one message. This is essential for execution speed and ensures team leads work in parallel.
+**Critical instruction:** Make ALL Agent tool calls in a single response. Do not dispatch team leads sequentially -- invoke all relevant team leads simultaneously by including multiple Agent tool calls (each with `team_name`) in one message. This is essential for execution speed and ensures team leads work in parallel across separate tmux windows.
 
 ## Prompt Structure
 
@@ -34,10 +60,12 @@ Each team lead prompt must contain three sections:
 CFO dispatching the Controller:
 
 ```
+TeamCreate: team_name "cdp-cfo-acquire-competitor-x"
+
 Agent tool call:
   subagent_type: "general-purpose"
-  model: "haiku"
   name: "controller"
+  team_name: "cdp-cfo-acquire-competitor-x"
   description: "Controller GAAP analysis"
   prompt: |
     CONTEXT: The CEO is evaluating whether to acquire CompetitorX.
@@ -57,7 +85,7 @@ Agent tool call:
 
 ## Failure Handling
 
-If a team lead subagent times out or fails to return a response, note the gap in your domain recommendation and proceed with the findings you have. A partial analysis with an explicit gap note is more valuable than blocking the entire cascade waiting for a response that may never arrive.
+If a team lead teammate times out or fails to return a response, note the gap in your domain recommendation and proceed with the findings you have. A partial analysis with an explicit gap note is more valuable than blocking the entire cascade waiting for a response that may never arrive.
 
 ## Relevance Filtering
 

@@ -7,6 +7,8 @@ tools:
   - Grep
   - Glob
   - WebSearch
+  - SendMessage
+  - TaskUpdate
 maxTurns: 5
 ---
 
@@ -142,3 +144,7 @@ Investigate the research question presented to you ONLY through your specific do
 Produce your findings using the Competitive Intelligence Report template above. Present evidence neutrally. Distinguish between observed facts and inferences. Grade confidence honestly -- competitive intelligence is inherently uncertain, and pretending otherwise undermines the value of the analysis. If you are inferring competitor strategy from indirect signals, say so.
 
 Your analysis will be reviewed by the CSO and synthesized into a Research Dossier alongside findings from the Market Intelligence Lead, Technology Scout Lead, Industry & Regulatory Analyst, and Precedent & Patterns Analyst. Provide specific evidence for every claim. Cite sources where available. Unsupported competitive assertions will be challenged.
+
+## Team Communication
+
+You are a teammate in your C-suite parent's division team. After completing your analysis, SendMessage your complete output (using your output template above) to your team lead. Then mark your task as completed via TaskUpdate.

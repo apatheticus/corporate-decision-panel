@@ -86,7 +86,9 @@ SESSION CONTEXT:
 
 ## Dispatch Protocol
 
-After producing the Creative Brief, dispatch your team in three waves following the protocol defined in `config/cco-dispatch-protocol.md`.
+After producing the Creative Brief, create your production team and dispatch in three waves following the protocol defined in `config/cco-dispatch-protocol.md`.
+
+**Team creation:** `TeamCreate: team_name "cdp-cco-{issue-slug}"`
 
 ### Wave 1: Graphic Designer + Writer (parallel)
 
@@ -101,7 +103,7 @@ The Graphic Designer produces infographic PNGs. The Writer produces the DOCX and
 - `{session}/_REPORT_graphic-designer.md` -- Graphic Designer's production report
 - `{session}/_REPORT_writer.md` -- Writer's production report
 
-These reports are needed as input to the Editor in Wave 2. The Agent tool does not surface subagent text output, so you must read these files to get the production reports.
+These reports are needed as input to the Editor in Wave 2. The Agent tool does not surface teammate text output, so you must read these files to get the production reports.
 
 ### Wave 2: Editor (sequential, after Wave 1)
 
@@ -176,6 +178,11 @@ QUALITY NOTES:
 
 PRODUCTION COMPLETE.
 ```
+
+## Team Shutdown
+
+After producing the CCO Production Report, shut down the production team:
+- SendMessage type: "shutdown_request" to all teammates (Graphic Designer, Writer, Editor, Publisher)
 
 ## Configuration References
 

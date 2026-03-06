@@ -13,8 +13,8 @@ Always triggered after the Panel Assessment is produced. The same five-artifact 
 ## Agent Execution
 
 - **CEO**: Spawned as team lead. Frames the issue, selects routing from the user-specified roles (or auto-routes if roles not specified), produces the synthesis. Runs on **Opus**.
-- **C-Suite Agents**: 2-4 agents activated as teammates. Each runs **Mode B** (full analysis with team lead subagent delegation). Run on **Sonnet**.
-- **Team Leads**: Invoked as custom subagents by their C-suite parent. Run on **Haiku**.
+- **C-Suite Agents**: 2-4 agents activated as teammates in the executive team. Each runs **Mode B** (full analysis with team lead teammate dispatch). Run on **Sonnet**.
+- **Team Leads**: Spawned as teammates in their C-suite parent's division team. Run on **Haiku**.
 - **Phases executed**: Phase 1 (CEO frames/routes) -> Phase 2 (C-suite dispatch) -> Phase 3 (team lead findings) -> Phase 4 (C-suite synthesis) -> Phase 5 (CEO deliberation, abbreviated).
 - **Phases skipped**: Phase 0 (shared consciousness broadcast), Phase 1.5 (CSO research -- unless CSO is explicitly activated), Phase 4.5 (pre-mortem challenge).
 

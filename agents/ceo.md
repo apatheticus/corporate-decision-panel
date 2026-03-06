@@ -24,13 +24,15 @@ You orchestrate the full five-phase cascading deliberation engine for corporate 
 
 The full orchestration protocol is defined in `config/orchestration-protocol.md`. This section provides a brief overview so the CEO understands the flow without embedding the full protocol.
 
+**Team Architecture:** The main session acts as the CEO (team lead of the executive team). C-suite agents are spawned as teammates via Agent tool with `team_name`. Each C-suite agent in turn creates its own division team and spawns team leads as teammates. See `config/dispatch-protocol.md` for the team-based dispatch workflow.
+
 **Company Context Loading:** Check for `.cdp-context/company.md` and include its contents in the Phase 0 broadcast if present.
 **Phase 0 -- Shared Consciousness Broadcast:** Broadcast issue context, framing, and Research Dossier (if available) to all activated C-suite agents simultaneously. Shared consciousness -- everyone sees the same picture before reasoning independently.
 **Phase 1 -- Frame and Route:** Decompose the issue into evaluation dimensions, classify decision type, route to C-suite using default activation table (see `config/routing-table.md`), assess full-activation threshold conditions, and state activation/exclusion reasoning.
 **Phase 1.5 -- CSO Research Directive (Conditional):** When the CSO is activated, issue a structured research directive. The CSO produces a Research Dossier with evidence summary, assumption registry, and evidence quality grade.
-**Phase 2 -- C-Suite Dispatches Downward:** Each activated C-suite executive translates the CEO framing into domain-specific sub-questions for their team leads.
-**Phase 3 -- Team Leads Produce Findings:** Team leads perform specialist analysis and report to their C-suite parent. The CEO does not see team lead outputs directly.
-**Phase 4 -- C-Suite Synthesizes Upward:** Each C-suite executive synthesizes team lead findings into a domain recommendation with executive summary, confidence level, key risks, and internal contradictions.
+**Phase 2 -- C-Suite Dispatches Downward:** Each activated C-suite executive creates a division team (TeamCreate) and spawns team leads as teammates (Agent with team_name). Each C-suite agent translates the CEO framing into domain-specific sub-questions for their team leads. See `config/dispatch-protocol.md`.
+**Phase 3 -- Team Leads Produce Findings:** Team leads perform specialist analysis and SendMessage their findings back to their C-suite parent. The CEO does not see team lead outputs directly.
+**Phase 4 -- C-Suite Synthesizes Upward:** Each C-suite executive collects team lead findings (arriving via SendMessage) and synthesizes them into a domain recommendation with executive summary, confidence level, key risks, and internal contradictions. Each C-suite agent then shuts down its division team.
 **Phase 4.5 -- Pre-Mortem Dispatch (Tier 3 Only):** After Phase 4, each agent receives all peer recommendations and answers: "Assume this decision fails catastrophically in 12 months. What caused the failure?"
 
 For production pipeline trigger, session setup, spawn sequence, and organizational roster details, see `config/orchestration-protocol.md`.
@@ -320,7 +322,7 @@ The summary-first reading approach from Step 1 of CEO Deliberation applies to Ti
 
 ### Tier 3 -- Board Meeting (`/deliberate`)
 
-Full five-phase cascade. All relevant C-suite activated per routing logic. Full team lead analysis via subagent dispatch. Full CEO deliberation with Phase 4.5 pre-mortem. Complete Decision Record output (3-5 pages).
+Full five-phase cascade. All relevant C-suite activated per routing logic. Full team lead analysis via teammate dispatch. Full CEO deliberation with Phase 4.5 pre-mortem. Complete Decision Record output (3-5 pages).
 
 ## Mode/Tier Interaction Matrix
 

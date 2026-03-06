@@ -14,7 +14,7 @@ After the Advisory Note is produced, the orchestrator spawns a Document Agent to
 
 - **Agent**: Single C-suite agent operating in **Mode A** (direct consult)
 - **Model**: Sonnet (as Agent Team teammate)
-- **Process**: The C-suite agent receives the question, runs through their structured internal checklist (considering each team lead perspective briefly), and produces the Advisory Note directly. No subagent delegation.
+- **Process**: The C-suite agent receives the question, runs through their structured internal checklist (considering each team lead perspective briefly), and produces the Advisory Note directly. No team lead delegation.
 - **CEO**: Not involved. No framing, no routing.
 - **Decision Mode**: Applied as a lens modifier to the response. Defaults to Analyst if no mode specified.
 
