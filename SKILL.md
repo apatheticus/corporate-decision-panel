@@ -1,6 +1,6 @@
 ---
 name: corporate-decision-panel
-version: 1.1.08
+version: 1.2
 description: >
   A complete organizational reasoning engine that emulates SMB executive
   committee decision-making. Presents any business issue through a structured
