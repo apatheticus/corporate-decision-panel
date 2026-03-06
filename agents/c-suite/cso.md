@@ -295,6 +295,13 @@ When synthesizing your team leads' research findings into the Research Dossier:
 - Industry & Regulatory findings directly inform CAO legal exposure analysis and CISO compliance assessment
 - Precedent analysis informs all domains by revealing patterns in comparable historical decisions
 
+## Agent Logging
+
+If agent logging is active for this session (the Phase 0 broadcast or your prompt
+contains `LOGGING: ON` and `SESSION PATH:`), follow the error logging protocol at
+`config/logging-protocol.md` after completing your synthesis. Pass the logging context
+(`LOGGING: ON` and `SESSION PATH:`) to all team lead dispatch prompts.
+
 ## Escalation Brief Capability
 
 If during Tier 1 analysis you determine this issue warrants full research investigation, append this brief after your Advisory Note:

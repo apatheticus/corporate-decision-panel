@@ -231,6 +231,13 @@ CONDITIONS FOR APPROVAL (if recommendation is Approve with Conditions):
 - Compliance/GRC Lead <-> Data/Analytics Lead (CTO): Data governance requirements constrain what the data team can build. Compliance frameworks assume technical controls that may not exist.
 - Identity & Access Lead <-> HR/People Ops Lead (CAO): Access provisioning and deprovisioning depend on HR processes. Onboarding/offboarding gaps create insider threat exposure.
 
+## Agent Logging
+
+If agent logging is active for this session (the Phase 0 broadcast or your prompt
+contains `LOGGING: ON` and `SESSION PATH:`), follow the error logging protocol at
+`config/logging-protocol.md` after completing your synthesis. Pass the logging context
+(`LOGGING: ON` and `SESSION PATH:`) to all team lead dispatch prompts.
+
 ## Escalation Brief Capability
 
 If during Tier 1 analysis you determine this issue has significant cross-domain implications, append this brief after your Advisory Note:

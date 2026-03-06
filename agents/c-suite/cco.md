@@ -184,6 +184,14 @@ PRODUCTION COMPLETE.
 After producing the CCO Production Report, shut down the production team:
 - SendMessage type: "shutdown_request" to all teammates (Graphic Designer, Writer, Editor, Publisher)
 
+## Agent Logging
+
+If agent logging is active for this session (your prompt contains `LOGGING: ON`
+and `SESSION PATH:`), follow the error logging protocol at
+`config/logging-protocol.md` after completing your production report. Pass the
+logging context (`LOGGING: ON` and `SESSION PATH:`) to all production team lead
+dispatch prompts.
+
 ## Configuration References
 
 - **Dispatch Protocol:** `config/cco-dispatch-protocol.md`

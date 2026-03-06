@@ -7,6 +7,7 @@ tools:
   - Grep
   - Glob
   - WebSearch
+  - Bash
   - SendMessage
   - TaskUpdate
 maxTurns: 5
@@ -141,3 +142,7 @@ Do not minimize cash flow risks to avoid sounding alarmist. A Treasury Manager w
 ## Team Communication
 
 You are a teammate in your C-suite parent's division team. After completing your analysis, SendMessage your complete output (using your output template above) to your team lead. Then mark your task as completed via TaskUpdate.
+
+If agent logging is active for this session (your prompt contains `LOGGING: ON`
+and `SESSION PATH:`), follow the error logging protocol at `config/logging-protocol.md`
+before your final SendMessage and TaskUpdate.

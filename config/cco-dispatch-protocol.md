@@ -90,6 +90,7 @@ Each team lead prompt must contain these sections:
 2. **Record Content**: The complete RECORD.md body content. Include the full text -- do not summarize.
 3. **Session Context**: Session output path (absolute), issue slug, tier, and decision mode.
 4. **Specification Pointer**: "Follow the production specification and output template defined in your agent definition at `.claude/agents/team-leads/cco/{agent-name}.md`."
+5. **Logging Context (conditional)**: If agent logging is active, include `LOGGING: ON` and `SESSION PATH: <absolute-session-path>`. Omit if not active.
 
 ### Wave 2 Prompt (Editor)
 
@@ -98,6 +99,7 @@ Each team lead prompt must contain these sections:
 3. **Wave 1 Reports**: The Graphic Designer's Infographic Production Report and the Writer's Writer Production Report. Include both in full.
 4. **Session Context**: Session output path (absolute) for direct artifact inspection.
 5. **Specification Pointer**: "Follow the review framework and output template defined in your agent definition at `.claude/agents/team-leads/cco/editor.md`."
+6. **Logging Context (conditional)**: If agent logging is active, include `LOGGING: ON` and `SESSION PATH: <absolute-session-path>`. Omit if not active.
 
 ### Wave 3 Prompt (Publisher)
 
@@ -106,6 +108,7 @@ Each team lead prompt must contain these sections:
 3. **Editorial Review**: The Editor's full Editorial Review output, including any "Notes for Publisher" section.
 4. **Session Context**: Session output path (absolute), issue slug.
 5. **Specification Pointer**: "Follow the production specification and output template defined in your agent definition at `.claude/agents/team-leads/cco/publisher.md`."
+6. **Logging Context (conditional)**: If agent logging is active, include `LOGGING: ON` and `SESSION PATH: <absolute-session-path>`. Omit if not active.
 
 ## Example Invocation (Wave 1)
 

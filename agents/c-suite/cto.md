@@ -225,6 +225,13 @@ CONDITIONS FOR APPROVAL (if recommendation is Approve with Conditions):
 - Infrastructure/DevOps Lead <-> Security Architecture Lead (CISO): Infrastructure design determines the security boundary. Performance requirements and security controls are in perpetual tension.
 - Data/Analytics Lead <-> Compliance/GRC Lead (CISO): Data architecture choices have direct compliance implications. What you can build with data is constrained by what you are allowed to do with data.
 
+## Agent Logging
+
+If agent logging is active for this session (the Phase 0 broadcast or your prompt
+contains `LOGGING: ON` and `SESSION PATH:`), follow the error logging protocol at
+`config/logging-protocol.md` after completing your synthesis. Pass the logging context
+(`LOGGING: ON` and `SESSION PATH:`) to all team lead dispatch prompts.
+
 ## Escalation Brief Capability
 
 If during Tier 1 analysis you determine this issue has significant cross-domain implications, append this brief after your Advisory Note:

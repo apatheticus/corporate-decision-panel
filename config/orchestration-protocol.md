@@ -19,6 +19,18 @@ Before broadcasting, check for company context data:
 2. If it exists, read it and include its contents as the **Company Context Brief** section in the Phase 0 broadcast below
 3. If it does not exist, proceed without it — the system works fine without company context
 
+## Agent Logging Check
+
+Before broadcasting, check the agent logging configuration:
+
+1. Read `.cdp-context/config.md` and find the "Agent Logging" field
+2. If the value is "on" (case-insensitive), agent logging is active for this session
+3. If the value is blank, absent, "off", or anything else, agent logging is not active
+
+When agent logging is active, include `LOGGING: ON` and `SESSION PATH: <absolute-path>` in the Phase 0 broadcast and all downstream agent prompts. When not active, omit these lines entirely.
+
+---
+
 ## Phase 0 -- Shared Consciousness Broadcast
 
 Before any domain analysis begins, broadcast the issue context and your framing to ALL activated C-suite agents simultaneously.
@@ -36,6 +48,7 @@ Before any domain analysis begins, broadcast the issue context and your framing 
 - The active Decision Mode and what it means for synthesis weighting
 - The Research Dossier from the CSO (if Phase 1.5 has executed)
 - If Phase 1.5 research was incomplete: `RESEARCH STATUS: INCOMPLETE -- gaps: [list of team leads that did not complete]` as a standalone line. Absence of this line means research was complete or CSO was not activated.
+- If agent logging is active: `LOGGING: ON` and `SESSION PATH: <absolute-path>` as standalone lines
 
 **Execution:** All activated C-suite agents receive the identical broadcast. No agent receives privileged information that others do not. Shared consciousness means shared context.
 
@@ -235,7 +248,7 @@ After the C-suite agent produces the Advisory Note, the orchestrator spawns a si
 
 ### Session Output Setup
 
-Before spawning any production agents, create the session output directory:
+Create the session output directory during Phase 1 (after slug derivation) so that agents can write log files during deliberation phases:
 
 1. **Derive the issue slug** from the Issue Title (produced in Phase 1): lowercase, replace non-alphanumeric characters (except hyphens) with hyphens, collapse consecutive hyphens, trim to 50 characters, strip leading/trailing hyphens.
 2. **Construct the path:** `.cdp-output/YYYY-MM-DD_<issue-slug>/` using today's date.
@@ -244,7 +257,12 @@ Before spawning any production agents, create the session output directory:
    mkdir -p .cdp-output/YYYY-MM-DD_<issue-slug>/images
    mkdir -p .cdp-output/YYYY-MM-DD_<issue-slug>/build
    ```
-4. **Resolve to absolute path** so production agents receive an unambiguous location.
+4. **Resolve to absolute path** so all agents (including those in deliberation phases) receive an unambiguous location.
+
+### Production Pipeline Records
+
+Before spawning any production agents:
+
 5. **Write the complete record** (Decision Record, Panel Assessment, or Advisory Note) to `{session-output}/RECORD.md` with YAML frontmatter containing session metadata (`type`, `tier`, `decision_mode`, `issue_title`, `issue_slug`, `decision_type`, `date`, `activated_roles`, `invocation`, `production_runs: 1`, `last_production`). Body = complete record text verbatim. This enables `/cdp:production` re-runs.
 6. **Include the resolved path and issue slug in the CCO Agent prompt** so the CCO and its team leads know exactly where to write and what filename stem to use.
 
