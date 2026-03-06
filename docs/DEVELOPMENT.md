@@ -64,7 +64,7 @@ corporate-decision-panel/
 │
 ├── agents/                              # Agent definitions
 │   ├── ceo.md                           # CEO orchestrator (Opus)
-│   ├── c-suite/                         # C-suite executives (Sonnet × 8)
+│   ├── c-suite/                         # C-suite executives (Sonnet × 9)
 │   │   ├── coo.md
 │   │   ├── cfo.md
 │   │   ├── cto.md
@@ -72,8 +72,9 @@ corporate-decision-panel/
 │   │   ├── cao.md
 │   │   ├── vp-sales.md
 │   │   ├── vp-delivery.md
-│   │   └── cso.md
-│   └── team-leads/                      # Specialist analysts (Haiku × 34)
+│   │   ├── cso.md
+│   │   └── cco.md
+│   └── team-leads/                      # Specialist agents (Haiku × 38, 34 analytical + 4 production)
 │       ├── coo/                         # 4 team leads
 │       ├── cfo/                         # 5 team leads
 │       ├── cto/                         # 4 team leads
@@ -81,7 +82,8 @@ corporate-decision-panel/
 │       ├── vp-sales/                    # 4 team leads
 │       ├── vp-delivery/                 # 4 team leads
 │       ├── cao/                         # 4 team leads
-│       └── cso/                         # 5 team leads
+│       ├── cso/                         # 5 team leads
+│       └── cco/                         # 4 production team leads
 │
 ├── commands/                            # Slash command definitions
 │   └── cdp/
@@ -94,7 +96,10 @@ corporate-decision-panel/
 ├── config/                              # System configuration
 │   ├── company-profile.md               # Archetype presets + override mechanism
 │   ├── decision-modes.md                # Five mode definitions + prompt modifiers
-│   └── routing-table.md                 # Decision-type routing + threshold conditions
+│   ├── routing-table.md                 # Decision-type routing + threshold conditions
+│   ├── dispatch-protocol.md             # Team lead dispatch (TeamCreate + Agent with team_name)
+│   ├── cco-dispatch-protocol.md         # CCO production team dispatch (3-wave pattern)
+│   └── orchestration-protocol.md        # Five-phase cascade + production pipeline
 │
 ├── templates/                           # Output format specifications
 │   ├── advisory-note.md                 # Tier 1 output format
@@ -182,7 +187,7 @@ CDP uses the [Claude Code skill system](https://docs.anthropic.com/en/docs/claud
 
 - **[`install.py`](../install.py)** -- Pre-session installer. Copies agent and command files into `.claude/` so they're available immediately when Claude Code starts. Without this, CDP falls back to auto-setup on first invocation (defined in SKILL.md's Setup Check section), but slash commands won't be available until the session is restarted.
 
-- **Agent definitions** (`agents/`) -- Markdown files that Claude Code loads as agent teammates (C-suite) or subagents (team leads). The frontmatter specifies model, tools, and max turns.
+- **Agent definitions** (`agents/`) -- Markdown files that Claude Code loads as agent teammates. C-suite agents are teammates of the CEO's executive team; team leads are teammates of their C-suite parent's division team. The frontmatter specifies model, tools, and max turns.
 
 - **Command definitions** (`commands/cdp/`) -- Markdown files that Claude Code registers as slash commands. Each command parses the user's input and delegates to the orchestration protocol in SKILL.md.
 
@@ -207,9 +212,10 @@ When modifying an agent:
 When adding a new team lead:
 
 1. Create the file in `agents/team-leads/{c-suite-parent}/`
-2. Use `model: haiku` and restrict tools to `Read`, `Grep`, `Glob`, `WebSearch`
+2. Use `model: haiku` and restrict tools to `Read`, `Grep`, `Glob`, `WebSearch`, `SendMessage`, `TaskUpdate`
 3. Set `maxTurns: 5`
-4. Follow the structure of existing team leads (identity, framework, template, forcing questions, blind spots)
+4. Add a `## Team Communication` section instructing the team lead to SendMessage findings back to its C-suite parent
+5. Follow the structure of existing team leads (identity, framework, template, forcing questions, blind spots, team communication)
 
 > **Production agents** may need higher limits. The Publisher uses `maxTurns: 15` because it writes a build script and runs weasyprint, which can require debugging iterations.
 

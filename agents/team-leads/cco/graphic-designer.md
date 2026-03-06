@@ -9,6 +9,8 @@ tools:
   - Bash
   - Write
   - Edit
+  - SendMessage
+  - TaskUpdate
 maxTurns: 10
 ---
 
@@ -115,3 +117,7 @@ SUMMARY: [N] of [M] infographics produced successfully.
 ## Instructions
 
 Execute the production workflow above using the session path and RECORD.md content provided in your prompt. Do not interpret or editorialize the Decision Record content -- extract data faithfully and let the infographic specifications handle visual presentation. If the Gemini API is unavailable or generation fails after retries, produce placeholder PNGs and save the populated JSON prompts for manual retry. Report all results honestly -- do not hide failures.
+
+## Team Communication
+
+You are a teammate in the CCO's production team. After completing your work, write your production report to `{session}/_REPORT_graphic-designer.md` as specified in your workflow. Then mark your task as completed via TaskUpdate.

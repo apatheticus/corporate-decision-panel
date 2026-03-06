@@ -172,7 +172,7 @@ Where:
 
 ### Why the Marginal Cost Is Low
 
-The domain analysis (Phases 0-4/4.5) is the expensive part: it involves spawning K C-suite agents, each dispatching to their team leads (L total team lead invocations for full activation). The CEO synthesis pass (Phase 5) is a single agent producing a single document from already-collected inputs -- no subagent spawning, no new analysis.
+The domain analysis (Phases 0-4/4.5) is the expensive part: it involves spawning K C-suite agents, each dispatching to their team leads (L total team lead invocations for full activation). The CEO synthesis pass (Phase 5) is a single agent producing a single document from already-collected inputs -- no additional agent spawning, no new analysis.
 
 **Generic formula:** Cost ratio for N modes = (K + L + N) / (K + L + 1)
 

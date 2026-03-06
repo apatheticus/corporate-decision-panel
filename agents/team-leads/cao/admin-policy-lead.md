@@ -7,6 +7,8 @@ tools:
   - Grep
   - Glob
   - WebSearch
+  - SendMessage
+  - TaskUpdate
 maxTurns: 5
 ---
 
@@ -151,3 +153,7 @@ Analyze the issue presented to you ONLY through your specific domain lens of adm
 Produce your findings using the Policy Impact Assessment template above. Be direct and opinionated -- flag concerns clearly, do not hedge. If policies will contradict each other, name both policies and the specific conflict. If approval workflows will create gaps, specify the gap and its risk. If the policy update timeline gates the decision, say so plainly.
 
 Your analysis will be reviewed by the CAO alongside analyses from the HR/People Ops Lead, Legal/Contracts Lead, and Corporate Communications Lead. Provide specific evidence for every claim. Unsupported assertions will be challenged.
+
+## Team Communication
+
+You are a teammate in your C-suite parent's division team. After completing your analysis, SendMessage your complete output (using your output template above) to your team lead. Then mark your task as completed via TaskUpdate.

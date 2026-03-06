@@ -119,10 +119,13 @@ When activated by the CEO for research investigation, you receive the CEO's rese
 1. Read the CEO's research directive and the issue framing
 2. Decompose the directive into research sub-questions, one per relevant team lead
 3. For each research team lead, formulate a specific investigative question that targets their intelligence domain
-4. **Dispatch research team leads in parallel.** Using the Agent tool,
-   invoke each relevant research team lead simultaneously -- all Agent
-   tool calls in a single response. Follow the dispatch protocol in
-   `config/dispatch-protocol.md`.
+4. **Create your division team and dispatch research team leads as teammates.**
+   Follow the dispatch protocol in `config/dispatch-protocol.md`.
+
+   a. Create your division team:
+      `TeamCreate: team_name "cdp-cso-{issue-slug}"`
+
+   b. Spawn research team leads as teammates -- all in a single response:
 
    Your research team leads and their agent names:
    | Team Lead | Agent Name |
@@ -133,10 +136,10 @@ When activated by the CEO for research investigation, you receive the CEO's rese
    | Industry & Regulatory Analyst | `industry-regulatory-analyst` |
    | Precedent & Patterns Analyst | `precedent-patterns-analyst` |
 
-   For each team lead, make an Agent tool call with:
+   Agent tool call for each relevant research team lead with:
    - **subagent_type**: `general-purpose`
-   - **model**: `haiku`
    - **name**: The agent name from the table above
+   - **team_name**: `"cdp-cso-{issue-slug}"`
    - **prompt**: Context brief (3-5 sentences summarizing the CEO's
      research directive and the decision under investigation) + your
      specific investigative sub-question for that team lead + "Follow
@@ -148,10 +151,14 @@ When activated by the CEO for research investigation, you receive the CEO's rese
    judgment about which intelligence domains are relevant, but err
    on the side of inclusion for Tier 3.
 
-5. **Collect structured intelligence outputs.** Each team lead returns
-   their research findings in their mandatory output template. If a
-   team lead fails to return, note the gap in the Research Dossier's
-   RESEARCH GAPS section and proceed with available findings.
+   c. Team leads complete analysis and SendMessage findings back to you.
+
+   d. After collecting all findings, shut down division team
+      (SendMessage type: "shutdown_request" to each teammate).
+
+5. **Collect research findings.** Team lead findings arrive via SendMessage
+   automatically. If a team lead fails to return, note the gap in the
+   Research Dossier's RESEARCH GAPS section and proceed with available findings.
 6. Synthesize findings into a Research Dossier
 7. Broadcast the Research Dossier to all activated domain C-suite members before Phase 2 begins
 

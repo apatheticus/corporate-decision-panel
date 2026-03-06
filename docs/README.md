@@ -544,7 +544,7 @@ CEO frames and routes to 2-4 C-suite members. Full domain analysis with team lea
 
 **Output:** Panel Assessment (~1 page) delivered in the conversation, plus production artifacts (HTML, PPTX, DOCX, Results PDF, Capsule PDF).
 
-**Behavior:** The CEO frames the issue, classifies the decision type, and routes to the specified roles. Each activated C-suite agent translates the CEO's framing into domain-specific sub-questions, dispatches team leads in parallel, and synthesizes a domain recommendation. The CEO collects all domain recommendations and produces the Panel Assessment.
+**Behavior:** The CEO frames the issue, classifies the decision type, and routes to the specified roles. Each activated C-suite agent creates a division team, spawns team leads as teammates in parallel, collects findings via SendMessage, and synthesizes a domain recommendation. The CEO collects all domain recommendations and produces the Panel Assessment.
 
 ### `/cdp:deliberate` -- Tier 3 Board Meeting
 
@@ -873,7 +873,7 @@ CDP's architecture mirrors a real organizational hierarchy: a CEO at the top mak
 
 ### 8.1 Three-Layer Hierarchy
 
-CDP uses a three-layer model hierarchy that maps organizational structure to model capability. Each layer uses a different model tier, balancing reasoning quality with cost efficiency.
+CDP uses a three-layer model hierarchy that maps organizational structure to model capability. Each layer uses a different model tier, balancing reasoning quality with cost efficiency. Agents are organized into **Agent Teams**: the CEO leads the executive team (Layer 1), each C-suite agent leads a division team of team leads (Layer 2). Team leads are spawned as teammates via Agent with `team_name`, running in separate tmux windows for true parallel execution.
 
 <div align="center">
 
@@ -884,8 +884,8 @@ CDP uses a three-layer model hierarchy that maps organizational structure to mod
 | Layer | Model | Agent Count | Rationale |
 |-------|-------|-------------|-----------|
 | **CEO** | Opus | 1 | Cross-domain synthesis demands the highest reasoning quality. The CEO must weigh competing perspectives, identify fault lines, and produce nuanced judgment. This is the most cognitively demanding task in the cascade. |
-| **C-Suite** | Sonnet | 8 | Domain decomposition and synthesis. Each C-suite agent translates the CEO's framing into domain-specific sub-questions and synthesizes team lead findings into a domain recommendation. Sonnet balances capability with cost. |
-| **Team Leads** | Haiku | 34 | Narrow specialist analysis. Each team lead has a unique analytical framework and a focused lens. Cost-efficient for high parallelism. Model diversity across the hierarchy improves system robustness. |
+| **C-Suite** | Sonnet | 9 | Domain decomposition and synthesis. Each C-suite agent creates a division team, spawns team leads as teammates, collects findings via SendMessage, and synthesizes a domain recommendation. Sonnet balances capability with cost. |
+| **Team Leads** | Haiku | 34 | Narrow specialist analysis. Each team lead has a unique analytical framework and a focused lens. Team leads SendMessage findings back to their C-suite parent. Cost-efficient for high parallelism. Model diversity across the hierarchy improves system robustness. |
 
 ```mermaid
 flowchart TD
@@ -1082,9 +1082,9 @@ flowchart TD
 
 ### Phase 2 -- C-Suite Dispatches Downward
 
-**Who's involved:** All activated C-suite agents (dispatching) → Their team leads (receiving)
+**Who's involved:** All activated C-suite agents (each creating a division team) → Their team leads (spawned as teammates)
 
-**What's produced:** Domain-specific sub-questions for each team lead. This is analytical translation, not forwarding -- the CFO doesn't pass the CEO's question to the Controller; the CFO asks the Controller "what are the GAAP implications?" The VP Delivery doesn't forward the issue to the Resource Manager; the VP Delivery asks "what existing commitments would be impacted if we redirected 30% of engineering capacity?"
+**What's produced:** Domain-specific sub-questions for each team lead. This is analytical translation, not forwarding -- the CFO doesn't pass the CEO's question to the Controller; the CFO asks the Controller "what are the GAAP implications?" The VP Delivery doesn't forward the issue to the Resource Manager; the VP Delivery asks "what existing commitments would be impacted if we redirected 30% of engineering capacity?" Each C-suite agent creates a division team (TeamCreate) and spawns team leads as teammates (Agent with team_name), each running in a separate tmux window for true parallel execution.
 
 **How it feeds the next phase:** Each team lead receives a focused, domain-specific question that they can analyze through their narrow specialist lens. The quality of this translation directly affects the quality of team lead findings -- a well-framed sub-question produces sharper analysis than a generic forwarding.
 
@@ -1096,7 +1096,7 @@ flowchart TD
 
 Each team lead also answers three forcing questions: a **Pre-Mortem** question ("What would make this fail?"), an **Adversarial Empathy** question ("What would someone who disagrees with me say?"), and a **Domain Devil's Advocate** question (challenging their own domain's conventional wisdom). These forcing questions prevent comfortable conclusions.
 
-**How it feeds the next phase:** Findings flow upward to the parent C-suite agent only. Team leads do not communicate with other team leads or with the CEO directly. This isolation is intentional -- it preserves independent analysis.
+**How it feeds the next phase:** Findings flow upward to the parent C-suite agent via SendMessage. Team leads do not communicate with other team leads or with the CEO directly. This isolation is intentional -- it preserves independent analysis.
 
 ### Phase 4 -- C-Suite Synthesizes Upward
 
