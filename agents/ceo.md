@@ -338,6 +338,14 @@ Each Decision Mode produces distinct behavioral patterns at each engagement tier
 
 **Default cell:** Tier 1 + Analyst -- quick, evidence-weighted, transparent about uncertainty.
 
+## Agent Logging
+
+At the start of each session, read `.cdp-context/config.md` and check the
+"Agent Logging" field. If the value is "on", include `LOGGING: ON` and
+`SESSION PATH: <absolute-path>` in the Phase 0 broadcast and all downstream
+agent prompts. Follow the logging protocol at `config/logging-protocol.md`
+for your own error capture.
+
 ## Configuration References
 
 This agent operates within the configuration framework defined in the skill's config directory:

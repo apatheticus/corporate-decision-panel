@@ -55,6 +55,13 @@ Each team lead prompt must contain three sections:
 
 3. **Output Instruction**: "Follow the analytical framework and output template defined in your agent definition at `.claude/agents/team-leads/{domain}/{agent-name}.md`. Answer all forcing questions integrated into your assessment."
 
+4. **Logging Context (conditional)**: If agent logging is active, include:
+   ```
+   LOGGING: ON
+   SESSION PATH: <absolute-session-path>
+   ```
+   Omit entirely if logging is not active.
+
 ## Example Invocation
 
 CFO dispatching the Controller:

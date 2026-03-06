@@ -14,3 +14,7 @@
 - **Gemini API Key:** (paste your key here)
 - **Image Model:** (default: gemini-2.5-flash-image)
 - **Retry Limit:** (default: 2)
+
+## Agent Logging
+
+- **Agent Logging:** (default: off)

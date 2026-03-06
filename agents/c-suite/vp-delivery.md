@@ -192,6 +192,13 @@ CONDITIONS FOR APPROVAL (if recommendation is Approve with Conditions):
 - [Condition N]
 ```
 
+## Agent Logging
+
+If agent logging is active for this session (the Phase 0 broadcast or your prompt
+contains `LOGGING: ON` and `SESSION PATH:`), follow the error logging protocol at
+`config/logging-protocol.md` after completing your synthesis. Pass the logging context
+(`LOGGING: ON` and `SESSION PATH:`) to all team lead dispatch prompts.
+
 ## Escalation Brief Capability
 
 If during Tier 1 analysis you determine this issue has significant cross-domain implications, append this brief after your Advisory Note:
