@@ -83,6 +83,42 @@ For each session, the Graphic Designer follows this workflow:
 
 ---
 
+## Data File Format
+
+Data files are **flat JSON objects** — NOT the template structure. Each key is a `{{TOKEN}}` placeholder name (without braces) from the corresponding template in `templates/infographic-prompts/`. Each value is a content string extracted from RECORD.md.
+
+**Do NOT** write files using the template structure (`core`, `style`, `technical` keys). The `substitute_placeholders()` function in `scripts/generate_infographic.py` does a simple regex replacement of `{{TOKEN}}` patterns using `data.get(key)`.
+
+### Example (routing-diagram)
+
+```json
+{
+  "ISSUE_TITLE": "Should we pivot to AI-based rapid solution delivery?",
+  "DECISION_TYPE": "Strategic Direction (Primary), Resource Allocation (Secondary)",
+  "ACTIVATED_ROLES": "CTO (Skeptic), CFO (Investigative), COO (Systemic)",
+  "ACTIVATED_COUNT": "3",
+  "EXCLUDED_ROLES": "CLO: No regulatory implications identified",
+  "EXCLUDED_COUNT": "1",
+  "CSO_ACTIVATED": "Yes -- directed research on market viability",
+  "FULL_ACTIVATION": "Not met -- 3 of 6 roles activated",
+  "ROUTING_RATIONALE": "Strategic pivot requires technology, financial, and operational assessment",
+  "THRESHOLD_CONDITIONS": "Revenue impact > 20% triggers full activation"
+}
+```
+
+### Token Names per Infographic Type
+
+| Type | Tokens |
+|------|--------|
+| routing-diagram | `ISSUE_TITLE`, `DECISION_TYPE`, `ACTIVATED_ROLES`, `ACTIVATED_COUNT`, `EXCLUDED_ROLES`, `EXCLUDED_COUNT`, `CSO_ACTIVATED`, `FULL_ACTIVATION`, `ROUTING_RATIONALE`, `THRESHOLD_CONDITIONS` |
+| domain-scorecard | `ACTIVATED_DOMAINS`, `CONSENSUS_LEVEL`, `DECISION_MODE`, `DOMAIN_COUNT`, `DOMAIN_RECOMMENDATIONS`, `INTERNAL_CONTRADICTIONS`, `KEY_OPPORTUNITIES`, `KEY_RISKS`, `MOST_DETERMINATIVE` |
+| fault-line-map | `AGREEMENT_COUNT`, `AGREEMENT_POINTS`, `CONTENTION_COUNT`, `CONTENTION_DRIVERS`, `CONTENTION_POINTS`, `FACTUAL_VS_VALUES`, `PRE_MORTEM_COUNT`, `PRE_MORTEM_FINDINGS`, `UNRESOLVED_TENSIONS` |
+| risk-opportunity-matrix | `ACCEPTED_RISKS`, `ACCEPTED_RISK_COUNT`, `MITIGATIONS`, `OPPORTUNITIES`, `OPPORTUNITY_COUNT`, `OPPORTUNITY_SOURCES`, `RISKS`, `RISK_COUNT`, `RISK_SOURCES` |
+| action-plan-timeline | `ACTION_COUNT`, `ACTION_ITEMS`, `DEPENDENCIES`, `GUARDRAIL_ACTIONS`, `OWNER_COUNT`, `PRIORITY_DISTRIBUTION`, `REVIEW_TRIGGERS`, `REVIEW_TRIGGER_COUNT`, `TIMELINE_HORIZON` |
+| mode-comparison | `CONVERGENCE_COUNT`, `CONVERGENCE_POINTS`, `DIVERGENCE_COUNT`, `DIVERGENCE_POINTS`, `KEY_CHOICE`, `MODES_COMPARED`, `MODES_COMPARED_COUNT`, `MODE_DECISIONS`, `MODE_SENSITIVITY` |
+
+---
+
 ## Infographic Specifications
 
 ### 1. Routing Diagram

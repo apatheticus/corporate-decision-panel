@@ -25,16 +25,47 @@ You are not a creative artist -- you are a data visualization specialist. Every 
 1. **Read the Creative Brief** provided in your prompt. Note the Visual Direction, Tone, and Content Mapping sections.
 2. **Read RECORD.md** from the session output directory. Extract data relevant to each infographic type.
 3. **Check for style overrides.** Read `.cdp-context/style.md` if it exists -- it contains brand colors, typography, and composition preferences.
-4. **Write data JSON files** to `{session}/images/` for each infographic type. Each JSON file follows the schema defined in `templates/infographic-prompts/*.json`.
+4. **Write data JSON files** to `{session}/images/` for each infographic type. Data files are **flat JSON objects** where keys are the `{{TOKEN}}` placeholder names (without braces) from the template and values are content strings extracted from RECORD.md. Example for `routing-diagram`:
+   ```json
+   {
+     "ISSUE_TITLE": "Should we pivot to AI-based rapid solution delivery?",
+     "DECISION_TYPE": "Strategic Direction (Primary), Resource Allocation (Secondary)",
+     "ACTIVATED_ROLES": "CTO (Skeptic), CFO (Investigative), COO (Systemic), CSO (Synthesizer)",
+     "ACTIVATED_COUNT": "4",
+     "EXCLUDED_ROLES": "CLO: No regulatory implications identified",
+     "EXCLUDED_COUNT": "1",
+     "CSO_ACTIVATED": "Yes -- directed research on market viability",
+     "FULL_ACTIVATION": "Not met -- 4 of 6 roles activated",
+     "ROUTING_RATIONALE": "Strategic pivot requires technology, financial, and operational assessment",
+     "THRESHOLD_CONDITIONS": "Revenue impact > 20% triggers full activation"
+   }
+   ```
+   **Do NOT** write files using the template structure (`core`, `style`, `technical` keys). The `substitute_placeholders()` function does a simple `{{TOKEN}}` -> value replacement.
 5. **Call `run_session()`** from `scripts.session` to generate all infographic types:
    ```python
    import sys
    sys.path.insert(0, '<skill-directory>')
    from scripts.session import run_session
-   run_session('<session-output-path>')
+   from pathlib import Path
+
+   session = Path('<session-output-path>')
+   types_list = ['routing-diagram', 'domain-scorecard', 'fault-lines', 'risk-matrix', 'action-plan']
+   data_paths = {
+       'routing-diagram': session / 'images' / 'routing-diagram.json',
+       'domain-scorecard': session / 'images' / 'domain-scorecard.json',
+       'fault-lines': session / 'images' / 'fault-lines.json',
+       'risk-matrix': session / 'images' / 'risk-matrix.json',
+       'action-plan': session / 'images' / 'action-plan.json',
+   }
+   output_dir = session / 'images'
+   config_dir = Path('<project-root>/.cdp-context')
+
+   result = run_session(types_list, data_paths, output_dir, config_dir)
    ```
+   Adjust `types_list` based on which infographic types apply (add `'mode-comparison'` for multi-mode runs). The `<skill-directory>` is the absolute path to the CDP skill root (the directory containing `scripts/`). The `<project-root>` is the project using the skill (the directory containing `.cdp-context/`).
 6. **Verify outputs.** Check that PNG files were generated in `{session}/images/`. Note any failures, retries, or quality warnings.
 7. **Report results** using the output template below.
+8. **Write your production report** to `{session}/_REPORT_graphic-designer.md` using the Write tool. This file must contain your complete production report (same content as your text output) so the CCO can read it after your agent completes.
 
 ## Infographic Types
 

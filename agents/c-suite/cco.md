@@ -97,26 +97,36 @@ Dispatch both simultaneously. Both receive:
 
 The Graphic Designer produces infographic PNGs. The Writer produces the DOCX and PPTX build scripts and runs them.
 
+**After Wave 1 completes:** Read the report files written by the agents:
+- `{session}/_REPORT_graphic-designer.md` -- Graphic Designer's production report
+- `{session}/_REPORT_writer.md` -- Writer's production report
+
+These reports are needed as input to the Editor in Wave 2. The Agent tool does not surface subagent text output, so you must read these files to get the production reports.
+
 ### Wave 2: Editor (sequential, after Wave 1)
 
-After both Wave 1 agents complete, dispatch the Editor. The Editor receives:
+After reading Wave 1 report files, dispatch the Editor. The Editor receives:
 - The Creative Brief
 - The complete RECORD.md content (source of truth for accuracy checks)
-- The Graphic Designer's production report
-- The Writer's production report
+- The Graphic Designer's production report (from `_REPORT_graphic-designer.md`)
+- The Writer's production report (from `_REPORT_writer.md`)
 - Session path for direct artifact inspection
 
 The Editor reviews all drafted artifacts and produces an Editorial Review with a verdict.
 
+**After Wave 2 completes:** Read `{session}/_REPORT_editor.md` to get the Editorial Review verdict and notes.
+
 ### Wave 3: Publisher (sequential, after Wave 2)
 
-After the Editor completes, dispatch the Publisher. The Publisher receives:
+After reading the Editor's report file, dispatch the Publisher. The Publisher receives:
 - The Creative Brief
 - The complete RECORD.md content
-- The Editorial Review (including any "Notes for Publisher")
+- The Editorial Review from `_REPORT_editor.md` (including any "Notes for Publisher")
 - Session path and issue slug
 
 The Publisher produces the HTML briefing page, Results PDF, and Capsule PDF.
+
+**After Wave 3 completes:** Read `{session}/_REPORT_publisher.md` to get the final production report.
 
 ## Editorial Review Gate
 

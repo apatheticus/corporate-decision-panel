@@ -33,6 +33,15 @@ You are not a summarizer -- you are a narrative craftsperson. The Decision Recor
    ```
 6. **Verify outputs.** Check that both files were generated at the expected paths.
 7. **Report results** using the output template below.
+8. **Write your production report** to `{session}/_REPORT_writer.md` using the Write tool. This file must contain your complete production report (same content as your text output) so the CCO can read it after your agent completes.
+
+## Filename Requirements
+
+Each build script MUST output exactly ONE file at the path specified in the production spec:
+- **DOCX:** `{session}/REPORT_<issue-slug>.docx`
+- **PPTX:** `{session}/PRESENTATION_<issue-slug>.pptx`
+
+Do NOT produce additional copies with alternative names (company names, branded names, etc.). The `writeFile` / `Packer.toBuffer` call in each build script must target the single canonical filename above. If the build script hardcodes an output path, it must be the spec-mandated path only.
 
 ## Tone Guidance
 

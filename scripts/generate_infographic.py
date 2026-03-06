@@ -50,7 +50,7 @@ from scripts.validation import validate_infographic
 # Constants
 # ---------------------------------------------------------------------------
 
-TEMPLATE_DIR = Path("templates/infographic-prompts")
+TEMPLATE_DIR = Path(__file__).resolve().parent.parent / "templates" / "infographic-prompts"
 
 PLACEHOLDER_RE = re.compile(r"\{\{(\w+)\}\}")
 
