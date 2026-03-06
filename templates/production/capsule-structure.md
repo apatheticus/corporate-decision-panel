@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The Archivist produces two PDF artifacts:
+The Publisher produces two PDF artifacts:
 
 1. **Results PDF** -- A print-portable rendering of the HTML decision briefing page. Same content, same design, PDF format. The "email it, attach it, archive it" artifact.
 2. **Deliberation Capsule PDF** -- A comprehensive, layered archive of the **entire** deliberation process. Unlike the other four artifacts (which present only the synthesized decision briefing), the Capsule contains the full analytical record: every domain analysis, every team lead finding, the CEO's routing rationale, Phase 4.5 pre-mortem responses, and the original issue submission.
@@ -11,9 +11,15 @@ The Archivist produces two PDF artifacts:
 **Capsule PDF filename:** `{session-output}/CAPSULE_<issue-slug>.pdf`
 **Build script:** `{session-output}/build/build_capsule.py`
 
-> `{session-output}` and `<issue-slug>` are provided by the CEO in your task description. Use them directly.
+> `{session-output}` and `<issue-slug>` are provided by the CCO in your prompt. Use them directly.
 
-**Blocked until:** Web Page Agent (Task D) completes. The Results PDF is a direct rendering of `index.html`, so the finished page must exist before the Archivist can start.
+**Runs in Wave 3.** The Results PDF is a direct rendering of `index.html`, which the Publisher also produces in the same wave.
+
+---
+
+## Supplemental Skills
+
+Before starting implementation, review available skills for any relevant to this artifact type. Invoke applicable skills using the Skill tool to load additional guidance into your context. If no relevant skills are found, proceed — this template is self-contained and sufficient on its own.
 
 ---
 
@@ -22,7 +28,7 @@ The Archivist produces two PDF artifacts:
 **Primary:** Python build script using `weasyprint` for HTML-to-PDF rendering.
 **Fallback:** `pdfkit` with `wkhtmltopdf` if weasyprint is unavailable.
 
-The Archivist writes a build script (`build_capsule.py`) that produces both PDFs in one run. The script is rerunnable: `python3 build_capsule.py` from the `build/` directory regenerates both from current artifacts.
+The Publisher writes a build script (`build_capsule.py`) that produces both PDFs in one run. The script is rerunnable: `python3 build_capsule.py` from the `build/` directory regenerates both from current artifacts.
 
 ```python
 # build_capsule.py structure
@@ -142,7 +148,7 @@ if __name__ == '__main__':
    ```
 
 ### Output
-The Results PDF content is identical to the HTML distribution page. The Archivist converts format, not content. A reader of the Results PDF sees the same decision briefing as a reader of the HTML page.
+The Results PDF content is identical to the HTML distribution page. The Publisher converts format, not content. A reader of the Results PDF sees the same decision briefing as a reader of the HTML page.
 
 ---
 
@@ -201,11 +207,11 @@ CONTENT INVENTORY
 | CEO Framing | Analysis | Layer 2 | Decision Record Sec. 2 |
 | [C-Suite Role] Domain Analysis | Analysis | Layer 3 | Domain Analysis Data |
 | [Team Lead] Findings | Analysis | Layer 3 | Team Lead Output |
-| Routing Diagram | Infographic | Layer 3 | Image Agent |
-| Domain Scorecard | Infographic | Layer 3 | Image Agent |
-| Fault Line Map | Infographic | Layer 3 | Image Agent |
-| Risk-Opportunity Matrix | Infographic | Layer 3 | Image Agent |
-| Action Plan Timeline | Infographic | Layer 3 | Image Agent |
+| Routing Diagram | Infographic | Layer 3 | Graphic Designer |
+| Domain Scorecard | Infographic | Layer 3 | Graphic Designer |
+| Fault Line Map | Infographic | Layer 3 | Graphic Designer |
+| Risk-Opportunity Matrix | Infographic | Layer 3 | Graphic Designer |
+| Action Plan Timeline | Infographic | Layer 3 | Graphic Designer |
 | CEO Routing Rationale | Process | Layer 4 | CEO Framing Data |
 | Phase 4.5 Pre-Mortem Responses | Process | Layer 4 | Pre-Mortem Data |
 | Original Issue Submission | Context | Layer 5 | User Input |
@@ -245,7 +251,7 @@ Formatting: Narrative style with clear headings. Each subsection starts on a cle
 
 | Section | Content | Source |
 |---------|---------|--------|
-| Domain Scorecard Overview | `INFOGRAPHIC_domain-scorecard.png` at full size | Image Agent |
+| Domain Scorecard Overview | `INFOGRAPHIC_domain-scorecard.png` at full size | Graphic Designer |
 | Per-Domain Analysis | One major section per activated C-suite domain | DR Section 3 |
 | -- Domain Recommendation | Approve/Oppose/Conditions/Neutral + confidence | C-Suite synthesis |
 | -- Domain Summary | Full synthesis narrative | C-Suite synthesis |
@@ -255,12 +261,12 @@ Formatting: Narrative style with clear headings. Each subsection starts on a cle
 | -- Key Opportunities | Complete opportunity inventory with impact | C-Suite synthesis |
 | -- Internal Contradictions | Where team leads within this domain disagreed | C-Suite synthesis |
 | Fault Line Analysis | Full fault line analysis | DR Section 4 |
-| -- Fault Line Map | `INFOGRAPHIC_fault-lines.png` at full size | Image Agent |
+| -- Fault Line Map | `INFOGRAPHIC_fault-lines.png` at full size | Graphic Designer |
 | -- Points of Agreement | Complete listing | DR Section 4 |
 | -- Points of Contention | Complete listing with domain attribution | DR Section 4 |
 | -- Pre-Mortem Findings | All Phase 4.5 failure modes | DR Section 4 |
 | -- Unresolved Tensions | Complete listing | DR Section 4 |
-| Risk-Opportunity Matrix | `INFOGRAPHIC_risk-matrix.png` at full size | Image Agent |
+| Risk-Opportunity Matrix | `INFOGRAPHIC_risk-matrix.png` at full size | Graphic Designer |
 
 **Key difference from Layer 2:** Layer 2 presents domain analyses as summaries. Layer 3 presents the **complete team lead output** for every activated team lead -- the full analytical framework output including scenario models, compliance assessments, stress tests, etc. Nothing is summarized or abbreviated.
 
@@ -419,4 +425,4 @@ except ImportError:
 
 4. **Variable content must be handled gracefully.** A capsule from a Tier 2 run with 3 domains should look intentional, not incomplete. A capsule from a Tier 3 full cascade with all 8 domains and CSO research should not overflow or break layout.
 
-5. **The Results PDF must faithfully reproduce the HTML page.** No invisible elements from scroll-reveal animations, no missing interactive content, no broken layouts from unsupported CSS. The Archivist's print CSS injection must neutralize all browser-dependent rendering.
+5. **The Results PDF must faithfully reproduce the HTML page.** No invisible elements from scroll-reveal animations, no missing interactive content, no broken layouts from unsupported CSS. The Publisher's print CSS injection must neutralize all browser-dependent rendering.

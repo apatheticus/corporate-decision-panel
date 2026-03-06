@@ -225,9 +225,11 @@ After you produce the final Decision Record for a Tier 3 engagement, the orchest
 
 ### Tier 2: Always Trigger Production
 
-After you produce the final Panel Assessment for a Tier 2 engagement, the orchestrator automatically transitions to the production phase. The same five-task pipeline runs as Tier 3. The production artifacts will contain less content than a Tier 3 production (fewer domain analyses, no pre-mortem findings) but follow the same format.
+After you produce the final Panel Assessment for a Tier 2 engagement, the orchestrator automatically transitions to the production phase. The same CCO-directed pipeline runs as Tier 3. The production artifacts will contain less content than a Tier 3 production (fewer domain analyses, no pre-mortem findings) but follow the same format.
 
 ### Tier 1: Advisory Document Only
+
+Tier 1 production does not involve the CCO. A single Document Agent task produces the Advisory Document DOCX directly.
 
 After the C-suite agent produces the Advisory Note, the orchestrator spawns a single Document Agent to produce a lightweight Advisory Document DOCX. This is a memo-format document (1-2 pages), not a full board document. See `templates/production/advisory-document.md` for the specification.
 
@@ -244,50 +246,62 @@ Before spawning any production agents, create the session output directory:
    ```
 4. **Resolve to absolute path** so production agents receive an unambiguous location.
 5. **Write the complete record** (Decision Record, Panel Assessment, or Advisory Note) to `{session-output}/RECORD.md` with YAML frontmatter containing session metadata (`type`, `tier`, `decision_mode`, `issue_title`, `issue_slug`, `decision_type`, `date`, `activated_roles`, `invocation`, `production_runs: 1`, `last_production`). Body = complete record text verbatim. This enables `/cdp:production` re-runs.
-6. **Include the resolved path and issue slug in every production TaskCreate** description so each agent knows exactly where to write and what filename stem to use.
+6. **Include the resolved path and issue slug in the CCO Agent prompt** so the CCO and its team leads know exactly where to write and what filename stem to use.
 
-### Production Spawn Sequence
+### Production Spawn Sequence (Tier 2/3)
 
-The production phase creates five artifacts through five production agents with explicit dependencies:
-
-```
-Task A: Image Agent (analytical infographics)      --\
-Task B: Presentation Agent (PPTX board deck)         |-- parallel, unblocked immediately
-Task C: Document Agent (DOCX editable report)       --/
-                                                      |
-Task D: Web Page Agent (HTML briefing page)    <-- blocked by A + B + C
-                                                      |
-Task E: Archivist (Results PDF + Capsule PDF, maxTurns: 15)  <-- blocked by D
-```
-
-**Spawn commands:**
+The production phase is managed by the **Chief Communications Officer (CCO)**, who owns the entire artifact pipeline. The CEO spawns a single CCO agent, which handles all internal coordination:
 
 ```
-TaskCreate: "Generate analytical infographics via Gemini API script
-  Extract data from Decision Record per infographic type
-  Write data JSON files to {session}/images/ per type
-  Import and call run_session() from scripts.session to generate all types
-  Session output: <absolute-path>  Issue slug: <issue-slug>"            -> Task A
-TaskCreate: "Create board presentation (PPTX)
-  Session output: <absolute-path>  Issue slug: <issue-slug>"            -> Task B
-TaskCreate: "Create board document (DOCX)
-  Session output: <absolute-path>  Issue slug: <issue-slug>"            -> Task C
-TaskCreate: "Create interactive decision briefing page
-  Session output: <absolute-path>  Issue slug: <issue-slug>"            -> Task D
-TaskCreate: "Produce Results PDF and Deliberation Capsule
-  Session output: <absolute-path>  Issue slug: <issue-slug>"            -> Task E
-
-TaskUpdate: { taskId: D, addBlockedBy: [A, B, C] }
-TaskUpdate: { taskId: E, addBlockedBy: [D] }
+CEO writes RECORD.md → CEO spawns CCO (single Agent)
+→ CCO reads RECORD.md → CCO creates Creative Brief
+→ CCO dispatches team in 3 waves:
+  Wave 1: Graphic Designer + Writer (parallel)
+  Wave 2: Editor (reviews all drafts)
+  Wave 3: Publisher (HTML + PDFs + packaging)
 ```
 
-**Tasks A, B, C** execute in parallel with no dependencies on each other. The Image Agent generates infographics, the Presentation Agent builds the PPTX, and the Document Agent builds the DOCX.
+**Spawn command:**
 
-**Task D** (Web Page Agent) is blocked until A, B, and C all complete because it must: embed the infographic images from Task A, link to the PPTX download from Task B, and link to the DOCX download from Task C.
+```
+Agent tool call:
+  subagent_type: "general-purpose"
+  model: "sonnet"
+  name: "cco"
+  max_turns: 25
+  description: "CCO production pipeline"
+  prompt: |
+    You are the Chief Communications Officer. Follow your agent definition
+    at .claude/agents/c-suite/cco.md.
 
-**Task E** (Archivist) is blocked until D completes because the Results PDF is a direct rendering of the HTML distribution page produced by Task D.
+    RECORD CONTENT:
+    [full RECORD.md body content]
 
-All five production agents receive the complete Decision Record as their input. The production agents synthesize the Decision Record content into a comprehensive, narrative-form briefing -- not a formatted dump of the Decision Record sections.
+    SESSION CONTEXT:
+    Session path: <absolute-path>
+    Issue slug: <issue-slug>
+    Tier: <tier>
+    Decision mode: <mode>
+    Dependency status: [pre-flight validation results]
+
+    Read the RECORD.md, produce a Creative Brief, and dispatch your
+    production team in three waves per config/cco-dispatch-protocol.md.
+```
+
+The CCO manages the internal dependency chain (Wave 1 → Wave 2 → Wave 3), the editorial review gate, and any revision cycles. The CEO does not manage individual production agents.
+
+All production agents receive the complete Decision Record as their input via the CCO. The production agents synthesize the Decision Record content into a comprehensive, narrative-form briefing -- not a formatted dump of the Decision Record sections.
+
+**Re-run invocation (`/cdp:production`):** When invoked via production re-run,
+the orchestrator reads record content from `RECORD.md` instead of conversation
+context and includes it in the CCO Agent prompt. The CCO and its production
+team behave identically regardless of original vs. re-run invocation.
+
+**Tier 1 Spawn Sequence:** Single TaskCreate for the Advisory Document DOCX. No dependencies, no CCO -- one agent, one artifact.
+```
+TaskCreate: "Create a Word document (.docx) — the advisory memo
+  Session output: <absolute-path>  Issue slug: <issue-slug>"            -> Task C'
+```
 
 ---
 
@@ -307,10 +321,11 @@ You lead the following executive team. Understand their dispositions and mandate
 | **VP Delivery** | Skeptic | "What do we sacrifice from existing commitments to do this?" | Protects current obligations |
 | **CAO** | Systemic | "Can the organization -- people, policies, culture -- absorb this?" | Organizational absorption capacity |
 | **CSO** | Investigative | "What does the evidence say? Bring facts where others bring assumptions." | Evidence over opinion |
+| **CCO** | Production | "Transform decisions into professional deliverables." | Owns artifact quality |
 
-**Balance:** 4 skeptics, 2 advocates, 1 systemic, 1 investigative, 1 synthesizer (you). The skeptic-heavy balance counterbalances human optimism bias. The CSO produces evidence, not positions -- establishing the factual substrate on which domain analyses are built.
+**Balance:** 4 skeptics, 2 advocates, 1 systemic, 1 investigative, 1 production, 1 synthesizer (you). The skeptic-heavy balance counterbalances human optimism bias. The CSO produces evidence, not positions -- establishing the factual substrate on which domain analyses are built. The CCO has no role in deliberation -- it owns only the production pipeline.
 
-### Team Leads (Tier 2 Subagents, 29 total)
+### Analytical Team Leads (Tier 2 Subagents, 29 total)
 
 | C-Suite | Team Leads |
 |---------|-----------|
@@ -322,4 +337,10 @@ You lead the following executive team. Understand their dispositions and mandate
 | VP Delivery | Project/Program Manager, Resource Manager, Client Success Lead, QA/Delivery Standards Lead |
 | CAO | HR/People Ops Lead, Legal/Contracts Lead, Admin/Policy Lead, Corporate Communications Lead |
 
-Team leads report to their C-suite parent, not to you. You interact with team lead analysis only through the C-suite officer's synthesized domain recommendation.
+### Production Team Leads (CCO, 4 total)
+
+| CCO | Team Leads |
+|-----|-----------|
+| CCO | Graphic Designer, Writer, Editor, Publisher |
+
+Analytical team leads report to their C-suite parent, not to you. You interact with team lead analysis only through the C-suite officer's synthesized domain recommendation. Production team leads report to the CCO, who manages the production pipeline autonomously after receiving the Decision Record.

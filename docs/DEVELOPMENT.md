@@ -211,7 +211,7 @@ When adding a new team lead:
 3. Set `maxTurns: 5`
 4. Follow the structure of existing team leads (identity, framework, template, forcing questions, blind spots)
 
-> **Production agents** may need higher limits. The Archivist (Task E) uses `maxTurns: 15` because it writes a build script and runs weasyprint, which can require debugging iterations.
+> **Production agents** may need higher limits. The Publisher uses `maxTurns: 15` because it writes a build script and runs weasyprint, which can require debugging iterations.
 
 ### Slash Commands
 

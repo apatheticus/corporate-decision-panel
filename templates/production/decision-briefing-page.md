@@ -6,9 +6,15 @@ The interactive decision briefing page is the **primary distribution artifact** 
 
 **Filename:** `{session-output}/index.html`
 
-> `{session-output}` and `<issue-slug>` are provided by the CEO in your task description. Use them directly.
+> `{session-output}` and `<issue-slug>` are provided by the CCO in your prompt. Use them directly.
 
-**Blocked until:** Image Agent (Task A), Presentation Agent (Task B), AND Document Agent (Task C) complete. The page needs infographic images from Task A and download links to PPTX (Task B) and DOCX (Task C).
+**Runs in Wave 3** (after Wave 1 and Wave 2 complete). The page needs infographic images from the Graphic Designer and download links to PPTX and DOCX from the Writer.
+
+---
+
+## Supplemental Skills
+
+Before starting implementation, review available skills for any relevant to this artifact type. Invoke applicable skills using the Skill tool to load additional guidance into your context. If no relevant skills are found, proceed — this template is self-contained and sufficient on its own.
 
 ---
 
@@ -18,7 +24,7 @@ The interactive decision briefing page is the **primary distribution artifact** 
 - **No external dependencies**: No CDN links, no frameworks (no Bootstrap, no Tailwind, no React). Vanilla HTML, CSS, and JavaScript only.
 - **Works from `file://` protocol**: Must open correctly when double-clicked from the filesystem. No server required. All asset references use relative paths.
 - **Responsive**: Readable on desktop, tablet, and mobile screen sizes.
-- **PDF-compatible**: Design patterns must work when rendered to PDF by the Archivist (see PDF Compatibility section below).
+- **PDF-compatible**: Design patterns must work when rendered to PDF by the Publisher (see PDF Compatibility section below).
 
 ---
 
@@ -174,9 +180,9 @@ The interactive decision briefing page is the **primary distribution artifact** 
 
 ## PDF Compatibility Requirements
 
-The Archivist renders this page to PDF via weasyprint. The following patterns ensure PDF output is clean:
+The Publisher renders this page to PDF via weasyprint. The following patterns ensure PDF output is clean:
 
-1. **Scroll-reveal animations**: Use class-based patterns (`.reveal` with `opacity: 0`, JS adds `.visible` class on scroll). The Archivist injects print CSS: `.reveal { opacity: 1 !important; transform: none !important; }` to neutralize these.
+1. **Scroll-reveal animations**: Use class-based patterns (`.reveal` with `opacity: 0`, JS adds `.visible` class on scroll). The Publisher injects print CSS: `.reveal { opacity: 1 !important; transform: none !important; }` to neutralize these.
 
 2. **`backdrop-filter`**: Not supported in weasyprint. Use solid fallback backgrounds for any frosted-glass effects:
    ```css
@@ -188,7 +194,7 @@ The Archivist renders this page to PDF via weasyprint. The following patterns en
 
 3. **CSS custom properties**: Supported and encouraged. Use `var(--name)` for the color palette to enable easy theme adjustment.
 
-4. **Fixed-position elements**: The sticky nav bar will be hidden in PDF. Use `@media print { .nav { display: none; } }` and the Archivist will also strip it.
+4. **Fixed-position elements**: The sticky nav bar will be hidden in PDF. Use `@media print { .nav { display: none; } }` and the Publisher will also strip it.
 
 5. **Viewport units**: Avoid `vh`/`vw` for critical sizing. Use `rem`, `em`, or `px` for content dimensions.
 
@@ -202,7 +208,7 @@ The Archivist renders this page to PDF via weasyprint. The following patterns en
 
 7. **Image sizing**: Infographic images should have explicit `width` and `height` attributes or CSS dimensions, not rely on `max-width: 100%` alone.
 
-8. **Script blocks**: The Archivist strips all `<script>` blocks before PDF rendering. All critical content must be in the HTML/CSS, not JS-generated.
+8. **Script blocks**: The Publisher strips all `<script>` blocks before PDF rendering. All critical content must be in the HTML/CSS, not JS-generated.
 
 ---
 
@@ -318,4 +324,4 @@ When the source is a Comparative Decision Record (multi-mode comparison), the pa
 | Section 7: Next Steps | Action Plan | Timeline infographic + structured table |
 | Section 8: Metadata | Metadata footer | Footer/sidebar treatment |
 
-The Web Page Agent synthesizes the Decision Record into a narrative briefing -- not a formatted transcription. Section headings, content flow, and language should feel like a designed report, not a form output.
+The Publisher synthesizes the Decision Record into a narrative briefing -- not a formatted transcription. Section headings, content flow, and language should feel like a designed report, not a form output.

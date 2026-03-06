@@ -304,7 +304,7 @@ An optional markdown file (`.cdp-context/company.md`) containing real company da
 
 ### Level 3.5: API Configuration
 
-A markdown file (`.cdp-context/config.md`) that configures the Gemini API for infographic generation. The Image Agent reads this at the start of the production pipeline to get the API key, model ID, and retry limit.
+A markdown file (`.cdp-context/config.md`) that configures the Gemini API for infographic generation. The Graphic Designer reads this at the start of the production pipeline to get the API key, model ID, and retry limit.
 
 **Template:** [`templates/config-context.md`](../templates/config-context.md)
 
@@ -356,55 +356,55 @@ The system defaults to lightweight engagement. Tier 1 is the daily habit; Tier 3
 
 ## Production Pipeline
 
-After the deliberation cascade completes, a production pipeline generates distributable artifacts. The pipeline is a 5-task DAG with explicit dependencies. The `/cdp:production` command enables re-running this pipeline for an existing session using the persisted `RECORD.md`, without re-running the deliberation cascade.
+After the deliberation cascade completes, the CCO (Chief Communications Officer) manages a production pipeline that generates distributable artifacts. The CCO dispatches production team leads in three waves. The `/cdp:production` command enables re-running this pipeline for an existing session using the persisted `RECORD.md`, without re-running the deliberation cascade.
 
 ```mermaid
 flowchart LR
-    A["Task A\nImage Agent\n(infographics)"]
-    B["Task B\nPresentation Agent\n(PPTX via pptxgenjs)"]
-    C["Task C\nDocument Agent\n(DOCX via docx-js)"]
-    D["Task D\nWeb Page Agent\n(self-contained HTML)"]
-    E["Task E\nArchivist\n(PDFs via weasyprint)"]
+    CCO["CCO\n(Creative Brief)"]
+    GD["Wave 1\nGraphic Designer\n(infographics)"]
+    W["Wave 1\nWriter\n(PPTX + DOCX)"]
+    ED["Wave 2\nEditor\n(quality gate)"]
+    PUB["Wave 3\nPublisher\n(HTML + PDFs)"]
 
-    A --> D
-    B --> D
-    C --> D
-    D --> E
+    CCO --> GD
+    CCO --> W
+    GD --> ED
+    W --> ED
+    ED --> PUB
 
-    style A fill:#e8f5e9,stroke:#2e7d32,color:#1a1a1a
-    style B fill:#e8f5e9,stroke:#2e7d32,color:#1a1a1a
-    style C fill:#e8f5e9,stroke:#2e7d32,color:#1a1a1a
-    style D fill:#fff3e0,stroke:#ef6c00,color:#1a1a1a
-    style E fill:#fce4ec,stroke:#c62828,color:#1a1a1a
+    style CCO fill:#e3f2fd,stroke:#1565c0,color:#1a1a1a
+    style GD fill:#e8f5e9,stroke:#2e7d32,color:#1a1a1a
+    style W fill:#e8f5e9,stroke:#2e7d32,color:#1a1a1a
+    style ED fill:#fff3e0,stroke:#ef6c00,color:#1a1a1a
+    style PUB fill:#fce4ec,stroke:#c62828,color:#1a1a1a
 ```
 
-### Tasks A, B, C (parallel, unblocked)
+### Wave 1: Graphic Designer + Writer (parallel)
 
-| Task | Artifact | Technology |
-|------|----------|------------|
-| A -- Image Agent | `images/INFOGRAPHIC_*.png` (5-6 infographics) | Gemini API (Python script / JSON prompts) |
-| B -- Presentation Agent | `PRESENTATION_<slug>.pptx` (11-slide deck) | pptxgenjs (Node.js) |
-| C -- Document Agent | `REPORT_<slug>.docx` (US Letter, 8 sections + appendices) | docx (Node.js) |
+| Agent | Artifact | Technology |
+|-------|----------|------------|
+| Graphic Designer | `images/INFOGRAPHIC_*.png` (5-6 infographics) | Gemini API (Python script / JSON prompts) |
+| Writer | `PRESENTATION_<slug>.pptx` (11-slide deck) + `REPORT_<slug>.docx` (US Letter, 8 sections + appendices) | pptxgenjs + docx (Node.js) |
 
-### Task D (blocked by A + B + C)
+### Wave 2: Editor (reviews Wave 1 output)
 
-| Task | Artifact | Technology |
-|------|----------|------------|
-| D -- Web Page Agent | `index.html` (interactive briefing page) | Vanilla HTML/CSS/JS |
+| Agent | Output | Tools |
+|-------|--------|-------|
+| Editor (Sonnet) | Editorial Review with verdict (APPROVED / APPROVED WITH NOTES / REVISION REQUIRED) | Read-only (Read, Grep, Glob) |
 
-Embeds infographic images from Task A, links PPTX and DOCX downloads from Tasks B and C. Self-contained -- no CDN, works from `file://`.
+Reviews all artifacts for accuracy against RECORD.md, consistency between artifacts, tone alignment with the Creative Brief, completeness, and infographic quality.
 
-### Task E (blocked by D)
+### Wave 3: Publisher (after editorial review)
 
-| Task | Artifact | Technology |
-|------|----------|------------|
-| E -- Archivist | `RESULTS_<slug>.pdf` + `CAPSULE_<slug>.pdf` | weasyprint (Python) |
+| Agent | Artifact | Technology |
+|-------|----------|------------|
+| Publisher | `index.html` (interactive briefing page) + `RESULTS_<slug>.pdf` + `CAPSULE_<slug>.pdf` | Vanilla HTML/CSS/JS + weasyprint (Python) |
 
-Results PDF is a print rendering of the HTML page. Capsule PDF is a 5-layer archival record (Overview, Decision, Analysis, Process, Context).
+Embeds infographic images from the Graphic Designer, links PPTX and DOCX downloads from the Writer. HTML is self-contained -- no CDN, works from `file://`. Results PDF is a print rendering of the HTML page. Capsule PDF is a 5-layer archival record (Overview, Decision, Analysis, Process, Context). Incorporates editorial notes from the Editor.
 
 ### Tier 1 Production
 
-Tier 1 runs a single-task pipeline: one Document Agent produces an Advisory Document DOCX in memo format (1-2 pages).
+Tier 1 does not involve the CCO. A single Advisory Document Agent produces an Advisory Document DOCX in memo format (1-2 pages).
 
 **Spec:** [`templates/production/advisory-document.md`](../templates/production/advisory-document.md)
 

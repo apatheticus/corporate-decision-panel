@@ -1411,7 +1411,7 @@ retry limit. See `templates/config-context.md` for all fields.
 ```mermaid
 flowchart LR
     User["User sets API key\nin .cdp-context/config.md"]
-    IA["Image Agent reads\nAPI config"]
+    IA["Graphic Designer reads\nAPI config"]
     Script["Calls scripts/session.py\nfor generation"]
     API["Gemini API returns\nPNG images"]
 
@@ -1632,35 +1632,35 @@ The issue slug is derived from the Issue Title: lowercase, replace non-alphanume
 
 ### Artifact Pipeline
 
-Five production agents with a dependency chain -- the first three run in parallel, then the web page assembles them, then the archivist produces final PDFs:
+The CCO manages the production pipeline in three waves -- Wave 1 runs in parallel, then the Editor reviews, then the Publisher produces final artifacts:
 
 ```mermaid
 flowchart LR
-    A["Task A\nImage Agent\n(infographics)"]
-    B["Task B\nPresentation Agent\n(PPTX via pptxgenjs)"]
-    C["Task C\nDocument Agent\n(DOCX via docx-js)"]
-    D["Task D\nWeb Page Agent\n(self-contained HTML)"]
-    E["Task E\nArchivist\n(PDFs via weasyprint)"]
+    CCO["CCO\n(Creative Brief)"]
+    GD["Wave 1\nGraphic Designer\n(infographics)"]
+    W["Wave 1\nWriter\n(PPTX + DOCX)"]
+    ED["Wave 2\nEditor\n(quality gate)"]
+    PUB["Wave 3\nPublisher\n(HTML + PDFs)"]
 
-    A --> D
-    B --> D
-    C --> D
-    D --> E
+    CCO --> GD
+    CCO --> W
+    GD --> ED
+    W --> ED
+    ED --> PUB
 
-    style A fill:#D6EAF8,stroke:#2980B9,color:#2C3E50
-    style B fill:#D6EAF8,stroke:#2980B9,color:#2C3E50
-    style C fill:#D6EAF8,stroke:#2980B9,color:#2C3E50
-    style D fill:#FDEBD0,stroke:#D35400,color:#2C3E50
-    style E fill:#1A5276,color:#fff
+    style CCO fill:#e3f2fd,stroke:#1565c0,color:#2C3E50
+    style GD fill:#D6EAF8,stroke:#2980B9,color:#2C3E50
+    style W fill:#D6EAF8,stroke:#2980B9,color:#2C3E50
+    style ED fill:#FDEBD0,stroke:#D35400,color:#2C3E50
+    style PUB fill:#1A5276,color:#fff
 ```
 
-| Task | Artifact | Technology | Description |
-|------|----------|-----------|-------------|
-| **A** | `images/INFOGRAPHIC_*.png` | Gemini API (Python script / JSON prompts) | 5-6 analytical infographics: routing diagram, domain scorecard, fault line map, risk-opportunity matrix, action plan timeline, mode comparison (multi-mode) |
-| **B** | `PRESENTATION_*.pptx` | pptxgenjs (Node.js) | 11-slide board-ready deck: title, exec summary, the question, framework, domain analyses, fault lines, decision, guardrails, risks, next steps, metadata |
-| **C** | `REPORT_*.docx` | docx (Node.js) | Editable document: cover, TOC, 8 sections, 2 appendices. US Letter, Arial 12pt. |
-| **D** | `index.html` | Vanilla HTML/CSS/JS | Self-contained interactive briefing page. No CDN, works from `file://`. Embeds infographics, links PPTX/DOCX downloads. |
-| **E** | `RESULTS_*.pdf` + `CAPSULE_*.pdf` | weasyprint (Python) | Results PDF: print rendering of HTML. Capsule PDF: 5-layer archival record (Overview, Decision, Analysis, Process, Context). |
+| Agent | Artifact | Technology | Description |
+|-------|----------|-----------|-------------|
+| **Graphic Designer** | `images/INFOGRAPHIC_*.png` | Gemini API (Python script / JSON prompts) | 5-6 analytical infographics: routing diagram, domain scorecard, fault line map, risk-opportunity matrix, action plan timeline, mode comparison (multi-mode) |
+| **Writer** | `PRESENTATION_*.pptx` + `REPORT_*.docx` | pptxgenjs + docx (Node.js) | 11-slide board deck + editable document (cover, TOC, 8 sections, 2 appendices) |
+| **Editor** | Editorial Review | Read-only (Sonnet) | Reviews all drafts for accuracy, consistency, tone, completeness |
+| **Publisher** | `index.html` + `RESULTS_*.pdf` + `CAPSULE_*.pdf` | Vanilla HTML/CSS/JS + weasyprint (Python) | Interactive briefing page + print PDF + 5-layer archival capsule |
 
 **About the Capsule PDF:** The Deliberation Capsule is a unique artifact designed for long-term archival. It contains five layers that together provide complete provenance for the decision:
 
