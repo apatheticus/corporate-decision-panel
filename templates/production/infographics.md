@@ -1,8 +1,8 @@
-# Infographic Specifications (Image Agent -- Task A)
+# Infographic Specifications (Graphic Designer)
 
 ## Purpose
 
-The Image Agent generates 5-6 analytical infographics that visualize
+The Graphic Designer generates 5-6 analytical infographics that visualize
 the key analytical artifacts from the Decision Record. These infographics
 are embedded in the HTML briefing page, the PPTX presentation, and the
 DOCX report -- providing visual summaries that make complex multi-domain
@@ -11,11 +11,11 @@ analysis scannable.
 **Output directory:** `{session-output}/images/`
 **Filename pattern:** `INFOGRAPHIC_<type-slug>.png`
 
-> `{session-output}` and `<issue-slug>` are provided by the CEO in your
-> task description. Use them directly.
+> `{session-output}` and `<issue-slug>` are provided by the CCO in your
+> prompt. Use them directly.
 
-**Runs in parallel** with Presentation Agent (Task B) and Document Agent
-(Task C) -- no dependencies on other production agents.
+**Runs in parallel** with the Writer (Wave 1) -- no dependencies on other
+production team leads.
 
 ---
 
@@ -64,7 +64,7 @@ infographic). The script handles retries internally:
 
 ## Generation Workflow
 
-For each session, the Image Agent follows this workflow:
+For each session, the Graphic Designer follows this workflow:
 
 1. **Extract data** -- Read the Decision Record and extract the required
    data for each infographic type per the Content Mapping table below
@@ -79,7 +79,7 @@ For each session, the Image Agent follows this workflow:
    - Doubles inter-call delay if 429 rate limit is encountered
    - Produces a summary table with status per type
 4. **Report results** -- Parse the session summary and report
-   OK / OK+WARN / FAILED / BLOCKED status per type to the CEO agent
+   OK / OK+WARN / FAILED / BLOCKED status per type to the CCO
 
 ---
 
@@ -246,10 +246,10 @@ elements. White or transparent background.
 
 | Consumer | Usage |
 |----------|-------|
-| HTML briefing page (Task D) | Embedded as `<img>` tags, responsive scaling |
-| PPTX presentation (Task B) | Embedded via `addImage()`, scaled to slide dimensions |
-| DOCX report (Task C) | Embedded via `ImageRun`, scaled to US Letter margins |
-| Results PDF (Task E) | Inherited from HTML rendering |
+| HTML briefing page (Publisher) | Embedded as `<img>` tags, responsive scaling |
+| PPTX presentation (Writer) | Embedded via `addImage()`, scaled to slide dimensions |
+| DOCX report (Writer) | Embedded via `ImageRun`, scaled to US Letter margins |
+| Results PDF (Publisher) | Inherited from HTML rendering |
 
 ---
 
@@ -282,7 +282,7 @@ the source is a Comparative Decision Record.
    where status is OK, OK+WARN, FAILED, or BLOCKED.
 5. **Never block the pipeline** -- A PNG file exists at the standard
    path for every type regardless of outcome (real or placeholder)
-   so downstream agents (Tasks B, C, D) are never blocked.
+   so downstream team leads (Writer, Publisher) are never blocked.
 
 ---
 

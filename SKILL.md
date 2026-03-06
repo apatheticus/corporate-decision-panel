@@ -1,6 +1,6 @@
 ---
 name: corporate-decision-panel
-version: 1.1.04
+version: 1.1.06
 description: >
   A complete organizational reasoning engine that emulates SMB executive
   committee decision-making. Presents any business issue through a structured
@@ -316,9 +316,9 @@ When invoked via `/cdp:production`, execute the following steps:
 5. **Clean stale artifacts.** Remove all files in the session directory except
    `RECORD.md` and the `build/` directory. Recreate `images/` directory.
 6. **Route by tier.** Tier 1: spawn Advisory Document Agent only. Tier 2/3:
-   spawn the full five-task production DAG (Tasks A-E).
-7. **Pass record body content** as input to production agents. Include the full
-   record text in each production TaskCreate description. Production agents
+   spawn the CCO agent to run the production pipeline.
+7. **Pass record body content** as input to the CCO. Include the full
+   record text in the CCO Agent prompt. The CCO and its production team
    behave identically regardless of original vs. re-run invocation.
 8. **Update `RECORD.md` frontmatter.** Increment `production_runs` by 1. Set
    `last_production` to current ISO 8601 timestamp.
@@ -341,12 +341,14 @@ When invoked via `/cdp:production`, execute the following steps:
 | VP Delivery | Skeptic | "What do we sacrifice from commitments?" |
 | CAO | Systemic | "Can the org absorb this?" |
 | CSO | Investigative | "What does the evidence say?" |
+| CCO | Production | "Transform decisions into professional deliverables." |
 
 **Engineered Dissent Balance:** 4 skeptics + 2 advocates + 1 systemic +
-1 investigative + 1 synthesizer. Skeptic-heavy to counterbalance human
-optimism bias.
+1 investigative + 1 production + 1 synthesizer. Skeptic-heavy to
+counterbalance human optimism bias. The CCO has no role in deliberation --
+it owns only the production pipeline.
 
-### Tier 2 Agents: Team Lead Subagents (Haiku)
+### Tier 2 Agents: Analytical Team Lead Subagents (Haiku)
 
 34 specialist analysts dispatched by their C-suite parent. Each has a
 unique analytical framework, mandatory output template, three forcing
@@ -368,12 +370,28 @@ and restricted tool access (Read, Grep, Glob, WebSearch only).
 targeting high-interaction pairs where cross-domain assumptions create
 blind spots.
 
+### Production Agents (CCO Team Leads)
+
+4 production specialists dispatched by the CCO in three waves. These are
+not analytical agents -- they produce artifacts from completed Decision Records.
+
+| CCO | Team Leads |
+|-----|-----------|
+| CCO | Graphic Designer, Writer, Editor (Sonnet), Publisher |
+
+The Editor uses Sonnet (not Haiku) because editorial judgment -- comparing
+drafts against source material for accuracy, consistency, and tone --
+requires stronger reasoning. The Editor is read-only by design.
+
 ### Model Tiering
 
 | Layer | Model | Rationale |
 |-------|-------|-----------|
-| Team Lead Subagents | Haiku | Narrow analysis. Cost-efficient. Model diversity. |
+| Analytical Team Leads | Haiku | Narrow analysis. Cost-efficient. Model diversity. |
+| Production Team Leads | Haiku | Production execution. Cost-efficient. |
+| Editor | Sonnet | Editorial judgment requires stronger reasoning. |
 | C-Suite Agents | Sonnet | Domain decomposition and synthesis. |
+| CCO | Sonnet | Creative direction and team coordination. |
 | CEO | Opus | Cross-domain synthesis. Highest reasoning quality. |
 
 ---
@@ -426,27 +444,27 @@ The placeholder `{session-output}` used throughout this section and in productio
 
 ### Pre-flight Dependency Validation
 
-Before spawning production tasks, the orchestrator validates external dependencies for each task using shell commands. All production tasks are optional -- the Decision Record (`RECORD.md`) is always produced regardless of task availability. "Required" here means required within a specific task: if a task's dependencies are missing, that task is skipped with explicit install instructions, but all other tasks whose dependencies are satisfied continue normally.
+Before spawning the CCO, the orchestrator validates external dependencies using shell commands and passes the results in the CCO prompt. All production tasks are optional -- the Decision Record (`RECORD.md`) is always produced regardless of task availability. "Required" here means required within a specific task: if a task's dependencies are missing, the CCO's team leads skip that task with explicit install instructions, but all other tasks whose dependencies are satisfied continue normally.
 
 **Dependency table:**
 
-| Task | Dependencies | Check Command | Install Command |
-|------|-------------|---------------|-----------------|
-| A (Image Agent) | python3, google-genai, Pillow | `python3 -c "from google import genai; from PIL import Image"` | `pip install google-genai>=1.65.0 Pillow>=10.0.0` |
-| B (Presentation) | node, pptxgenjs | `node -e "require('pptxgenjs')"` | `npm install pptxgenjs` |
-| C (Document) | node, docx | `node -e "require('docx')"` | `npm install docx` |
-| D (Web Page) | none | -- | -- |
-| E (Archivist) | python3, weasyprint | `python3 -c "import weasyprint"` | `pip install weasyprint` |
+| Agent | Dependencies | Check Command | Install Command |
+|-------|-------------|---------------|-----------------|
+| Graphic Designer (infographics) | python3, google-genai, Pillow | `python3 -c "from google import genai; from PIL import Image"` | `pip install google-genai>=1.65.0 Pillow>=10.0.0` |
+| Writer (PPTX) | node, pptxgenjs | `node -e "require('pptxgenjs')"` | `npm install pptxgenjs` |
+| Writer (DOCX) | node, docx | `node -e "require('docx')"` | `npm install docx` |
+| Publisher (HTML) | none | -- | -- |
+| Publisher (PDFs) | python3, weasyprint | `python3 -c "import weasyprint"` | `pip install weasyprint` |
 
 **Execution protocol:**
 
 1. Run each check command from the table above. A non-zero exit code means the dependency is missing.
 2. Build a summary table showing task readiness:
 
-   | Task | Status | Missing Dependencies |
-   |------|--------|---------------------|
-   | A (Image Agent) | READY / SKIP | -- / `pip install google-genai>=1.65.0 Pillow>=10.0.0` |
-   | B (Presentation) | READY / SKIP | -- / `npm install pptxgenjs` |
+   | Agent | Status | Missing Dependencies |
+   |-------|--------|---------------------|
+   | Graphic Designer (infographics) | READY / SKIP | -- / `pip install google-genai>=1.65.0 Pillow>=10.0.0` |
+   | Writer (PPTX) | READY / SKIP | -- / `npm install pptxgenjs` |
    | ... | ... | ... |
 
    Use a checkmark for ready tasks and a warning marker for skipped tasks, listing the install command so the user can enable them next time.
@@ -455,26 +473,31 @@ Before spawning production tasks, the orchestrator validates external dependenci
 5. List all skipped tasks with their install instructions so the user can install missing dependencies for next time.
 6. ALWAYS produce `RECORD.md` regardless of which tasks are skipped -- the Decision Record is the primary output, production artifacts are supplementary.
 
-**Note on Task D:** Task D (Web Page) has no external dependencies of its own. It is blocked by Tasks A, B, and C in the DAG, but if some of those are skipped, Task D still runs with whatever artifacts are available. Task D should always be spawned.
+**Note on Publisher HTML:** The HTML briefing page has no external
+dependencies of its own. If some upstream artifacts (infographics, DOCX,
+PPTX) failed, the Publisher still runs with whatever artifacts are
+available.
 
-### Dependency Pipeline
+### CCO Wave-Based Dispatch (Tier 2/3)
+
+The CCO manages the production pipeline autonomously using a three-wave
+dispatch pattern:
 
 ```
-Task A: Image Agent (infographics)          --+
-Task B: Presentation Agent (PPTX)           --+-- parallel
-Task C: Document Agent (DOCX)              --+
-                                              |
-Task D: Web Page Agent (HTML)    <-- blocked by A + B + C
-                                              |
-Task E: Archivist (PDFs)         <-- blocked by D
+CEO spawns CCO → CCO reads RECORD.md → CCO creates Creative Brief
+→ Wave 1: Graphic Designer + Writer  (parallel)
+→ Wave 2: Editor                     (reviews all Wave 1 output)
+→ Wave 3: Publisher                  (HTML + PDFs + packaging)
 ```
 
-### Production Agents
+See `config/cco-dispatch-protocol.md` for the full dispatch specification.
 
-**Task A -- Image Agent** (parallel, unblocked)
+### Production Team Leads
+
+**Graphic Designer** (Wave 1, parallel)
 Generates 5-6 analytical infographics via the Gemini API using
-`scripts/session.py`. The Image Agent reads the Decision Record, extracts
-data per infographic type, writes data JSON files, and calls the session
+`scripts/session.py`. Reads the Decision Record, extracts data per
+infographic type, writes data JSON files, and calls the session
 orchestrator. Each infographic is produced by populating a JSON prompt
 template (Pauhu schema hybrid) with Decision Record data, applying style
 overrides from `.cdp-context/style.md` (if present), and calling the
@@ -494,27 +517,48 @@ Output: `{session-output}/images/INFOGRAPHIC_*.png`
 Prompt templates: `templates/infographic-prompts/*.json`
 Spec: `templates/production/infographics.md`
 
-**Task B -- Presentation Agent** (parallel, unblocked)
-Creates board-ready PPTX via `pptxgenjs`. 11 slides: Title, Executive
-Summary, The Question, Analytical Framework, Domain Analysis (1-2 per
-domain), Where Perspectives Collide, The Decision, Guardrails, What Could
-Go Wrong, Next Steps, Decision Metadata.
+**Writer** (Wave 1, parallel)
+Creates board-ready PPTX via `pptxgenjs` and editable DOCX via `docx`
+npm package (docx-js). PPTX: 11 slides (Title, Executive Summary, The
+Question, Analytical Framework, Domain Analysis, Where Perspectives
+Collide, The Decision, Guardrails, What Could Go Wrong, Next Steps,
+Decision Metadata). DOCX: Cover Page, TOC, 8 sections, 2 appendices.
+US Letter, Arial 12pt, heading styles with outlineLevel.
 
 Output: `{session-output}/PRESENTATION_<issue-slug>.pptx`
+         `{session-output}/REPORT_<issue-slug>.docx`
 Build: `{session-output}/build/build_presentation.js`
-Spec: `templates/production/board-presentation.md`
+         `{session-output}/build/build_report.js`
+Spec: `templates/production/board-presentation.md`,
+         `templates/production/board-document.md`
 
-**Task C -- Document Agent** (parallel, unblocked)
-Creates editable DOCX via `docx` npm package (docx-js). Cover Page, TOC,
-8 sections, 2 appendices. US Letter, Arial 12pt, heading styles with
-outlineLevel, DXA table widths, LevelFormat.BULLET lists, ImageRun with
-alt text.
+**Editor** (Wave 2, sequential after Wave 1)
+Reviews all Wave 1 artifacts for accuracy, consistency, tone,
+completeness, and infographic quality. Compares artifacts against
+RECORD.md (source of truth) and the Creative Brief (tone guidance).
+Read-only by design -- the Editor judges, it does not modify.
 
-Output: `{session-output}/REPORT_<issue-slug>.docx`
-Build: `{session-output}/build/build_report.js`
-Spec: `templates/production/board-document.md`
+Verdict: APPROVED | APPROVED WITH NOTES | REVISION REQUIRED
+Spec: `agents/team-leads/cco/editor.md`
 
-**Task C' -- Advisory Document Agent** (Tier 1 only, single-task pipeline)
+**Publisher** (Wave 3, sequential after Wave 2)
+Creates self-contained interactive HTML briefing page (Hero, Executive
+Summary, Problem Context, Analytical Framework, Domain Analysis cards,
+Fault Line Visualization, The Decision, Dissenting Views, Action Plan,
+Download Section, Metadata, Navigation). Inline CSS/JS, no CDN, works
+from `file://`, PDF-compatible. Also produces Results PDF (print
+rendering of index.html) and Deliberation Capsule PDF (Cover + 5 layers:
+Overview, Decision, Analysis, Process, Context). Incorporates editorial
+notes from the Editor.
+
+Output: `{session-output}/index.html`
+         `{session-output}/RESULTS_<issue-slug>.pdf`
+         `{session-output}/CAPSULE_<issue-slug>.pdf`
+Build: `{session-output}/build/build_capsule.py`
+Spec: `templates/production/decision-briefing-page.md`,
+         `templates/production/capsule-structure.md`
+
+**Advisory Document Agent** (Tier 1 only, single-task pipeline -- no CCO)
 Produces a lightweight Advisory Document DOCX from the Advisory Note. Memo
 format (1-2 pages): header block with metadata, the user's question, the
 advisory response, and an optional Escalation Brief section if the C-suite
@@ -523,26 +567,6 @@ agent appended one. Technology: `docx` npm package (same as board document).
 Output: `{session-output}/ADVISORY_<issue-slug>.docx`
 Build: `{session-output}/build/build_advisory.js`
 Spec: `templates/production/advisory-document.md`
-
-**Task D -- Web Page Agent** (blocked by A + B + C)
-Creates self-contained interactive HTML briefing page. Hero, Executive
-Summary, Problem Context, Analytical Framework, Domain Analysis cards,
-Fault Line Visualization, The Decision, Dissenting Views, Action Plan,
-Download Section (PPTX + DOCX links), Metadata, Navigation. Inline CSS/JS,
-no CDN, works from `file://`, PDF-compatible.
-
-Output: `{session-output}/index.html`
-Spec: `templates/production/decision-briefing-page.md`
-
-**Task E -- Archivist** (blocked by D, maxTurns: 15)
-Produces Results PDF (print rendering of index.html) and Deliberation
-Capsule PDF (Cover + 5 layers: Overview, Decision, Analysis, Process,
-Context). Technology: weasyprint (fallback: pdfkit/wkhtmltopdf).
-
-Output: `{session-output}/RESULTS_<issue-slug>.pdf`
-         `{session-output}/CAPSULE_<issue-slug>.pdf`
-Build: `{session-output}/build/build_capsule.py`
-Spec: `templates/production/capsule-structure.md`
 
 ### Record Persistence
 
@@ -573,24 +597,31 @@ last_production: "YYYY-MM-DDTHH:MM:SSZ"
 Body = complete CEO output (Decision Record / Panel Assessment / Advisory Note)
 verbatim. No summarization, no reformatting.
 
-### Orchestrator Spawn Sequence
-```
-TaskCreate: "Generate analytical infographic images via Gemini API script"  -> task A
-TaskCreate: "Create a PowerPoint presentation (.pptx) — the board deck"    -> task B
-TaskCreate: "Create a Word document (.docx) — the board report"            -> task C
-TaskCreate: "Create an interactive web page (HTML) — the decision briefing page"  -> task D
-TaskCreate: "Create PDF documents — the Results PDF and Deliberation Capsule"     -> task E
+### Orchestrator Spawn Sequence (Tier 2/3)
 
-TaskUpdate: { taskId: D, addBlockedBy: [A, B, C] }
-TaskUpdate: { taskId: E, addBlockedBy: [D] }
+The orchestrator spawns a single CCO agent, which manages the entire
+production pipeline internally:
+
 ```
+Agent tool call:
+  subagent_type: "general-purpose"
+  model: "sonnet"
+  name: "cco"
+  max_turns: 25
+  description: "CCO production pipeline"
+  prompt: [RECORD.md content + session context + dependency status]
+```
+
+The CCO reads the Decision Record, produces a Creative Brief, and
+dispatches its team in three waves (Graphic Designer + Writer → Editor →
+Publisher). See `config/cco-dispatch-protocol.md`.
 
 **Re-run invocation (`/cdp:production`):** When invoked via production re-run,
 the orchestrator reads record content from `RECORD.md` instead of conversation
-context and includes it in each production TaskCreate description. Production
-agents behave identically regardless of original vs. re-run invocation.
+context and includes it in the CCO Agent prompt. The CCO and its production
+team behave identically regardless of original vs. re-run invocation.
 
-**Tier 1 Spawn Sequence:** Single TaskCreate for the Advisory Document DOCX. No dependencies, no blocking — one agent, one artifact.
+**Tier 1 Spawn Sequence:** Single TaskCreate for the Advisory Document DOCX. No CCO, no waves -- one agent, one artifact.
 ```
 TaskCreate: "Create a Word document (.docx) — the advisory memo
   Session output: <absolute-path>  Issue slug: <issue-slug>"            -> Task C'
@@ -645,14 +676,14 @@ agents ground their analysis in your actual numbers and constraints.
 
 An optional markdown file containing visual style preferences --
 brand colors, typography, composition, quality keywords -- that the
-Image Agent uses to override default JSON prompt values.
+Graphic Designer uses to override default JSON prompt values.
 
 - **Location:** `.cdp-context/style.md` in the project root
 - **Create it:** Copy `templates/style-context.md` to `.cdp-context/style.md` and fill in your preferences. All settings are optional.
-- **How it flows:** The Image Agent reads the file before generating each infographic and overrides the corresponding JSON prompt values (style, color mappings, composition, quality keywords) with your preferences.
+- **How it flows:** The Graphic Designer reads the file before generating each infographic and overrides the corresponding JSON prompt values (style, color mappings, composition, quality keywords) with your preferences.
 - **Privacy:** The `.cdp-context/` directory is gitignored by default -- it contains sensitive business data and should not be committed.
 
-Without this file, the Image Agent uses the default values from each
+Without this file, the Graphic Designer uses the default values from each
 JSON prompt template. With it, all infographics reflect your brand
 palette and visual preferences.
 
@@ -675,10 +706,11 @@ Without this file, the generation script cannot run -- a valid API key is requir
 - `config/routing-table.md` -- Decision-type routing defaults and thresholds
 - `config/company-profile.md` -- Archetype presets and override mechanism
 - `config/decision-modes.md` -- Five mode definitions with prompt modifiers
-- `config/dispatch-protocol.md` -- Team lead dispatch mechanism (Agent tool, parallel execution, prompt structure)
+- `config/dispatch-protocol.md` -- Analytical team lead dispatch mechanism (Agent tool, parallel execution, prompt structure)
+- `config/cco-dispatch-protocol.md` -- CCO production team dispatch mechanism (wave-based, 3 waves)
 - `.cdp-context/company.md` -- Company facts for grounded reasoning (user-created, gitignored)
 - `.cdp-context/style.md` -- Infographic style overrides (user-created, gitignored)
-- `.cdp-context/config.md` -- API configuration for Image Agent (user-created, gitignored)
+- `.cdp-context/config.md` -- API configuration for Graphic Designer (user-created, gitignored)
 
 ### Output Templates
 - `templates/advisory-note.md` -- Tier 1 Advisory Note + Escalation Brief
@@ -687,7 +719,8 @@ Without this file, the generation script cannot run -- a valid API key is requir
 - `templates/comparative-decision-record.md` -- Multi-mode comparison format
 
 ### Production Templates
-- `templates/production/infographics.md` -- Image Agent spec (AI platform + JSON prompts)
+- `templates/creative-brief.md` -- Creative Brief reference template (CCO generates dynamically)
+- `templates/production/infographics.md` -- Graphic Designer spec (AI platform + JSON prompts)
 - `templates/production/advisory-document.md` -- Tier 1 Advisory Document DOCX
 - `templates/production/decision-briefing-page.md` -- HTML page spec
 - `templates/production/board-presentation.md` -- PPTX slide structure
@@ -713,8 +746,9 @@ Without this file, the generation script cannot run -- a valid API key is requir
 ### Agent Definitions (installed to `.claude/agents/` by auto-setup)
 - `agents/ceo.md` -- CEO identity, judgment criteria, and synthesis logic
 - `config/orchestration-protocol.md` -- Five-phase cascade protocol, production pipeline, organizational roster
-- `agents/c-suite/*.md` -- 8 C-suite agent definitions (COO, CFO, CTO, CISO, CAO, VP Sales, VP Delivery, CSO)
-- `agents/team-leads/{domain}/*.md` -- 34 team lead subagent definitions across 8 domains
+- `agents/c-suite/*.md` -- 9 C-suite agent definitions (COO, CFO, CTO, CISO, CAO, VP Sales, VP Delivery, CSO, CCO)
+- `agents/team-leads/{domain}/*.md` -- 38 team lead subagent definitions across 9 domains (34 analytical + 4 production)
+- `agents/team-leads/cco/*.md` -- 4 CCO production team leads (Graphic Designer, Writer, Editor, Publisher)
 
 ---
 

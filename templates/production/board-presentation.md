@@ -7,9 +7,9 @@ The board presentation structures the decision briefing for live presentation --
 **Filename:** `{session-output}/PRESENTATION_<issue-slug>.pptx`
 **Build script:** `{session-output}/build/build_presentation.js`
 
-> `{session-output}` and `<issue-slug>` are provided by the CEO in your task description. Use them directly.
+> `{session-output}` and `<issue-slug>` are provided by the CCO in your prompt. Use them directly.
 
-**Runs in parallel** with Image Agent (Task A) and Document Agent (Task C) -- no dependencies on other production agents.
+**Runs in parallel** with the Graphic Designer (Wave 1) -- no dependencies on other production team leads.
 
 ---
 
@@ -23,7 +23,7 @@ Before starting implementation, review available skills for any relevant to this
 
 **Library:** `pptxgenjs` (Node.js)
 
-The Presentation Agent writes a build script (`build_presentation.js`) that uses pptxgenjs to generate the PPTX programmatically. The script is saved alongside the output and is rerunnable: `node build_presentation.js` regenerates the presentation from current data.
+The Writer writes a build script (`build_presentation.js`) that uses pptxgenjs to generate the PPTX programmatically. The script is saved alongside the output and is rerunnable: `node build_presentation.js` regenerates the presentation from current data.
 
 **Key pptxgenjs patterns:**
 ```javascript
@@ -276,4 +276,4 @@ Replace the single "The Decision" slide with one slide per compared mode:
 | Section 7: Next Steps | Next Steps slide | Action plan infographic + structured table |
 | Section 8: Metadata | Decision Metadata closing slide | Key metadata on dark background |
 
-The Presentation Agent synthesizes the Decision Record into presentation-ready content. Slides should tell a story: Setup (Question) -> Analysis (Domains, Fault Lines) -> Resolution (Decision, Guardrails) -> Action (Next Steps). Each slide should convey one concept with supporting visuals. The audience should be able to follow the narrative without reading the full Decision Record.
+The Writer synthesizes the Decision Record into presentation-ready content. Slides should tell a story: Setup (Question) -> Analysis (Domains, Fault Lines) -> Resolution (Decision, Guardrails) -> Action (Next Steps). Each slide should convey one concept with supporting visuals. The audience should be able to follow the narrative without reading the full Decision Record.

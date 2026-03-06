@@ -522,7 +522,7 @@ Without this file, agents reason using general frameworks. With it, agents groun
 ### Infographic Style
 
 An optional markdown file containing visual style preferences that the
-Image Agent uses to override default JSON prompt values -- brand colors,
+Graphic Designer uses to override default JSON prompt values -- brand colors,
 typography, composition, and quality keywords.
 
 **Location:** `.cdp-context/style.md` (gitignored by default)
@@ -536,13 +536,13 @@ cp .claude/skills/corporate-decision-panel/templates/style-context.md .cdp-conte
 
 **Available sections:** Visual Style, Brand Colors, Color Overrides,
 Composition, Quality Control, Typography Preferences, Additional Notes.
-All settings are optional -- the Image Agent uses JSON prompt defaults
+All settings are optional -- the Graphic Designer uses JSON prompt defaults
 for anything left blank.
 
 ```mermaid
 flowchart LR
     User["User fills\n.cdp-context/style.md"]
-    IA["Image Agent reads\nstyle overrides"]
+    IA["Graphic Designer reads\nstyle overrides"]
     JSON["JSON prompt\ndefaults overridden"]
     AI["Submitted to\nAI platform"]
 
@@ -554,7 +554,7 @@ flowchart LR
     style AI fill:#f3e5f5,stroke:#6a1b9a,color:#1a1a1a
 ```
 
-Without this file, the Image Agent uses the default values from each
+Without this file, the Graphic Designer uses the default values from each
 JSON prompt template (editorial style, neutral colors, Material Design
 palette). With it, all infographics reflect your brand palette and
 visual preferences.
@@ -580,7 +580,7 @@ retry limit. See `templates/config-context.md` for all fields.
 ```mermaid
 flowchart LR
     User["User sets API key\nin .cdp-context/config.md"]
-    IA["Image Agent reads\nAPI config"]
+    IA["Graphic Designer reads\nAPI config"]
     Script["Calls scripts/session.py\nfor generation"]
     API["Gemini API returns\nPNG images"]
 
@@ -692,35 +692,35 @@ All production artifacts are written to a per-session directory:
 
 ### Artifact Pipeline
 
-Five production agents with a dependency chain -- the first three run in parallel, then the web page assembles them, then the archivist produces final PDFs:
+The CCO manages the production pipeline in three waves -- Wave 1 runs in parallel, then the Editor reviews, then the Publisher produces final artifacts:
 
 ```mermaid
 flowchart LR
-    A["Task A\nImage Agent\n(infographics)"]
-    B["Task B\nPresentation Agent\n(PPTX via pptxgenjs)"]
-    C["Task C\nDocument Agent\n(DOCX via docx-js)"]
-    D["Task D\nWeb Page Agent\n(self-contained HTML)"]
-    E["Task E\nArchivist\n(PDFs via weasyprint)"]
+    CCO["CCO\n(Creative Brief)"]
+    GD["Wave 1\nGraphic Designer\n(infographics)"]
+    W["Wave 1\nWriter\n(PPTX + DOCX)"]
+    ED["Wave 2\nEditor\n(quality gate)"]
+    PUB["Wave 3\nPublisher\n(HTML + PDFs)"]
 
-    A --> D
-    B --> D
-    C --> D
-    D --> E
+    CCO --> GD
+    CCO --> W
+    GD --> ED
+    W --> ED
+    ED --> PUB
 
-    style A fill:#e8f5e9,stroke:#2e7d32,color:#1a1a1a
-    style B fill:#e8f5e9,stroke:#2e7d32,color:#1a1a1a
-    style C fill:#e8f5e9,stroke:#2e7d32,color:#1a1a1a
-    style D fill:#fff3e0,stroke:#ef6c00,color:#1a1a1a
-    style E fill:#fce4ec,stroke:#c62828,color:#1a1a1a
+    style CCO fill:#e3f2fd,stroke:#1565c0,color:#1a1a1a
+    style GD fill:#e8f5e9,stroke:#2e7d32,color:#1a1a1a
+    style W fill:#e8f5e9,stroke:#2e7d32,color:#1a1a1a
+    style ED fill:#fff3e0,stroke:#ef6c00,color:#1a1a1a
+    style PUB fill:#fce4ec,stroke:#c62828,color:#1a1a1a
 ```
 
-| Task | Artifact | Technology | Description |
-|------|----------|-----------|-------------|
-| A | `images/INFOGRAPHIC_*.png` | Gemini API (Python script / JSON prompts) | 5-6 analytical infographics: routing diagram, domain scorecard, fault line map, risk-opportunity matrix, action plan timeline, mode comparison (multi-mode) |
-| B | `PRESENTATION_*.pptx` | pptxgenjs (Node.js) | 11-slide board-ready deck: title, exec summary, the question, framework, domain analyses, fault lines, decision, guardrails, risks, next steps, metadata |
-| C | `REPORT_*.docx` | docx (Node.js) | Editable document: cover, TOC, 8 sections, 2 appendices. US Letter, Arial 12pt. |
-| D | `index.html` | Vanilla HTML/CSS/JS | Self-contained interactive briefing page. No CDN, works from `file://`. Embeds infographics, links PPTX/DOCX downloads. |
-| E | `RESULTS_*.pdf` + `CAPSULE_*.pdf` | weasyprint (Python) | Results PDF: print rendering of HTML. Capsule PDF: 5-layer archival record (Overview, Decision, Analysis, Process, Context). |
+| Agent | Artifact | Technology | Description |
+|-------|----------|-----------|-------------|
+| Graphic Designer | `images/INFOGRAPHIC_*.png` | Gemini API (Python script / JSON prompts) | 5-6 analytical infographics: routing diagram, domain scorecard, fault line map, risk-opportunity matrix, action plan timeline, mode comparison (multi-mode) |
+| Writer | `PRESENTATION_*.pptx` + `REPORT_*.docx` | pptxgenjs + docx (Node.js) | 11-slide board deck + editable document (cover, TOC, 8 sections, 2 appendices) |
+| Editor | Editorial Review | Read-only (Sonnet) | Reviews all drafts for accuracy, consistency, tone, completeness |
+| Publisher | `index.html` + `RESULTS_*.pdf` + `CAPSULE_*.pdf` | Vanilla HTML/CSS/JS + weasyprint (Python) | Interactive briefing page + print PDF + 5-layer archival capsule |
 
 **Technology requirements:** `pptxgenjs` and `docx` (npm packages), `weasyprint` (Python, for PDF generation).
 
@@ -755,15 +755,16 @@ corporate-decision-panel/               # Clone to .claude/skills/corporate-deci
 ├── agents/                             # Agent definitions (copied to .claude/agents/ on setup)
 │   ├── ceo.md
 │   ├── c-suite/
-│   │   └── ... (8 agents)
+│   │   └── ... (9 agents, including CCO)
 │   └── team-leads/
-│       └── ... (34 agents across 8 domains)
+│       └── ... (38 agents across 9 domains: 34 analytical + 4 production)
 ├── commands/                           # Slash commands (copied to .claude/commands/ on setup)
 │   └── cdp/
 │       ├── consult.md, panel.md
 │       ├── deliberate.md, evaluate.md
 │       └── production.md
 ├── config/
+│   ├── cco-dispatch-protocol.md
 │   ├── company-profile.md
 │   ├── decision-modes.md
 │   ├── dispatch-protocol.md
@@ -775,6 +776,7 @@ corporate-decision-panel/               # Clone to .claude/skills/corporate-deci
     ├── style-context.md                # Template for .cdp-context/style.md
     ├── config-context.md               # Template for .cdp-context/config.md
     ├── comparative-decision-record.md
+    ├── creative-brief.md
     ├── decision-record.md
     ├── panel-assessment.md
     ├── infographic-prompts/
@@ -785,7 +787,7 @@ corporate-decision-panel/               # Clone to .claude/skills/corporate-deci
     │   ├── action-plan-timeline.json
     │   └── mode-comparison.json
     └── production/
-        ├── infographics.md             # Image Agent spec (AI platform + JSON prompts)
+        ├── infographics.md             # Graphic Designer spec (AI platform + JSON prompts)
         ├── advisory-document.md        # Tier 1 DOCX spec
         ├── board-document.md
         ├── board-presentation.md
@@ -815,7 +817,8 @@ For detailed specifications, see the config and template files:
 - [config/routing-table.md](config/routing-table.md) -- Routing defaults and threshold conditions
 - [config/dispatch-protocol.md](config/dispatch-protocol.md) -- Team lead dispatch mechanism (Agent tool, parallel execution)
 - [config/company-profile.md](config/company-profile.md) -- Archetype presets and override mechanism
-- [templates/production/infographics.md](templates/production/infographics.md) -- Image Agent specification
+- [templates/production/infographics.md](templates/production/infographics.md) -- Graphic Designer specification
+- [config/cco-dispatch-protocol.md](config/cco-dispatch-protocol.md) -- CCO production team dispatch protocol
 - [templates/infographic-prompts/](templates/infographic-prompts/) -- JSON prompt templates (Pauhu schema hybrid)
 - [templates/style-context.md](templates/style-context.md) -- Infographic style configuration template
 - [templates/config-context.md](templates/config-context.md) -- API configuration template

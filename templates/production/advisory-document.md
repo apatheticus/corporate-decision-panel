@@ -228,7 +228,7 @@ All bullet lists use `LevelFormat.BULLET` numbering configuration.
 
 - **Memo format, not report format** -- 1-2 pages maximum. This is a hallway answer committed to paper, not a board presentation.
 - **No Table of Contents** -- the document is too short to warrant one.
-- **No infographics** -- no Image Agent runs at Tier 1.
+- **No infographics** -- no Graphic Designer runs at Tier 1.
 - **No cover page** -- the header block serves as the document identifier.
 - **Same `docx` library patterns** as `board-document.md`: DXA widths, `LevelFormat.BULLET`, `ShadingType.CLEAR`, `PageNumber.CURRENT`. No `ImageRun` needed.
 - **Rerunnable build script** -- `node build_advisory.js` from the `build/` directory regenerates the DOCX.
@@ -267,4 +267,4 @@ All bullet lists use `LevelFormat.BULLET` numbering configuration.
 | Confidence line | Header Block metadata table | Added as fourth metadata row |
 | Escalation Brief (if present) | Section 4: Escalation Brief | Structured with subsection headings |
 
-The Document Agent formats the Advisory Note into the memo structure. The language remains as written by the C-suite agent -- the Document Agent formats, it does not rewrite.
+The Advisory Document Agent formats the Advisory Note into the memo structure. The language remains as written by the C-suite agent -- the Document Agent formats, it does not rewrite.

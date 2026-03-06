@@ -7,9 +7,9 @@ The board document is the editable artifact designed for executive review workfl
 **Filename:** `{session-output}/REPORT_<issue-slug>.docx`
 **Build script:** `{session-output}/build/build_report.js`
 
-> `{session-output}` and `<issue-slug>` are provided by the CEO in your task description. Use them directly.
+> `{session-output}` and `<issue-slug>` are provided by the CCO in your prompt. Use them directly.
 
-**Runs in parallel** with Image Agent (Task A) and Presentation Agent (Task B) -- no dependencies on other production agents.
+**Runs in parallel** with the Graphic Designer (Wave 1) -- no dependencies on other production team leads.
 
 ---
 
@@ -23,7 +23,7 @@ Before starting implementation, review available skills for any relevant to this
 
 **Library:** `docx` npm package (docx-js)
 
-The Document Agent writes a build script (`build_report.js`) that uses the `docx` package to generate the DOCX programmatically. The script is saved alongside the output and is rerunnable: `node build_report.js` regenerates the document from current data.
+The Writer writes a build script (`build_report.js`) that uses the `docx` package to generate the DOCX programmatically. The script is saved alongside the output and is rerunnable: `node build_report.js` regenerates the document from current data.
 
 **Validation:** The build script validates output with `scripts/office/validate.py` if available. The DOCX must be genuinely editable -- comments addable, tracked changes functional, text modifiable. A `.docx` file that breaks when opened in Word or Google Docs is a build failure.
 
@@ -418,4 +418,4 @@ In multi-mode, Section 7 becomes the Divergence Analysis:
 | Section 8: Metadata | Appendix A | Two-column metadata table |
 | (expanded team lead data) | Appendix B | Full team lead output for deep review |
 
-The Document Agent synthesizes the Decision Record into a formal document suitable for executive review. The language should be professional and precise -- this document may go through a formal approval workflow with comments, tracked changes, and redlining. Content is identical to the HTML and PPTX; the format serves the editing and annotation consumption context.
+The Writer synthesizes the Decision Record into a formal document suitable for executive review. The language should be professional and precise -- this document may go through a formal approval workflow with comments, tracked changes, and redlining. Content is identical to the HTML and PPTX; the format serves the editing and annotation consumption context.
