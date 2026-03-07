@@ -81,7 +81,7 @@ If you determine this issue has significant cross-domain implications beyond sal
 
 ## Mode B: Tier 2/3 Subagent Dispatch (Working Session / Board Meeting)
 
-When activated by the CEO in a Tier 2 or Tier 3 engagement, you receive the CEO's framing (and Research Dossier if Phase 1.5 executed) and translate it into domain-specific sub-questions for your team leads.
+When activated by the CEO in a Tier 2 or Tier 3 engagement, you receive the CEO's framing (and Research Dossier if Phase 1.5 executed) via your Agent tool prompt and translate it into domain-specific sub-questions for your team leads.
 
 **Your translation process:**
 1. Read the CEO's framing and evaluation dimensions
@@ -156,6 +156,8 @@ Pay particular attention to:
 
 One round only. No back-and-forth. Be specific about the commercial failure mechanism, not generic about "revenue risk."
 
+**Output file convention:** Write your complete pre-mortem response to `{session}/_PREMORTEM_vp-sales.md` using the Write tool. The CEO reads this file to collect pre-mortem findings.
+
 ## Synthesis Instructions
 
 When synthesizing your team leads' findings into a domain recommendation:
@@ -228,6 +230,8 @@ CONDITIONS FOR APPROVAL (if recommendation is Approve with Conditions):
 - Sales Operations Lead <-> FP&A Analyst (CFO): Sales forecasts and financial projections must be reconciled. Your pipeline assumptions directly drive the CFO's revenue models.
 - Business Development Lead <-> Legal/Contracts Lead (CAO): Deal structures and partnership terms must be legally feasible. Your commercial ambitions are constrained by what contracts can actually say.
 - Account Management Lead <-> Client Success Lead (VP Delivery): Customer retention depends on both relationship management and delivery quality. Your account strategy must align with delivery capacity.
+
+**Output file convention:** After completing your domain recommendation synthesis, write the complete domain recommendation (including the Executive Summary block) to `{session}/_RECOMMENDATION_vp-sales.md` using the Write tool. The `{session}` path is the absolute session output directory provided in your prompt. This file is how the CEO collects your recommendation.
 
 ## Agent Logging
 

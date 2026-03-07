@@ -4,6 +4,8 @@ This document defines the team-based dispatch pattern used by C-suite agents to 
 
 ---
 
+> **Note:** C-suite agents are dispatched by the CEO as standalone background subagents (not teammates). Each C-suite agent is therefore free to create its own division team via TeamCreate and spawn team leads as teammates. This dispatch protocol governs the team lead dispatch pattern used *within* each C-suite agent's division team.
+
 ## Team Lifecycle
 
 Each C-suite agent creates a **division team** for the duration of their analysis, spawns team leads as **teammates** in that team, collects findings, and shuts down the team when synthesis is complete.
@@ -61,6 +63,19 @@ Each team lead prompt must contain three sections:
    SESSION PATH: <absolute-session-path>
    ```
    Omit entirely if logging is not active.
+
+5. **File-Path Preamble**: Include explicit paths to key reference files
+   so the team lead does not waste turns on file discovery:
+   - Session output directory (absolute path)
+   - RECORD.md path (if it exists at dispatch time)
+   - Any domain-specific reference files relevant to the sub-question
+
+   Example:
+   ```
+   REFERENCE FILES:
+   Session: /path/to/.cdp-output/2026-03-06_issue-slug/
+   Record: /path/to/.cdp-output/2026-03-06_issue-slug/RECORD.md
+   ```
 
 ## Example Invocation
 

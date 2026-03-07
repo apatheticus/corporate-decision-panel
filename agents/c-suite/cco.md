@@ -86,28 +86,35 @@ SESSION CONTEXT:
 
 ## Dispatch Protocol
 
-After producing the Creative Brief, create your production team and dispatch in three waves following the protocol defined in `config/cco-dispatch-protocol.md`.
+After producing the Creative Brief, create your production team and dispatch in four waves following the protocol defined in `config/cco-dispatch-protocol.md`.
 
 **Team creation:** `TeamCreate: team_name "cdp-cco-{issue-slug}"`
 
-### Wave 1: Graphic Designer + Writer (parallel)
+### Wave 1: Graphic Designer (infographic generation)
 
-Dispatch both simultaneously. Both receive:
+Dispatch the Graphic Designer. It receives:
 - The Creative Brief (full text)
 - The complete RECORD.md content
 - Session path and issue slug
 
-The Graphic Designer produces infographic PNGs. The Writer produces the DOCX and PPTX build scripts and runs them.
+The Graphic Designer produces infographic PNGs.
 
-**After Wave 1 completes:** Read the report files written by the agents:
-- `{session}/_REPORT_graphic-designer.md` -- Graphic Designer's production report
-- `{session}/_REPORT_writer.md` -- Writer's production report
+**After Wave 1 completes:** Read `{session}/_REPORT_graphic-designer.md`. Verify expected PNG files exist in `{session}/images/`. If any are missing, note the gaps. Proceed to Wave 2 regardless -- the Writer can produce documents without images, and the Editor will flag missing assets.
 
-These reports are needed as input to the Editor in Wave 2. The Agent tool does not surface teammate text output, so you must read these files to get the production reports.
+### Wave 2: Writer (document production -- PNGs now available)
 
-### Wave 2: Editor (sequential, after Wave 1)
+Dispatch the Writer **after reading the Graphic Designer's report and verifying PNGs**. The Writer receives:
+- The Creative Brief (full text)
+- The complete RECORD.md content
+- Session path and issue slug
 
-After reading Wave 1 report files, dispatch the Editor. The Editor receives:
+The Writer produces the DOCX and PPTX build scripts and runs them. Infographic PNGs are now available in `{session}/images/` for embedding.
+
+**After Wave 2 completes:** Read `{session}/_REPORT_writer.md` to obtain the Writer Production Report.
+
+### Wave 3: Editor (sequential, after Waves 1 and 2)
+
+After reading Wave 1 and Wave 2 report files, dispatch the Editor. The Editor receives:
 - The Creative Brief
 - The complete RECORD.md content (source of truth for accuracy checks)
 - The Graphic Designer's production report (from `_REPORT_graphic-designer.md`)
@@ -116,9 +123,9 @@ After reading Wave 1 report files, dispatch the Editor. The Editor receives:
 
 The Editor reviews all drafted artifacts and produces an Editorial Review with a verdict.
 
-**After Wave 2 completes:** Read `{session}/_REPORT_editor.md` to get the Editorial Review verdict and notes.
+**After Wave 3 completes:** Read `{session}/_REPORT_editor.md` to get the Editorial Review verdict and notes.
 
-### Wave 3: Publisher (sequential, after Wave 2)
+### Wave 4: Publisher (sequential, after Wave 3)
 
 After reading the Editor's report file, dispatch the Publisher. The Publisher receives:
 - The Creative Brief
@@ -128,15 +135,15 @@ After reading the Editor's report file, dispatch the Publisher. The Publisher re
 
 The Publisher produces the HTML briefing page, Results PDF, and Capsule PDF.
 
-**After Wave 3 completes:** Read `{session}/_REPORT_publisher.md` to get the final production report.
+**After Wave 4 completes:** Read `{session}/_REPORT_publisher.md` to get the final production report.
 
 ## Editorial Review Gate
 
 When the Editor returns, read the verdict:
 
-- **APPROVED:** Proceed to Wave 3 (Publisher dispatch).
-- **APPROVED WITH NOTES:** Proceed to Wave 3. Forward the Editor's notes to the Publisher for incorporation.
-- **REVISION REQUIRED:** Redispatch the responsible team lead(s) identified in the Editor's revision requests. Include the specific revision instructions. **Maximum one revision cycle** -- if the Editor still flags issues after revision, proceed to Wave 3 with the Editor's notes forwarded to the Publisher. Do not loop indefinitely.
+- **APPROVED:** Proceed to Wave 4 (Publisher dispatch).
+- **APPROVED WITH NOTES:** Proceed to Wave 4. Forward the Editor's notes to the Publisher for incorporation.
+- **REVISION REQUIRED:** Redispatch the responsible team lead(s) identified in the Editor's revision requests. Include the specific revision instructions. **Maximum one revision cycle** -- if the Editor still flags issues after revision, proceed to Wave 4 with the Editor's notes forwarded to the Publisher. Do not loop indefinitely.
 
 ## Completion Report
 

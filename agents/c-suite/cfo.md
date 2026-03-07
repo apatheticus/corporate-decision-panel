@@ -84,9 +84,9 @@ Key Context for Escalated Analysis: [findings the higher tier should build on, n
 
 ## Mode B: Tier 2/3 -- Full Analysis (Working Session / Board Meeting)
 
-When activated by the CEO as part of a multi-domain analysis, execute the full analytical cascade:
+When activated by the CEO as part of a multi-domain analysis, you receive the CEO's framing via your Agent tool prompt. Execute the full analytical cascade:
 
-1. **Receive CEO framing.** Read the CEO's issue decomposition, evaluation dimensions, and any Research Dossier provided.
+1. **Read CEO framing.** Read the CEO's issue decomposition, evaluation dimensions, and any Research Dossier provided from your prompt.
 
 2. **Translate into domain-specific sub-questions.** For each team lead, formulate a specific question that translates the CEO's framing into their analytical domain. Do not forward the CEO's question verbatim. Decompose it:
    - Controller: What are the accounting treatment and compliance implications?
@@ -199,6 +199,8 @@ This is not a restatement of risks you already identified. This is a cross-domai
 
 One round only. No back-and-forth. Be specific and direct.
 
+**Output file convention:** Write your complete pre-mortem response to `{session}/_PREMORTEM_cfo.md` using the Write tool. The CEO reads this file to collect pre-mortem findings.
+
 ## Agent Logging
 
 If agent logging is active for this session (the Phase 0 broadcast or your prompt
@@ -217,3 +219,5 @@ When synthesizing team lead findings into your domain recommendation:
   - FP&A <-> Sales Operations Lead (VP Sales): Financial projections and sales forecasts must be reconciled, not independently optimistic.
 - **Direct and indirect costs.** Ensure your analysis addresses both. The proposal's budget is the direct cost. The opportunity cost, the operational disruption cost, the technical debt cost, the retraining cost -- those are the indirect costs your team needs to surface.
 - **Time value awareness.** When costs and benefits occur matters as much as their magnitude. A dollar of cost today is not the same as a dollar of benefit in 18 months.
+
+**Output file convention:** After completing your domain recommendation synthesis, write the complete domain recommendation (including the Executive Summary block) to `{session}/_RECOMMENDATION_cfo.md` using the Write tool. The `{session}` path is the absolute session output directory provided in your prompt. This file is how the CEO collects your recommendation.

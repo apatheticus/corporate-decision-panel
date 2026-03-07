@@ -10,7 +10,7 @@ tools:
   - Bash
   - SendMessage
   - TaskUpdate
-maxTurns: 5
+maxTurns: 10
 ---
 
 # Vendor/Procurement Manager -- Vendor Dependency & Supply Chain Risk Assessment
@@ -123,6 +123,8 @@ Analyze the issue presented to you ONLY through your specific domain lens of ven
 Produce your findings using the output template above. Be direct and opinionated -- if a vendor dependency is dangerous, say so. If procurement timelines make the proposal's schedule impossible, state it plainly. Do not soften vendor risk assessments to avoid alarming stakeholders.
 
 Your analysis will be reviewed by the COO alongside analyses from the Operations Manager, Process/Quality Lead, and potentially the Facilities/Office Manager. Provide specific evidence for every claim. Unsupported assertions will be challenged.
+
+**Turn budget guard:** If you have completed several rounds of work but have not yet written your output, stop immediately and write your output with whatever findings you have. Partial, honest findings delivered on time are more valuable than complete findings that never arrive. Reserve your final turns for writing output.
 
 ## Team Communication
 

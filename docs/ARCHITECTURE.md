@@ -357,19 +357,18 @@ The system defaults to lightweight engagement. Tier 1 is the daily habit; Tier 3
 
 ## Production Pipeline
 
-After the deliberation cascade completes, the CCO (Chief Communications Officer) manages a production pipeline that generates distributable artifacts. The CCO creates a production team (TeamCreate) and spawns production team leads as teammates in three waves. The `/cdp:production` command enables re-running this pipeline for an existing session using the persisted `RECORD.md`, without re-running the deliberation cascade.
+After the deliberation cascade completes, the CCO (Chief Communications Officer) manages a production pipeline that generates distributable artifacts. The CCO creates a production team (TeamCreate) and spawns production team leads as teammates in four sequential waves. The `/cdp:production` command enables re-running this pipeline for an existing session using the persisted `RECORD.md`, without re-running the deliberation cascade.
 
 ```mermaid
 flowchart LR
     CCO["CCO\n(Creative Brief)"]
     GD["Wave 1\nGraphic Designer\n(infographics)"]
-    W["Wave 1\nWriter\n(PPTX + DOCX)"]
-    ED["Wave 2\nEditor\n(quality gate)"]
-    PUB["Wave 3\nPublisher\n(HTML + PDFs)"]
+    W["Wave 2\nWriter\n(PPTX + DOCX)"]
+    ED["Wave 3\nEditor\n(quality gate)"]
+    PUB["Wave 4\nPublisher\n(HTML + PDFs)"]
 
     CCO --> GD
-    CCO --> W
-    GD --> ED
+    GD --> W
     W --> ED
     ED --> PUB
 
@@ -380,22 +379,27 @@ flowchart LR
     style PUB fill:#fce4ec,stroke:#c62828,color:#1a1a1a
 ```
 
-### Wave 1: Graphic Designer + Writer (parallel)
+### Wave 1: Graphic Designer (infographic generation)
 
 | Agent | Artifact | Technology |
 |-------|----------|------------|
 | Graphic Designer | `images/INFOGRAPHIC_*.png` (5-6 infographics) | Gemini API (Python script / JSON prompts) |
+
+### Wave 2: Writer (document production -- PNGs now available)
+
+| Agent | Artifact | Technology |
+|-------|----------|------------|
 | Writer | `PRESENTATION_<slug>.pptx` (11-slide deck) + `REPORT_<slug>.docx` (US Letter, 8 sections + appendices) | pptxgenjs + docx (Node.js) |
 
-### Wave 2: Editor (reviews Wave 1 output)
+### Wave 3: Editor (reviews Waves 1 and 2 output)
 
 | Agent | Output | Tools |
 |-------|--------|-------|
-| Editor (Sonnet) | Editorial Review with verdict (APPROVED / APPROVED WITH NOTES / REVISION REQUIRED) | Read-only (Read, Grep, Glob) |
+| Editor (Sonnet) | Editorial Review with verdict (APPROVED / APPROVED WITH NOTES / REVISION REQUIRED) | Read-only for production artifacts (Read, Grep, Glob); Write for own report |
 
 Reviews all artifacts for accuracy against RECORD.md, consistency between artifacts, tone alignment with the Creative Brief, completeness, and infographic quality.
 
-### Wave 3: Publisher (after editorial review)
+### Wave 4: Publisher (after editorial review)
 
 | Agent | Artifact | Technology |
 |-------|----------|------------|
