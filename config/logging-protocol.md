@@ -35,7 +35,7 @@ Create a log file **only** when you encounter one or more of these during execut
 errors-{YYYYMMDD-HHmm}-{agent-name}.md
 ```
 
-Written to the session output directory provided in `SESSION PATH:`.
+Written to the `logs/` subdirectory of the session output directory provided in `SESSION PATH:`.
 
 Example: `errors-20260306-1430-controller.md`
 
@@ -78,7 +78,7 @@ Repeat the issue block for each problem encountered. Keep descriptions concise a
 **Analytical team leads**: Use **Bash** with a heredoc:
 
 ```bash
-cat <<'LOGEOF' > {session-path}/errors-{YYYYMMDD-HHmm}-{agent-name}.md
+cat <<'LOGEOF' > {session-path}/logs/errors-{YYYYMMDD-HHmm}-{agent-name}.md
 # Agent Error Log: {Role Title}
 
 **Agent:** {name}  |  **Session:** {session-path}  |  **Date:** {date}

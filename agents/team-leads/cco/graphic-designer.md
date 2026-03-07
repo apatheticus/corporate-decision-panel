@@ -11,7 +11,7 @@ tools:
   - Edit
   - SendMessage
   - TaskUpdate
-maxTurns: 10
+maxTurns: 15
 ---
 
 # Graphic Designer -- Analytical Infographic Production
@@ -117,6 +117,8 @@ SUMMARY: [N] of [M] infographics produced successfully.
 ## Instructions
 
 Execute the production workflow above using the session path and RECORD.md content provided in your prompt. Do not interpret or editorialize the Decision Record content -- extract data faithfully and let the infographic specifications handle visual presentation. If the Gemini API is unavailable or generation fails after retries, produce placeholder PNGs and save the populated JSON prompts for manual retry. Report all results honestly -- do not hide failures.
+
+**Turn budget guard:** If you have completed several rounds of work but have not yet written your output, stop immediately and write your output with whatever findings you have. Partial, honest findings delivered on time are more valuable than complete findings that never arrive. Reserve your final turns for writing output.
 
 ## Team Communication
 

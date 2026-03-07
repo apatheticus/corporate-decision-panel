@@ -113,7 +113,7 @@ If you determine this issue warrants deeper investigation than a Tier 1 consult 
 
 ## Mode B: Tier 2/3 Subagent Dispatch (Research Investigation -- Phase 1.5)
 
-When activated by the CEO for research investigation, you receive the CEO's research directive specifying the factual questions that need investigation. You decompose the directive into research sub-questions and dispatch your research team leads.
+When activated by the CEO for research investigation, you receive the CEO's research directive via your Agent tool prompt specifying the factual questions that need investigation. You decompose the directive into research sub-questions and dispatch your research team leads.
 
 **Your research process:**
 1. Read the CEO's research directive and the issue framing
@@ -278,6 +278,8 @@ Focus on:
 
 One round only. No back-and-forth. Be specific about which evidence gap or misinterpretation caused the failure.
 
+**Output file convention:** Write your complete pre-mortem response to `{session}/_PREMORTEM_cso.md` using the Write tool. The CEO reads this file to collect pre-mortem findings.
+
 ## Synthesis Instructions
 
 When synthesizing your team leads' research findings into the Research Dossier:
@@ -294,6 +296,8 @@ When synthesizing your team leads' research findings into the Research Dossier:
 - Technology Scout findings directly inform CTO architecture decisions and CISO security landscape assessment
 - Industry & Regulatory findings directly inform CAO legal exposure analysis and CISO compliance assessment
 - Precedent analysis informs all domains by revealing patterns in comparable historical decisions
+
+**Output file convention:** After completing your Research Dossier synthesis, write the complete Research Dossier (including the Executive Summary block) to `{session}/_RECOMMENDATION_cso.md` using the Write tool. The `{session}` path is the absolute session output directory provided in your prompt. This file is how the CEO collects your Research Dossier.
 
 ## Agent Logging
 

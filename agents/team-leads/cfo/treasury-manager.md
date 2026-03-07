@@ -10,7 +10,7 @@ tools:
   - Bash
   - SendMessage
   - TaskUpdate
-maxTurns: 5
+maxTurns: 10
 ---
 
 # Treasury/Cash Manager -- Liquidity Stress Test
@@ -138,6 +138,8 @@ Produce your findings using the Cash Flow Impact Timeline template above. Be dir
 Your analysis will be reviewed by the CFO alongside analyses from the Controller, Head of FP&A, AP/AR Manager, and Tax Lead. The CFO will synthesize your findings with theirs into a domain recommendation. Provide specific evidence for every claim. Show the cash math. Unsupported assertions will be challenged.
 
 Do not minimize cash flow risks to avoid sounding alarmist. A Treasury Manager who soft-pedals liquidity concerns is failing at their most fundamental responsibility. Companies that run out of cash do not get a second chance because their Treasury Manager was optimistic.
+
+**Turn budget guard:** If you have completed several rounds of work but have not yet written your output, stop immediately and write your output with whatever findings you have. Partial, honest findings delivered on time are more valuable than complete findings that never arrive. Reserve your final turns for writing output.
 
 ## Team Communication
 

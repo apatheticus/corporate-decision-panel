@@ -6,7 +6,7 @@ This document defines the team-based dispatch pattern used by the CCO to invoke 
 
 ## Team Lifecycle
 
-The CCO creates a **production team** for the duration of the production pipeline, spawns production team leads as **teammates**, coordinates three sequential waves, and shuts down the team after the Publisher completes.
+The CCO creates a **production team** for the duration of the production pipeline, spawns production team leads as **teammates**, coordinates four sequential waves, and shuts down the team after the Publisher completes.
 
 ### 1. Create Production Team
 
@@ -39,69 +39,84 @@ SendMessage type: "shutdown_request" to each teammate
 
 | Team Lead | Agent Name | maxTurns | Wave |
 |-----------|-----------|----------|------|
-| Graphic Designer | `graphic-designer` | 10 | 1 |
-| Writer | `writer` | 15 | 1 |
-| Editor | `editor` | 10 | 2 |
-| Publisher | `publisher` | 15 | 3 |
+| Graphic Designer | `graphic-designer` | 15 | 1 |
+| Writer | `writer` | 15 | 2 |
+| Editor | `editor` | 10 | 3 |
+| Publisher | `publisher` | 15 | 4 |
 
-**Editor uses Sonnet** (specified in its agent definition frontmatter) because editorial judgment -- comparing drafts against source material for accuracy, consistency, and tone -- requires stronger reasoning than production execution. The Editor is read-only by design: it judges, it does not modify.
+**Editor uses Sonnet** (specified in its agent definition frontmatter) because editorial judgment -- comparing drafts against source material for accuracy, consistency, and tone -- requires stronger reasoning than production execution. The Editor is read-only by design for production artifacts (DOCX/PPTX/PNG): it judges and inspects those files, but does not modify them. The Editor does use the Write tool to produce its own report file (`_REPORT_editor.md`).
 
 ## Wave Dispatch Pattern
 
-Production proceeds in three sequential waves. Within each wave, agents execute in parallel.
+Production proceeds in four sequential waves.
 
 ```
-Wave 1: Graphic Designer + Writer  (parallel)
+Wave 1: Graphic Designer           (infographic generation)
          |
          v
-Wave 2: Editor                     (sequential -- reviews Wave 1 output)
+Wave 2: Writer                     (document production -- PNGs now available)
          |
          v
-Wave 3: Publisher                  (sequential -- incorporates editorial notes)
+Wave 3: Editor                     (reviews all output)
+         |
+         v
+Wave 4: Publisher                  (final artifacts)
 ```
 
-### Wave 1: Graphic Designer + Writer
+### Wave 1: Graphic Designer
 
-Dispatch **both agents simultaneously** in a single response with two Agent tool calls (each with `team_name`). Both receive the Creative Brief, complete RECORD.md content, and session context.
+Dispatch the Graphic Designer. It receives the Creative Brief, complete RECORD.md content, and session context.
 
-**After Wave 1 completes:** Read the report files to obtain production reports:
-- `{session}/_REPORT_graphic-designer.md`
-- `{session}/_REPORT_writer.md`
+**After Wave 1 completes:** Read `{session}/_REPORT_graphic-designer.md` to obtain the Infographic Production Report. Verify expected PNG files exist in `{session}/images/`. If any are missing, note the gaps. Proceed to Wave 2 regardless -- the Writer can produce documents without images, and the Editor will flag missing assets.
 
-### Wave 2: Editor
+### Wave 2: Writer
 
-Dispatch **after reading Wave 1 report files**. The Editor receives everything from Wave 1 plus both production reports (read from the report files) for review.
+Dispatch the Writer **after reading the Graphic Designer's report and verifying PNGs**. The Writer receives the Creative Brief, complete RECORD.md content, and session context. Infographic PNGs are now available in `{session}/images/` for embedding in documents.
 
-**After Wave 2 completes:** Read `{session}/_REPORT_editor.md` to obtain the Editorial Review.
+**After Wave 2 completes:** Read `{session}/_REPORT_writer.md` to obtain the Writer Production Report.
 
-### Wave 3: Publisher
+### Wave 3: Editor
+
+Dispatch **after reading Wave 1 and Wave 2 report files**. The Editor receives everything from Waves 1 and 2 plus both production reports (read from the report files) for review.
+
+**After Wave 3 completes:** Read `{session}/_REPORT_editor.md` to obtain the Editorial Review.
+
+### Wave 4: Publisher
 
 Dispatch **after reading the Editor's report file** and the editorial review gate is passed. The Publisher receives the Creative Brief, RECORD.md, the Editorial Review (read from `_REPORT_editor.md`, with any notes), and session context.
 
-**After Wave 3 completes:** Read `{session}/_REPORT_publisher.md` to obtain the final production report.
+**After Wave 4 completes:** Read `{session}/_REPORT_publisher.md` to obtain the final production report.
 
 ## Prompt Structure
 
 Each team lead prompt must contain these sections:
 
-### Wave 1 Prompts (Graphic Designer, Writer)
+### Wave 1 Prompt (Graphic Designer)
 
 1. **Creative Brief** (full text): The CCO's creative direction for this session.
 2. **Record Content**: The complete RECORD.md body content. Include the full text -- do not summarize.
 3. **Session Context**: Session output path (absolute), issue slug, tier, and decision mode.
-4. **Specification Pointer**: "Follow the production specification and output template defined in your agent definition at `.claude/agents/team-leads/cco/{agent-name}.md`."
+4. **Specification Pointer**: "Follow the production specification and output template defined in your agent definition at `.claude/agents/team-leads/cco/graphic-designer.md`."
 5. **Logging Context (conditional)**: If agent logging is active, include `LOGGING: ON` and `SESSION PATH: <absolute-session-path>`. Omit if not active.
 
-### Wave 2 Prompt (Editor)
+### Wave 2 Prompt (Writer)
+
+1. **Creative Brief** (full text): The CCO's creative direction for this session.
+2. **Record Content**: The complete RECORD.md body content. Include the full text -- do not summarize.
+3. **Session Context**: Session output path (absolute), issue slug, tier, and decision mode.
+4. **Specification Pointer**: "Follow the production specification and output template defined in your agent definition at `.claude/agents/team-leads/cco/writer.md`."
+5. **Logging Context (conditional)**: If agent logging is active, include `LOGGING: ON` and `SESSION PATH: <absolute-session-path>`. Omit if not active.
+
+### Wave 3 Prompt (Editor)
 
 1. **Creative Brief** (full text): For tone and key message verification.
 2. **Record Content**: The complete RECORD.md body content. This is the source of truth for accuracy checks.
-3. **Wave 1 Reports**: The Graphic Designer's Infographic Production Report and the Writer's Writer Production Report. Include both in full.
+3. **Wave 1 & 2 Reports**: The Graphic Designer's Infographic Production Report and the Writer's Writer Production Report. Include both in full.
 4. **Session Context**: Session output path (absolute) for direct artifact inspection.
 5. **Specification Pointer**: "Follow the review framework and output template defined in your agent definition at `.claude/agents/team-leads/cco/editor.md`."
 6. **Logging Context (conditional)**: If agent logging is active, include `LOGGING: ON` and `SESSION PATH: <absolute-session-path>`. Omit if not active.
 
-### Wave 3 Prompt (Publisher)
+### Wave 4 Prompt (Publisher)
 
 1. **Creative Brief** (full text): For visual direction and audience context.
 2. **Record Content**: The complete RECORD.md body content.
@@ -115,7 +130,7 @@ Each team lead prompt must contain these sections:
 ```
 TeamCreate: team_name "cdp-cco-acquire-competitor-x"
 
-Agent tool call #1:
+Agent tool call (Wave 1):
   subagent_type: "general-purpose"
   name: "graphic-designer"
   team_name: "cdp-cco-acquire-competitor-x"
@@ -133,8 +148,12 @@ Agent tool call #1:
 
     Follow the production specification and output template defined
     in your agent definition at .claude/agents/team-leads/cco/graphic-designer.md.
+```
 
-Agent tool call #2:
+After Wave 1 completes, read `_REPORT_graphic-designer.md` and verify PNGs, then dispatch the Writer in Wave 2:
+
+```
+Agent tool call (Wave 2):
   subagent_type: "general-purpose"
   name: "writer"
   team_name: "cdp-cco-acquire-competitor-x"
@@ -154,8 +173,6 @@ Agent tool call #2:
     in your agent definition at .claude/agents/team-leads/cco/writer.md.
 ```
 
-Both Agent tool calls are made in a **single response** so they execute in parallel across separate tmux windows.
-
 ## Report Files
 
 Each production team lead writes a report file to the session directory after completing their work. This convention exists because the Agent tool returns only metadata (agent ID, token count, tool uses, duration) -- it does **not** surface the agent's text output. The CCO must read these files to obtain production reports.
@@ -168,12 +185,13 @@ Each production team lead writes a report file to the session directory after co
 | Publisher | `{session}/_REPORT_publisher.md` |
 
 The CCO reads the relevant report files after each wave completes:
-- **After Wave 1:** Read `_REPORT_graphic-designer.md` and `_REPORT_writer.md`
-- **After Wave 2:** Read `_REPORT_editor.md`
-- **After Wave 3:** Read `_REPORT_publisher.md`
+- **After Wave 1:** Read `_REPORT_graphic-designer.md`
+- **After Wave 2:** Read `_REPORT_writer.md`
+- **After Wave 3:** Read `_REPORT_editor.md`
+- **After Wave 4:** Read `_REPORT_publisher.md`
 
 ## Failure Handling
 
-- **Team lead timeout or failure:** If a Wave 1 agent fails, proceed to Wave 2 with partial results. The Editor will flag missing artifacts. If the Editor fails, proceed to Wave 3 with no editorial notes. If the Publisher fails, report the failure in the CCO Production Report.
+- **Team lead timeout or failure:** If the Graphic Designer fails, proceed to Wave 2 with partial results. If the Writer fails, proceed to Wave 3 with partial results. The Editor will flag missing artifacts. If the Editor fails, proceed to Wave 4 with no editorial notes. If the Publisher fails, report the failure in the CCO Production Report.
 - **Degrade gracefully:** Never block the entire pipeline on a single agent failure. Produce whatever artifacts are possible and report gaps explicitly.
-- **Revision cycle limit:** If the Editor returns REVISION REQUIRED, the CCO redispatches the responsible team lead with revision instructions. **Maximum one revision cycle.** If the second attempt still has issues, proceed to Wave 3 with editorial notes forwarded to the Publisher.
+- **Revision cycle limit:** If the Editor returns REVISION REQUIRED, the CCO redispatches the responsible team lead with revision instructions. **Maximum one revision cycle.** If the second attempt still has issues, proceed to Wave 4 with editorial notes forwarded to the Publisher.

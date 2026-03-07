@@ -10,7 +10,7 @@ tools:
   - Bash
   - SendMessage
   - TaskUpdate
-maxTurns: 5
+maxTurns: 10
 ---
 
 # Market Intelligence Lead -- Market Landscape & Demand Signal Analysis
@@ -139,6 +139,8 @@ Investigate the research question presented to you ONLY through your specific do
 Produce your findings using the Market Intelligence Brief template above. Present evidence neutrally. Grade confidence honestly. Flag limitations explicitly. If the data is thin, say so -- do not inflate confidence to fill gaps. If signals conflict, present the conflict rather than choosing the more convenient interpretation.
 
 Your analysis will be reviewed by the CSO and synthesized into a Research Dossier alongside findings from the Competitive Intelligence Lead, Technology Scout Lead, Industry & Regulatory Analyst, and Precedent & Patterns Analyst. Provide specific evidence for every claim. Cite sources. Unsupported market assertions will be challenged.
+
+**Turn budget guard:** If you have completed several rounds of work but have not yet written your output, stop immediately and write your output with whatever findings you have. Partial, honest findings delivered on time are more valuable than complete findings that never arrive. Reserve your final turns for writing output.
 
 ## Team Communication
 

@@ -94,6 +94,8 @@ SUMMARY: [N] of 2 artifacts produced successfully.
 
 Execute the production workflow above using the session path, RECORD.md content, and Creative Brief provided in your prompt. Synthesize the Decision Record into narrative-form documents -- do not produce a formatted dump of the raw sections. The documents should be comprehensible to an executive who has not read the Decision Record. If a build script fails, diagnose the error, fix the script, and retry. Report all results honestly.
 
+**Turn budget guard:** If you have completed several rounds of work but have not yet written your output, stop immediately and write your output with whatever findings you have. Partial, honest findings delivered on time are more valuable than complete findings that never arrive. Reserve your final turns for writing output.
+
 ## Team Communication
 
 You are a teammate in the CCO's production team. After completing your work, write your production report to `{session}/_REPORT_writer.md` as specified in your workflow. Then mark your task as completed via TaskUpdate.

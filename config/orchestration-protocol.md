@@ -170,7 +170,7 @@ The CSO operates under a `maxTurns` limit that constrains its total execution bu
 
 Each activated C-suite executive receives your framing (and the Research Dossier, if Phase 1.5 executed) and translates it into domain-specific sub-questions for their team leads.
 
-**Dispatch mechanism:** Each C-suite agent creates a division team (TeamCreate) and spawns team leads as teammates (Agent with team_name), as specified in `config/dispatch-protocol.md`. Team leads are invoked in parallel (all Agent tool calls with team_name in a single response per C-suite agent), each running in a separate tmux window.
+**Dispatch mechanism:** C-suite agents are dispatched by the CEO as **standalone background subagents** via the Agent tool **without `team_name`**. Each C-suite agent is free to create its own division team (TeamCreate) and spawn team leads as teammates (Agent with team_name), as specified in `config/dispatch-protocol.md`. Team leads are invoked in parallel (all Agent tool calls with team_name in a single response per C-suite agent), each running in a separate tmux window.
 
 **Your role in Phase 2:** Monitor, not micromanage. The value of the cascade is that each C-suite officer decomposes the issue through their domain lens. The CFO does not forward your question to the Controller -- the CFO asks the Controller "What are the GAAP implications of this change?" This translation is itself analytical.
 
@@ -195,6 +195,8 @@ Each team lead teammate performs narrow, focused analysis through their speciali
 
 Each C-suite executive collects their team lead findings and produces a domain recommendation containing:
 
+Each C-suite agent writes its domain recommendation to `{session}/_RECOMMENDATION_{role}.md` (e.g., `_RECOMMENDATION_coo.md`). The CEO reads these files after all C-suite agents complete, rather than receiving recommendations via SendMessage.
+
 - **Domain Recommendation:** Approve / Approve with Conditions / Oppose / Neutral
 - **Confidence Level:** High / Medium / Low (with explanation of what would increase confidence)
 - **Summary:** 2-3 sentence synthesis of the domain perspective
@@ -214,6 +216,8 @@ Each C-suite executive collects their team lead findings and produces a domain r
 After each C-suite officer has produced their own domain recommendation in Phase 4, execute the pre-mortem challenge round.
 
 ### Pre-Mortem Protocol
+
+The CEO reads all `{session}/_RECOMMENDATION_*.md` files to collect peer recommendations, then dispatches a second round of standalone C-suite subagents with peer recommendation summaries. Each C-suite agent writes its pre-mortem findings to `{session}/_PREMORTEM_{role}.md` (e.g., `_PREMORTEM_coo.md`).
 
 1. **Distribute all recommendations:** Each C-suite agent (including the CSO) receives summaries of ALL other activated C-suite members' recommendations
 2. **Structured challenge question:** Each agent answers: *"Assume this decision fails catastrophically in 12 months. Based on what you see across all the domain recommendations, what caused the failure?"*
@@ -256,6 +260,7 @@ Create the session output directory during Phase 1 (after slug derivation) so th
    ```bash
    mkdir -p .cdp-output/YYYY-MM-DD_<issue-slug>/images
    mkdir -p .cdp-output/YYYY-MM-DD_<issue-slug>/build
+   mkdir -p .cdp-output/YYYY-MM-DD_<issue-slug>/logs
    ```
 4. **Resolve to absolute path** so all agents (including those in deliberation phases) receive an unambiguous location.
 
@@ -271,12 +276,13 @@ Before spawning any production agents:
 The production phase is managed by the **Chief Communications Officer (CCO)**, who owns the entire artifact pipeline. The CEO spawns a single CCO agent, which handles all internal coordination:
 
 ```
-CEO writes RECORD.md → CEO spawns CCO (single Agent)
+CEO writes RECORD.md → CEO spawns CCO (single Agent, no team_name)
 → CCO reads RECORD.md → CCO creates Creative Brief
-→ CCO dispatches team in 3 waves:
-  Wave 1: Graphic Designer + Writer (parallel)
-  Wave 2: Editor (reviews all drafts)
-  Wave 3: Publisher (HTML + PDFs + packaging)
+→ CCO dispatches team in 4 waves:
+  Wave 1: Graphic Designer (infographic generation)
+  Wave 2: Writer (document production -- PNGs now available)
+  Wave 3: Editor (reviews all drafts)
+  Wave 4: Publisher (HTML + PDFs + packaging)
 ```
 
 **Spawn command:**
@@ -285,7 +291,6 @@ CEO writes RECORD.md → CEO spawns CCO (single Agent)
 Agent tool call:
   subagent_type: "general-purpose"
   name: "cco"
-  team_name: "cdp-{issue-slug}"
   description: "CCO production pipeline"
   prompt: |
     You are the Chief Communications Officer. Follow your agent definition
@@ -302,10 +307,10 @@ Agent tool call:
     Dependency status: [pre-flight validation results]
 
     Read the RECORD.md, produce a Creative Brief, and dispatch your
-    production team in three waves per config/cco-dispatch-protocol.md.
+    production team in four waves per config/cco-dispatch-protocol.md.
 ```
 
-The CCO manages the internal dependency chain (Wave 1 → Wave 2 → Wave 3), the editorial review gate, and any revision cycles. The CEO does not manage individual production agents.
+The CCO manages the internal dependency chain (Wave 1 → Wave 2 → Wave 3 → Wave 4), the editorial review gate, and any revision cycles. The CEO does not manage individual production agents.
 
 All production agents receive the complete Decision Record as their input via the CCO. The production agents synthesize the Decision Record content into a comprehensive, narrative-form briefing -- not a formatted dump of the Decision Record sections.
 

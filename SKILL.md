@@ -392,7 +392,7 @@ blind spots.
 ### Layer 2: Production Team Agents — CCO Team Leads
 
 4 production specialists spawned as teammates in the CCO's production
-team, dispatched in three waves. These are not analytical agents -- they
+team, dispatched in four sequential waves. These are not analytical agents -- they
 produce artifacts from completed Decision Records.
 
 | CCO | Team Leads |
@@ -401,7 +401,8 @@ produce artifacts from completed Decision Records.
 
 The Editor uses Sonnet (not Haiku) because editorial judgment -- comparing
 drafts against source material for accuracy, consistency, and tone --
-requires stronger reasoning. The Editor is read-only by design.
+requires stronger reasoning. The Editor is read-only for production artifacts
+(DOCX/PPTX/PNG) but uses the Write tool for its own report file.
 
 ### Model Tiering
 
@@ -635,8 +636,8 @@ Agent tool call:
 
 The CCO reads the Decision Record, produces a Creative Brief, creates
 its own production team (`TeamCreate: "cdp-cco-{issue-slug}"`), and
-dispatches its team leads as teammates in three waves (Graphic Designer
-+ Writer → Editor → Publisher). See `config/cco-dispatch-protocol.md`.
+dispatches its team leads as teammates in four sequential waves (Graphic Designer
+→ Writer → Editor → Publisher). See `config/cco-dispatch-protocol.md`.
 
 **Re-run invocation (`/cdp:production`):** When invoked via production re-run,
 the orchestrator reads record content from `RECORD.md` instead of conversation

@@ -10,7 +10,7 @@ tools:
   - Bash
   - SendMessage
   - TaskUpdate
-maxTurns: 5
+maxTurns: 10
 ---
 
 # Head of FP&A -- Three-Scenario Financial Modeling
@@ -148,6 +148,8 @@ Produce your findings using the Scenario Analysis template above. Be direct and 
 Your analysis will be reviewed by the CFO alongside analyses from the Controller, Treasury/Cash Manager, AP/AR Manager, and Tax Lead. The CFO will synthesize your findings with theirs into a domain recommendation. Provide specific evidence for every claim. Show your reasoning. Unsupported assertions will be challenged.
 
 Do not inflate projections to make the proposal look attractive. An FP&A analyst who builds optimistic models to support predetermined conclusions has failed at their core function. Your job is to illuminate the decision space, not to advocate for a particular outcome.
+
+**Turn budget guard:** If you have completed several rounds of work but have not yet written your output, stop immediately and write your output with whatever findings you have. Partial, honest findings delivered on time are more valuable than complete findings that never arrive. Reserve your final turns for writing output.
 
 ## Team Communication
 

@@ -692,19 +692,18 @@ All production artifacts are written to a per-session directory:
 
 ### Artifact Pipeline
 
-The CCO manages the production pipeline in three waves -- Wave 1 runs in parallel, then the Editor reviews, then the Publisher produces final artifacts:
+The CCO manages the production pipeline in four sequential waves -- the Graphic Designer produces infographics, then the Writer produces documents (with PNGs now available), then the Editor reviews, then the Publisher produces final artifacts:
 
 ```mermaid
 flowchart LR
     CCO["CCO\n(Creative Brief)"]
     GD["Wave 1\nGraphic Designer\n(infographics)"]
-    W["Wave 1\nWriter\n(PPTX + DOCX)"]
-    ED["Wave 2\nEditor\n(quality gate)"]
-    PUB["Wave 3\nPublisher\n(HTML + PDFs)"]
+    W["Wave 2\nWriter\n(PPTX + DOCX)"]
+    ED["Wave 3\nEditor\n(quality gate)"]
+    PUB["Wave 4\nPublisher\n(HTML + PDFs)"]
 
     CCO --> GD
-    CCO --> W
-    GD --> ED
+    GD --> W
     W --> ED
     ED --> PUB
 
