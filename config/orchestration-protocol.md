@@ -256,6 +256,7 @@ Create the session output directory during Phase 1 (after slug derivation) so th
    ```bash
    mkdir -p .cdp-output/YYYY-MM-DD_<issue-slug>/images
    mkdir -p .cdp-output/YYYY-MM-DD_<issue-slug>/build
+   mkdir -p .cdp-output/YYYY-MM-DD_<issue-slug>/logs
    ```
 4. **Resolve to absolute path** so all agents (including those in deliberation phases) receive an unambiguous location.
 
