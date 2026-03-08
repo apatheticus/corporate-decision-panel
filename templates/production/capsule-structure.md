@@ -2,18 +2,16 @@
 
 ## Purpose
 
-The Publisher produces two PDF artifacts:
+The **Deliberation Capsule PDF** is a comprehensive, layered archive of the **entire** deliberation process. Unlike the other four artifacts (which present only the synthesized decision briefing), the Capsule contains the full analytical record: every domain analysis, every team lead finding, the CEO's routing rationale, Phase 4.5 pre-mortem responses, and the original issue submission.
 
-1. **Results PDF** -- A print-portable rendering of the HTML decision briefing page. Same content, same design, PDF format. The "email it, attach it, archive it" artifact.
-2. **Deliberation Capsule PDF** -- A comprehensive, layered archive of the **entire** deliberation process. Unlike the other four artifacts (which present only the synthesized decision briefing), the Capsule contains the full analytical record: every domain analysis, every team lead finding, the CEO's routing rationale, Phase 4.5 pre-mortem responses, and the original issue submission.
+> **Note:** The Results PDF is produced separately by the permanent script `scripts/build_results_pdf.py` (native reportlab generation from RECORD.md). This file specifies only the Capsule PDF.
 
-**Results PDF filename:** `{session-output}/RESULTS_<issue-slug>.pdf`
 **Capsule PDF filename:** `{session-output}/CAPSULE_<issue-slug>.pdf`
 **Build script:** `{session-output}/build/build_capsule.py`
 
 > `{session-output}` and `<issue-slug>` are provided by the CCO in your prompt. Use them directly.
 
-**Runs in Wave 3.** The Results PDF is a direct rendering of `index.html`, which the Publisher also produces in the same wave.
+**Runs in Wave 4.** The Capsule PDF is produced after all other artifacts are complete.
 
 ---
 
@@ -28,7 +26,9 @@ Before starting implementation, review available skills for any relevant to this
 **Primary:** Python build script using `weasyprint` for HTML-to-PDF rendering.
 **Fallback:** `pdfkit` with `wkhtmltopdf` if weasyprint is unavailable.
 
-The Publisher writes a build script (`build_capsule.py`) that produces both PDFs in one run. The script is rerunnable: `python3 build_capsule.py` from the `build/` directory regenerates both from current artifacts.
+The Publisher writes a build script (`build_capsule.py`) that produces the Capsule PDF. The script is rerunnable: `python3 build_capsule.py` from the `build/` directory regenerates from current artifacts.
+
+> **Results PDF** is handled separately by the permanent script `scripts/build_results_pdf.py` using reportlab. The build_capsule.py script does **not** produce the Results PDF.
 
 ```python
 # build_capsule.py structure
@@ -37,15 +37,6 @@ import os
 
 OUTPUT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-def build_results_pdf():
-    """Render index.html to PDF with print-friendly CSS."""
-    # 1. Read index.html
-    # 2. Convert relative image paths to base64 data URIs
-    # 3. Inject print-friendly CSS
-    # 4. Neutralize scroll-reveal animations
-    # 5. Strip <script> blocks
-    # 6. Render to PDF via weasyprint
-
 def build_capsule_pdf():
     """Build the layered deliberation archive."""
     # 1. Generate capsule HTML (Cover + 5 layers)
@@ -53,102 +44,8 @@ def build_capsule_pdf():
     # 3. Render to PDF via weasyprint
 
 if __name__ == '__main__':
-    build_results_pdf()
     build_capsule_pdf()
 ```
-
----
-
-## Results PDF
-
-### Build Process
-
-1. **Read** `{session-output}/index.html`
-
-2. **Convert images to base64**: Replace all relative image paths (`images/*.png`) and CSS `url()` references with base64 data URIs for complete self-containment:
-   ```python
-   import base64
-   # For each <img src="images/INFOGRAPHIC_*.png">
-   with open(img_path, 'rb') as f:
-       b64 = base64.b64encode(f.read()).decode()
-   # Replace src with data:image/png;base64,{b64}
-   ```
-
-3. **Inject print-friendly CSS**:
-   ```css
-   @page {
-     size: Letter;
-     margin: 0.75in;
-   }
-   @page :first {
-     margin-top: 0;
-   }
-
-   body {
-     font-size: 11pt;
-     line-height: 1.4;
-   }
-
-   /* Remove interactive elements */
-   .nav, .back-to-top, .download-section {
-     display: none !important;
-   }
-
-   /* Disable animations and transitions */
-   * {
-     transition: none !important;
-     animation: none !important;
-   }
-
-   /* Neutralize scroll-reveal */
-   .reveal, [class*="reveal"] {
-     opacity: 1 !important;
-     transform: none !important;
-     visibility: visible !important;
-   }
-
-   /* Force expandable sections open */
-   .expandable-content, [class*="expandable"] {
-     display: block !important;
-     max-height: none !important;
-     overflow: visible !important;
-   }
-
-   /* Disable backdrop-filter (unsupported in weasyprint) */
-   * {
-     backdrop-filter: none !important;
-     -webkit-backdrop-filter: none !important;
-   }
-
-   /* Page break hints */
-   .section {
-     page-break-before: always;
-   }
-   .section:first-child {
-     page-break-before: avoid;
-   }
-
-   /* Tighten spacing for print */
-   .section {
-     padding: 0.5in 0;
-   }
-
-   /* Readable font sizes */
-   h1 { font-size: 20pt; }
-   h2 { font-size: 16pt; }
-   h3 { font-size: 13pt; }
-   ```
-
-4. **Strip all `<script>` blocks**: Remove JavaScript entirely. All content must be in the HTML/CSS, not JS-generated.
-
-5. **Render to PDF** via weasyprint:
-   ```python
-   html = weasyprint.HTML(string=modified_html, base_url=OUTPUT_DIR)
-   html.write_pdf(os.path.join(OUTPUT_DIR, f'RESULTS_{issue_slug}.pdf'))
-   ```
-
-### Output
-The Results PDF content is identical to the HTML distribution page. The Publisher converts format, not content. A reader of the Results PDF sees the same decision briefing as a reader of the HTML page.
 
 ---
 
@@ -372,21 +269,23 @@ When the source is a Comparative Decision Record:
 
 The `build_capsule.py` script must:
 
-1. **Produce both PDFs** in a single run (Results PDF + Capsule PDF)
-2. **Be rerunnable**: Running `python3 build_capsule.py` from the `build/` directory regenerates both PDFs from current artifacts without side effects
+1. **Produce the Capsule PDF** (the Results PDF is produced by `scripts/build_results_pdf.py`)
+2. **Be rerunnable**: Running `python3 build_capsule.py` from the `build/` directory regenerates the Capsule PDF from current artifacts without side effects
 3. **Handle missing content gracefully**: If a Tier 2 run has fewer domain analyses or no pre-mortem data, the capsule should omit those sections cleanly rather than showing empty sections or breaking
-4. **Convert all images to base64**: For complete self-containment of both PDFs
-5. **Report output**: Print the filenames and sizes of both PDFs on completion
+4. **Convert all images to base64**: For complete self-containment
+5. **Report output**: Print the filename and size of the Capsule PDF on completion
 6. **Fallback gracefully**: If weasyprint is unavailable, attempt pdfkit/wkhtmltopdf with a clear warning about potential rendering differences
 
 ```python
 #!/usr/bin/env python3
 """
-Build Results PDF and Deliberation Capsule PDF.
+Build Deliberation Capsule PDF.
 
 Usage: python3 build_capsule.py
 Run from the build/ directory. Reads artifacts from the parent directory.
 Outputs to the parent directory.
+
+Note: Results PDF is produced separately by scripts/build_results_pdf.py
 
 Requires: weasyprint (preferred) or pdfkit + wkhtmltopdf (fallback)
 """
@@ -425,4 +324,4 @@ except ImportError:
 
 4. **Variable content must be handled gracefully.** A capsule from a Tier 2 run with 3 domains should look intentional, not incomplete. A capsule from a Tier 3 full cascade with all 8 domains and CSO research should not overflow or break layout.
 
-5. **The Results PDF must faithfully reproduce the HTML page.** No invisible elements from scroll-reveal animations, no missing interactive content, no broken layouts from unsupported CSS. The Publisher's print CSS injection must neutralize all browser-dependent rendering.
+5. **The Results PDF must faithfully present the decision briefing.** Generated natively from RECORD.md via `scripts/build_results_pdf.py` (reportlab), with proper page break control, embedded infographics, and no content clipping. The Results PDF and HTML page are sibling artifacts — both built from RECORD.md using the same content mapping, optimized for their respective media (print vs. screen).

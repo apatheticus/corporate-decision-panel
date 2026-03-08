@@ -65,7 +65,7 @@ python3 ~/.claude/skills/corporate-decision-panel/install.py
     - [Company Profile](#company-profile)
     - [Company Context](#company-context)
     - [Infographic Style](#infographic-style)
-    - [API Configuration](#api-configuration)
+    - [API & Agent Configuration](#api--agent-configuration)
     - [Routing Table](#routing-table)
   - [Output Formats](#output-formats)
   - [Production Pipeline](#production-pipeline)
@@ -341,11 +341,13 @@ flowchart TD
 
 ### Model Tiering
 
-| Layer | Model | Rationale |
-|-------|-------|-----------|
+| Layer | Default Model | Rationale |
+|-------|---------------|-----------|
 | CEO | Opus | Cross-domain synthesis. Highest reasoning quality for weighting competing perspectives. |
 | C-Suite (8 agents) | Sonnet | Domain decomposition and synthesis. Balances capability with cost. |
 | Team Leads (34 agents) | Haiku | Narrow specialist analysis. Cost-efficient. Model diversity improves system robustness. |
+
+Model assignments are configurable via `.cdp-context/config.md` (Agent Models section). Set tier-wide defaults or per-agent overrides -- e.g., promote the CFO to Opus or run team leads on Sonnet. Changes take effect at session start when `scripts/apply_models.py` updates `.claude/agents/` frontmatter.
 
 ### Engineered Dissent
 
@@ -561,9 +563,9 @@ visual preferences.
 
 **Privacy:** The `.cdp-context/` directory is gitignored by default. It contains sensitive business data and should never be committed.
 
-### API Configuration
+### API & Agent Configuration
 
-A markdown file that configures the Gemini API for infographic generation.
+A markdown file that configures the Gemini API for infographic generation and agent model assignments.
 
 **Location:** `.cdp-context/config.md` (gitignored by default)
 
@@ -575,7 +577,8 @@ cp .claude/skills/corporate-decision-panel/templates/config-context.md .cdp-cont
 ```
 
 **Available settings:** Gemini API key (required), image model selection,
-retry limit. See `templates/config-context.md` for all fields.
+retry limit, agent model tier defaults, per-agent model overrides.
+See `templates/config-context.md` for all fields.
 
 ```mermaid
 flowchart LR
@@ -675,7 +678,7 @@ All production artifacts are written to a per-session directory:
 ├── index.html                                    # Interactive decision briefing
 ├── PRESENTATION_<issue-slug>.pptx                # Board-ready slide deck
 ├── REPORT_<issue-slug>.docx                      # Editable document
-├── RESULTS_<issue-slug>.pdf                      # Print rendering of briefing
+├── RESULTS_<issue-slug>.pdf                      # Native PDF from RECORD.md
 ├── CAPSULE_<issue-slug>.pdf                      # Layered archival record
 ├── images/                                       # Analytical infographics
 │   ├── INFOGRAPHIC_routing-diagram.png
@@ -719,9 +722,9 @@ flowchart LR
 | Graphic Designer | `images/INFOGRAPHIC_*.png` | Gemini API (Python script / JSON prompts) | 5-6 analytical infographics: routing diagram, domain scorecard, fault line map, risk-opportunity matrix, action plan timeline, mode comparison (multi-mode) |
 | Writer | `PRESENTATION_*.pptx` + `REPORT_*.docx` | pptxgenjs + docx (Node.js) | 11-slide board deck + editable document (cover, TOC, 8 sections, 2 appendices) |
 | Editor | Editorial Review | Read-only (Sonnet) | Reviews all drafts for accuracy, consistency, tone, completeness |
-| Publisher | `index.html` + `RESULTS_*.pdf` + `CAPSULE_*.pdf` | Vanilla HTML/CSS/JS + weasyprint (Python) | Interactive briefing page + print PDF + 5-layer archival capsule |
+| Publisher | `index.html` + `RESULTS_*.pdf` + `CAPSULE_*.pdf` | Vanilla HTML/CSS/JS + reportlab (Results PDF) + weasyprint (Capsule PDF) | Interactive briefing page + native print PDF + 5-layer archival capsule |
 
-**Technology requirements:** `pptxgenjs` and `docx` (npm packages), `weasyprint` (Python, for PDF generation).
+**Technology requirements:** `pptxgenjs` and `docx` (npm packages), `reportlab` and `Pillow` (Results PDF), `weasyprint` (Capsule PDF).
 
 ---
 
@@ -762,6 +765,12 @@ corporate-decision-panel/               # Clone to .claude/skills/corporate-deci
 │       ├── consult.md, panel.md
 │       ├── deliberate.md, evaluate.md
 │       └── production.md
+├── scripts/
+│   ├── apply_models.py                 # Agent model config applicator
+│   ├── build_results_pdf.py            # Native Results PDF generator
+│   ├── config.py                       # Config parser
+│   ├── generate_infographic.py         # Single infographic generation
+│   └── session.py                      # Infographic generation session
 ├── config/
 │   ├── cco-dispatch-protocol.md
 │   ├── company-profile.md

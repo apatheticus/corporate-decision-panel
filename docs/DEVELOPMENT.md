@@ -44,7 +44,9 @@
 | Node.js + npm | PPTX generation (pptxgenjs), DOCX generation (docx) | [nodejs.org](https://nodejs.org) |
 | pptxgenjs | Board presentation generation | `npm install pptxgenjs` |
 | docx | Board document and advisory document generation | `npm install docx` |
-| weasyprint | PDF generation (Results PDF, Capsule PDF) | `pip install weasyprint` |
+| reportlab | Results PDF generation (native from RECORD.md) | `pip install reportlab` |
+| Pillow | Image processing for PDF and infographics | `pip install Pillow` |
+| weasyprint | Capsule PDF generation | `pip install weasyprint` |
 
 Without the optional dependencies, the deliberation cascade works fully -- only the production artifact generation is affected.
 
@@ -217,7 +219,7 @@ When adding a new team lead:
 4. Add a `## Team Communication` section instructing the team lead to SendMessage findings back to its C-suite parent
 5. Follow the structure of existing team leads (identity, framework, template, forcing questions, blind spots, team communication)
 
-> **Production agents** may need higher limits. The Publisher uses `maxTurns: 15` because it writes a build script and runs weasyprint, which can require debugging iterations.
+> **Production agents** may need higher limits. The Publisher uses `maxTurns: 15` because it runs the Results PDF script, writes a Capsule build script, and runs weasyprint, which can require debugging iterations.
 
 ### Slash Commands
 
@@ -253,7 +255,17 @@ The installer is a simple Python script that copies files. If you add new direct
 
 ## Testing Changes
 
-CDP is a prompt-and-configuration system, not a traditional application. There is no automated test suite. Testing is manual and scenario-based.
+CDP is primarily a prompt-and-configuration system. The Python scripts have an automated test suite; agent behavior is tested manually.
+
+### Automated Tests
+
+Run the Python test suite:
+
+```bash
+python3 -m pytest tests/ -v
+```
+
+Tests cover configuration parsing (`test_config.py`), agent model application (`test_apply_models.py`), infographic generation (`test_generate_infographic.py`), and the session pipeline (`test_session.py`).
 
 ### Manual Testing
 
@@ -299,11 +311,15 @@ For changes to decision modes or the CEO's synthesis logic, run the calibration 
 
 ## Project Conventions
 
-### Markdown-Only Codebase
+### Markdown + Scripts Codebase
 
-CDP has no traditional application code. The entire system is defined in Markdown files with YAML frontmatter. The only executable code is:
+CDP is primarily a prompt-and-configuration system defined in Markdown files with YAML frontmatter. Executable code includes:
 
 - `install.py` -- Python installer script
+- `scripts/apply_models.py` -- Agent model configuration applicator
+- `scripts/config.py` -- Configuration parser (shared by other scripts)
+- `scripts/build_results_pdf.py` -- Native Results PDF generator
+- `scripts/session.py` + `scripts/generate_infographic.py` -- Infographic generation pipeline
 - Production build scripts generated at runtime (`build/*.js`, `build/*.py`)
 
 ### Preserving Engineered Dissent
@@ -380,7 +396,7 @@ The production pipeline uses these external Claude Code skills for generating ar
 | Skill | Used For | Install |
 |-------|----------|---------|
 | [docx](https://github.com/anthropics/skills) | Board document (DOCX) and advisory document generation | `/find-skills docx` |
-| [pdf](https://github.com/anthropics/skills) | Results PDF and Capsule PDF generation | `/find-skills pdf` |
+| [pdf](https://github.com/anthropics/skills) | PDF QA validation and Capsule PDF generation | `/find-skills pdf` |
 | [frontend-design](https://github.com/anthropics/skills) | Decision briefing page (HTML) | `/find-skills frontend-design` |
 | [web-design-guidelines](https://github.com/vercel-labs/agent-skills) | UI review for briefing page | `/find-skills web-design-guidelines` |
 | [find-skills](https://github.com/vercel-labs/skills) | Skill discovery | `/install find-skills` |

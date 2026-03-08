@@ -1,6 +1,6 @@
 ---
 name: corporate-decision-panel
-version: 1.2
+version: 1.5
 description: >
   A complete organizational reasoning engine that emulates SMB executive
   committee decision-making. Presents any business issue through a structured
@@ -16,6 +16,7 @@ invocation:
   - /cdp:deliberate
   - /cdp:evaluate
   - /cdp:production
+  - /cdp:resume
   - /cdp:cleanup
 ---
 
@@ -30,44 +31,13 @@ and why.
 
 ## Setup Check
 
-> **Preferred install method:** Run `python3 install.py` from the skill
-> directory before starting Claude Code. This ensures slash commands are
-> discoverable on first session launch. The auto-setup below is a fallback
-> for users who skip the installer.
+Before executing any command, check if `.claude/agents/ceo.md` exists.
 
-Before executing any command, verify that CDP agent definitions and slash
-commands are installed in the project's `.claude/` directory.
+**If missing:** Run `python3 install.py` from the skill directory. Inform the
+user that slash commands require a Claude Code restart to become available,
+then proceed to execute the current command.
 
-**Check:** Does `.claude/agents/ceo.md` exist in the project root?
-
-**If NO (first run -- auto-setup fallback):**
-1. Copy all files from this skill's `agents/` directory to `.claude/agents/`,
-   preserving the directory structure (`c-suite/`, `team-leads/`)
-2. Copy all files from this skill's `commands/` directory to `.claude/commands/`,
-   preserving the directory structure (`cdp/`)
-3. Append these entries to the project root `.gitignore` if not already present:
-   - `.cdp-output/`
-   - `.cdp-context/`
-4. Create `.cdp-context/` directory if it doesn't exist
-5. Seed `.cdp-context/` with template files (`company.md`, `style.md`, `config.md`) if not already present -- copies from `templates/` directory
-6. Print setup confirmation:
-   ```
-   CDP auto-setup complete.
-   - Agent definitions copied to .claude/agents/
-   - Slash commands copied to .claude/commands/cdp/
-
-   NOTE: Slash commands (/cdp:consult, /cdp:panel, etc.) require a
-   Claude Code restart to become available. Start a new session to use them.
-
-   Quick start (after restart):
-     /cdp:consult cfo: Can we afford to hire this quarter?
-     /cdp:panel finance tech: Should we build or buy?
-     /cdp:deliberate: Should we pivot to a platform model?
-     /cdp:evaluate: Should we acquire CompetitorX?
-   ```
-7. If the user provided a command with this invocation, proceed to execute it
-
-**If YES:** Proceed directly to command execution.
+**If present:** Proceed directly to command execution.
 
 ---
 
@@ -134,6 +104,7 @@ Reversibility: [easily reversed | difficult | irreversible]
 Recommended Tier: [tier] -- [rationale]
 Recommended Mode: [mode] -- [rationale]
 Alternative: [mode] -- [what it would reveal]
+Scale: ~[N] agents ([K] C-suite x ~[L] team leads avg)
 ```
 
 ### Multi-Mode Syntax
@@ -170,6 +141,23 @@ Examples:
 - `/cdp:production .cdp-output/2026-02-28_should-we-acquire-competitor-x/`
 - `/cdp:production acquire-competitor` — fuzzy slug match
 
+### Session Resume
+```
+/cdp:resume [session-path?]
+```
+
+Resumes an interrupted CDP session by detecting how far it progressed and
+continuing from that point. Uses the same session resolution rules as
+`/cdp:production`. See `config/orchestration-protocol.md` Session Resume
+Protocol for detection logic and resume points.
+
+Cannot resume with zero recommendation files (re-run the original command).
+Cannot change routing or mode after resume.
+
+- `/cdp:resume` — most recent session
+- `/cdp:resume .cdp-output/2026-03-01_should-we-pivot/`
+- `/cdp:resume pivot` — fuzzy slug match
+
 ### Session Cleanup
 ```
 /cdp:cleanup [--older-than days?]
@@ -204,7 +192,7 @@ inputs. See `config/decision-modes.md` for full specifications.
 ### Tier 1: Hallway Question
 
 1. User invokes `/cdp:consult [role] [mode?]: [question]`
-2. Spawn the specified C-suite agent as Agent Team teammate (Sonnet)
+2. Dispatch the specified C-suite agent as a standalone background subagent
 3. Agent runs **Mode A** (direct consult):
    - Runs internal checklist (considers each team lead perspective)
    - Produces Advisory Note (3-5 sentences)
@@ -221,29 +209,25 @@ Output spec: `templates/production/advisory-document.md`
 ### Tier 2: Working Session
 
 1. User invokes `/cdp:panel [roles] [mode?]: [issue]`
-2. Create executive team:
-   `TeamCreate: team_name "cdp-{issue-slug}"`
-   The main session acts as CEO (team lead, Opus).
+2. The main session acts as CEO (Opus).
 3. CEO runs **Phase 1** (frame and route):
    - Decomposes issue into evaluation dimensions
    - Classifies decision type
    - Routes to user-specified roles (or auto-routes)
-4. Spawn activated C-suite agents as teammates:
-   Agent tool with `team_name="cdp-{issue-slug}"` for each activated role
-5. Each C-suite teammate runs **Mode B** (full analysis):
+4. Dispatch activated C-suite agents as standalone background subagents:
+   Agent tool with `run_in_background: true` for each activated role
+5. Each C-suite agent runs **Mode B** (full analysis):
    - Creates own division team (`TeamCreate: "cdp-{role}-{issue-slug}"`)
    - Spawns team leads as teammates (Agent with team_name)
    - Collects findings via SendMessage
-   - SendMessage domain recommendation back to CEO
+   - Writes domain recommendation to `{session}/_RECOMMENDATION_{role}.md`
    - Shuts down division team
 6. CEO runs **Phase 5** (abbreviated synthesis):
-   - Collects domain recommendations (arriving via SendMessage)
+   - Reads `_RECOMMENDATION_*.md` files after all agents complete
    - Applies Decision Mode
    - Produces Panel Assessment
-7. Spawn CCO as teammate for production:
-   Agent tool with `team_name="cdp-{issue-slug}"` for CCO
-8. Shut down executive team
-9. Return Panel Assessment to user
+7. Dispatch CCO as standalone background subagent for production.
+8. Return Panel Assessment to user
 
 Output template: `templates/panel-assessment.md`
 
@@ -254,9 +238,7 @@ Phase 4.5 (pre-mortem challenge). The authoritative phase protocol is
 defined in `config/orchestration-protocol.md`. The overview below
 describes the flow at a summary level.
 
-1. Create executive team:
-   `TeamCreate: team_name "cdp-{issue-slug}"`
-   The main session acts as CEO (team lead, Opus).
+1. The main session acts as CEO (Opus).
 
 **Phase 0 -- Shared Consciousness Broadcast**
 CEO broadcasts issue context to all activated C-suite agents. Everyone
@@ -269,7 +251,7 @@ activation AND exclusion reasoning. Evaluates full-activation threshold
 conditions. Issues CSO research directive if applicable.
 
 **Phase 1.5 -- Research Investigation** (conditional)
-If CEO activates CSO as teammate (Agent with team_name): CSO creates its
+If CEO activates the CSO (standalone background subagent): CSO creates its
 own division team, spawns 5 research team leads as teammates (Market
 Intelligence, Competitive Intelligence, Technology Scout, Industry &
 Regulatory Analyst, Precedent & Patterns Analyst). CSO collects findings
@@ -278,9 +260,9 @@ grade and Assumption Registry. Dossier broadcast to all activated C-suite.
 **Skipped if CSO not activated.**
 
 **Phase 2 -- C-Suite Dispatches Downward**
-Spawn activated C-suite agents as teammates:
-Agent tool with `team_name="cdp-{issue-slug}"` for each activated role.
-Each C-suite teammate creates a division team (TeamCreate) and spawns
+Dispatch activated C-suite agents as standalone background subagents:
+Agent tool with `run_in_background: true` for each activated role.
+Each C-suite agent creates a division team (TeamCreate) and spawns
 team leads as teammates (Agent with team_name). See
 `config/dispatch-protocol.md`. This translation is analytical -- the
 CFO does not forward the question; the CFO asks the Controller "what are
@@ -297,7 +279,7 @@ Each C-suite agent collects team lead findings (via SendMessage),
 synthesizes a domain recommendation with confidence level, key risks,
 and key opportunities. Internal contradictions between team leads flagged
 as analytical signals. Each C-suite agent shuts down its division team
-and SendMessage domain recommendation back to CEO.
+and writes domain recommendation to `{session}/_RECOMMENDATION_{role}.md`.
 
 **Phase 4.5 -- Pre-Mortem Challenge** (Tier 3 only)
 After producing their own recommendation, each C-suite agent receives
@@ -311,7 +293,7 @@ fault lines, determines most determinative perspective, applies Decision
 Mode, produces the Decision Record.
 
 **Production automatically triggered after Phase 5.**
-Spawn CCO as teammate (Agent with team_name). Shut down executive team.
+Dispatch CCO as standalone background subagent.
 
 Output template: `templates/decision-record.md`
 Comparative output: `templates/comparative-decision-record.md`
@@ -368,8 +350,9 @@ it owns only the production pipeline.
 
 ### Layer 2: Division Team Agents — Analytical Team Leads (Haiku)
 
-34 specialist analysts spawned as teammates in their C-suite parent's
-division team. Each has a unique analytical framework, mandatory output
+34 domain specialists spawned as teammates in their C-suite parent's
+division team: 29 analytical team leads (Phase 2-4) and 5 research
+team leads (CSO, Phase 1.5). Each has a unique analytical framework, mandatory output
 template, three forcing questions (Pre-Mortem, Adversarial Empathy,
 Domain Devil's Advocate), and restricted tool access (Read, Grep, Glob,
 WebSearch, SendMessage, TaskUpdate).
@@ -406,10 +389,10 @@ requires stronger reasoning. The Editor is read-only for production artifacts
 
 ### Model Tiering
 
-Models are specified in each agent definition's frontmatter (`model` field), not in dispatch syntax. The Agent tool does not accept a `model` parameter — model selection comes from the agent definition.
+Models are specified in each agent definition's frontmatter (`model` field), not in dispatch syntax. The Agent tool does not accept a `model` parameter — model selection comes from the agent definition. Model assignments are configurable via `.cdp-context/config.md` (Agent Models section) -- the orchestration protocol runs `scripts/apply_models.py` at session start to apply tier defaults and per-agent overrides.
 
-| Layer | Model | Rationale |
-|-------|-------|-----------|
+| Layer | Default Model | Rationale |
+|-------|---------------|-----------|
 | Analytical Team Leads | Haiku | Narrow analysis. Cost-efficient. Model diversity. |
 | Production Team Leads | Haiku | Production execution. Cost-efficient. |
 | Editor | Sonnet | Editorial judgment requires stronger reasoning. |
@@ -421,7 +404,8 @@ Models are specified in each agent definition's frontmatter (`model` field), not
 
 ## Production Pipeline
 
-### Trigger Logic
+Production always triggers after deliberation. The full specification is in
+`config/production-pipeline.md`.
 
 | Tier | Production | Artifacts |
 |------|-----------|-----------|
@@ -429,226 +413,18 @@ Models are specified in each agent definition's frontmatter (`model` field), not
 | Tier 2 | Always | HTML, PPTX, DOCX, Results PDF, Capsule PDF |
 | Tier 3 | Always | HTML, PPTX, DOCX, Results PDF, Capsule PDF |
 
-### Session Output Directory
+**Session output:** `.cdp-output/YYYY-MM-DD_<issue-slug>/`
 
-All production artifacts are written to a per-session directory under `.cdp-output/` in the project working directory:
+**CCO dispatch (Tier 2/3):** CEO spawns CCO as a standalone background
+subagent. CCO reads RECORD.md, produces a Creative Brief, and dispatches
+its production team in four sequential waves: Graphic Designer → Writer →
+Editor → Publisher. See `config/cco-dispatch-protocol.md`.
 
-```
-.cdp-output/YYYY-MM-DD_<issue-slug>/
-```
+**Tier 1:** Single Agent tool call for Advisory Document DOCX (no CCO).
 
-The **issue slug** is derived from the Issue Title produced in CEO Phase 1: lowercase, replace non-alphanumeric characters (except hyphens) with hyphens, collapse consecutive hyphens, trim to 50 characters, and strip leading/trailing hyphens.
-
-**Directory structure (Tier 2 and Tier 3):**
-
-```
-.cdp-output/2026-02-22_should-we-acquire-competitor-x/
-├── RECORD.md                              # Persisted session record
-├── index.html                          # Decision briefing page
-├── PRESENTATION_should-we-acquire-competitor-x.pptx
-├── REPORT_should-we-acquire-competitor-x.docx
-├── RESULTS_should-we-acquire-competitor-x.pdf
-├── CAPSULE_should-we-acquire-competitor-x.pdf
-├── images/                             # Infographic PNGs
-└── build/                              # Rerunnable build scripts
-```
-
-**Directory structure (Tier 1):**
-
-```
-.cdp-output/2026-02-22_can-we-afford-to-hire-this-quarter/
-├── RECORD.md
-├── ADVISORY_can-we-afford-to-hire-this-quarter.docx
-└── build/
-    └── build_advisory.js
-```
-
-The placeholder `{session-output}` used throughout this section and in production templates refers to this resolved path.
-
-### Pre-flight Dependency Validation
-
-Before spawning the CCO, the orchestrator validates external dependencies using shell commands and passes the results in the CCO prompt. All production tasks are optional -- the Decision Record (`RECORD.md`) is always produced regardless of task availability. "Required" here means required within a specific task: if a task's dependencies are missing, the CCO's team leads skip that task with explicit install instructions, but all other tasks whose dependencies are satisfied continue normally.
-
-**Dependency table:**
-
-| Agent | Dependencies | Check Command | Install Command |
-|-------|-------------|---------------|-----------------|
-| Graphic Designer (infographics) | python3, google-genai, Pillow | `python3 -c "from google import genai; from PIL import Image"` | `pip install google-genai>=1.65.0 Pillow>=10.0.0` |
-| Writer (PPTX) | node, pptxgenjs | `node -e "require('pptxgenjs')"` | `npm install pptxgenjs` |
-| Writer (DOCX) | node, docx | `node -e "require('docx')"` | `npm install docx` |
-| Publisher (HTML) | none | -- | -- |
-| Publisher (PDFs) | python3, weasyprint | `python3 -c "import weasyprint"` | `pip install weasyprint` |
-
-**Execution protocol:**
-
-1. Run each check command from the table above. A non-zero exit code means the dependency is missing.
-2. Build a summary table showing task readiness:
-
-   | Agent | Status | Missing Dependencies |
-   |-------|--------|---------------------|
-   | Graphic Designer (infographics) | READY / SKIP | -- / `pip install google-genai>=1.65.0 Pillow>=10.0.0` |
-   | Writer (PPTX) | READY / SKIP | -- / `npm install pptxgenjs` |
-   | ... | ... | ... |
-
-   Use a checkmark for ready tasks and a warning marker for skipped tasks, listing the install command so the user can enable them next time.
-3. Print the summary table for user visibility before spawning any tasks.
-4. Spawn ONLY tasks whose dependencies are satisfied. Do not spawn tasks that failed their check command.
-5. List all skipped tasks with their install instructions so the user can install missing dependencies for next time.
-6. ALWAYS produce `RECORD.md` regardless of which tasks are skipped -- the Decision Record is the primary output, production artifacts are supplementary.
-
-**Note on Publisher HTML:** The HTML briefing page has no external
-dependencies of its own. If some upstream artifacts (infographics, DOCX,
-PPTX) failed, the Publisher still runs with whatever artifacts are
-available.
-
-### CCO Wave-Based Dispatch (Tier 2/3)
-
-The CCO manages the production pipeline autonomously using a three-wave
-dispatch pattern:
-
-```
-CEO spawns CCO → CCO reads RECORD.md → CCO creates Creative Brief
-→ Wave 1: Graphic Designer + Writer  (parallel)
-→ Wave 2: Editor                     (reviews all Wave 1 output)
-→ Wave 3: Publisher                  (HTML + PDFs + packaging)
-```
-
-See `config/cco-dispatch-protocol.md` for the full dispatch specification.
-
-### Production Team Leads
-
-**Graphic Designer** (Wave 1, parallel)
-Generates 5-6 analytical infographics via the Gemini API using
-`scripts/session.py`. Reads the Decision Record, extracts data per
-infographic type, writes data JSON files, and calls the session
-orchestrator. Each infographic is produced by populating a JSON prompt
-template (Pauhu schema hybrid) with Decision Record data, applying style
-overrides from `.cdp-context/style.md` (if present), and calling the
-Gemini API with vision-based quality validation. Retries use corrective
-feedback. If all attempts are exhausted, a placeholder PNG is generated
-and the populated JSON prompt is saved alongside it for manual retry.
-
-Infographics produced:
-1. Routing Diagram -- which C-suite activated and why
-2. Domain Scorecard -- recommendation/confidence matrix
-3. Fault Line Map -- agreement/contention visualization
-4. Risk-Opportunity Matrix -- impact/likelihood grid
-5. Action Plan Timeline -- Gantt-style next steps
-6. Mode Comparison (multi-mode only) -- divergence tree
-
-Output: `{session-output}/images/INFOGRAPHIC_*.png`
-Prompt templates: `templates/infographic-prompts/*.json`
-Spec: `templates/production/infographics.md`
-
-**Writer** (Wave 1, parallel)
-Creates board-ready PPTX via `pptxgenjs` and editable DOCX via `docx`
-npm package (docx-js). PPTX: 11 slides (Title, Executive Summary, The
-Question, Analytical Framework, Domain Analysis, Where Perspectives
-Collide, The Decision, Guardrails, What Could Go Wrong, Next Steps,
-Decision Metadata). DOCX: Cover Page, TOC, 8 sections, 2 appendices.
-US Letter, Arial 12pt, heading styles with outlineLevel.
-
-Output: `{session-output}/PRESENTATION_<issue-slug>.pptx`
-         `{session-output}/REPORT_<issue-slug>.docx`
-Build: `{session-output}/build/build_presentation.js`
-         `{session-output}/build/build_report.js`
-Spec: `templates/production/board-presentation.md`,
-         `templates/production/board-document.md`
-
-**Editor** (Wave 2, sequential after Wave 1)
-Reviews all Wave 1 artifacts for accuracy, consistency, tone,
-completeness, and infographic quality. Compares artifacts against
-RECORD.md (source of truth) and the Creative Brief (tone guidance).
-Read-only by design -- the Editor judges, it does not modify.
-
-Verdict: APPROVED | APPROVED WITH NOTES | REVISION REQUIRED
-Spec: `agents/team-leads/cco/editor.md`
-
-**Publisher** (Wave 3, sequential after Wave 2)
-Creates self-contained interactive HTML briefing page (Hero, Executive
-Summary, Problem Context, Analytical Framework, Domain Analysis cards,
-Fault Line Visualization, The Decision, Dissenting Views, Action Plan,
-Download Section, Metadata, Navigation). Inline CSS/JS, no CDN, works
-from `file://`, PDF-compatible. Also produces Results PDF (print
-rendering of index.html) and Deliberation Capsule PDF (Cover + 5 layers:
-Overview, Decision, Analysis, Process, Context). Incorporates editorial
-notes from the Editor.
-
-Output: `{session-output}/index.html`
-         `{session-output}/RESULTS_<issue-slug>.pdf`
-         `{session-output}/CAPSULE_<issue-slug>.pdf`
-Build: `{session-output}/build/build_capsule.py`
-Spec: `templates/production/decision-briefing-page.md`,
-         `templates/production/capsule-structure.md`
-
-**Advisory Document Agent** (Tier 1 only, single-task pipeline -- no CCO)
-Produces a lightweight Advisory Document DOCX from the Advisory Note. Memo
-format (1-2 pages): header block with metadata, the user's question, the
-advisory response, and an optional Escalation Brief section if the C-suite
-agent appended one. Technology: `docx` npm package (same as board document).
-
-Output: `{session-output}/ADVISORY_<issue-slug>.docx`
-Build: `{session-output}/build/build_advisory.js`
-Spec: `templates/production/advisory-document.md`
-
-### Record Persistence
-
-Before spawning production agents, the orchestrator writes the complete record
-(Decision Record, Panel Assessment, or Advisory Note) to
-`{session-output}/RECORD.md`. This persisted copy enables `/cdp:production`
-re-runs without re-running the deliberation cascade.
-
-**RECORD.md format:**
-
-```yaml
----
-type: decision-record | panel-assessment | advisory-note | comparative-decision-record
-tier: 1 | 2 | 3
-decision_mode: analyst
-decision_modes: []           # multi-mode only
-issue_title: "Issue Title"
-issue_slug: issue-slug
-decision_type: Strategic
-date: "YYYY-MM-DDTHH:MM:SSZ"
-activated_roles: [cfo, cto]
-invocation: "/cdp:deliberate: Issue text"
-production_runs: 1
-last_production: "YYYY-MM-DDTHH:MM:SSZ"
----
-```
-
-Body = complete CEO output (Decision Record / Panel Assessment / Advisory Note)
-verbatim. No summarization, no reformatting.
-
-### Orchestrator Spawn Sequence (Tier 2/3)
-
-The orchestrator spawns a single CCO agent as a teammate in the executive
-team, which manages the entire production pipeline internally:
-
-```
-Agent tool call:
-  subagent_type: "general-purpose"
-  name: "cco"
-  team_name: "cdp-{issue-slug}"
-  description: "CCO production pipeline"
-  prompt: [RECORD.md content + session context + dependency status]
-```
-
-The CCO reads the Decision Record, produces a Creative Brief, creates
-its own production team (`TeamCreate: "cdp-cco-{issue-slug}"`), and
-dispatches its team leads as teammates in four sequential waves (Graphic Designer
-→ Writer → Editor → Publisher). See `config/cco-dispatch-protocol.md`.
-
-**Re-run invocation (`/cdp:production`):** When invoked via production re-run,
-the orchestrator reads record content from `RECORD.md` instead of conversation
-context and includes it in the CCO Agent prompt. The CCO and its production
-team behave identically regardless of original vs. re-run invocation.
-
-**Tier 1 Spawn Sequence:** Single TaskCreate for the Advisory Document DOCX. No CCO, no waves -- one agent, one artifact.
-```
-TaskCreate: "Create a Word document (.docx) — the advisory memo
-  Session output: <absolute-path>  Issue slug: <issue-slug>"            -> Task C'
-```
+**Record persistence:** Before production, the orchestrator writes the
+complete record to `{session-output}/RECORD.md` with YAML frontmatter.
+This enables `/cdp:production` re-runs without re-running deliberation.
 
 ---
 
@@ -710,68 +486,23 @@ Without this file, the Graphic Designer uses the default values from each
 JSON prompt template. With it, all infographics reflect your brand
 palette and visual preferences.
 
-### API Configuration
+### API & Agent Configuration
 
-A markdown file that configures the Gemini API for infographic generation.
+A markdown file that configures the Gemini API for infographic generation and agent model assignments.
 
 - **Location:** `.cdp-context/config.md` in the project root
 - **Create it:** Copy `templates/config-context.md` to `.cdp-context/config.md` and set your API key.
-- **How it flows:** The generation script reads the API key, model ID, and retry limit before generating infographics. Pre-flight validation verifies the key and billing status.
+- **How it flows:** The generation script reads the API key, model ID, and retry limit before generating infographics. Pre-flight validation verifies the key and billing status. The Agent Models section configures tier defaults and per-agent model overrides -- applied at session start by `scripts/apply_models.py`.
 - **Privacy:** The `.cdp-context/` directory is gitignored by default -- it contains sensitive business data and should not be committed.
 
-Without this file, the generation script cannot run -- a valid API key is required.
+Without this file, the generation script cannot run (a valid API key is required) and agent models use built-in defaults (CEO=opus, C-Suite=sonnet, Team Leads=haiku).
 
 ---
 
 ## File References
 
-### Configuration
-- `config/routing-table.md` -- Decision-type routing defaults and thresholds
-- `config/company-profile.md` -- Archetype presets and override mechanism
-- `config/decision-modes.md` -- Five mode definitions with prompt modifiers
-- `config/dispatch-protocol.md` -- Analytical team lead dispatch mechanism (Agent tool, parallel execution, prompt structure)
-- `config/cco-dispatch-protocol.md` -- CCO production team dispatch mechanism (wave-based, 3 waves)
-- `.cdp-context/company.md` -- Company facts for grounded reasoning (user-created, gitignored)
-- `.cdp-context/style.md` -- Infographic style overrides (user-created, gitignored)
-- `.cdp-context/config.md` -- API configuration for Graphic Designer (user-created, gitignored)
-
-### Output Templates
-- `templates/advisory-note.md` -- Tier 1 Advisory Note + Escalation Brief
-- `templates/panel-assessment.md` -- Tier 2 Panel Assessment
-- `templates/decision-record.md` -- Tier 3 Decision Record (9 sections)
-- `templates/comparative-decision-record.md` -- Multi-mode comparison format
-
-### Production Templates
-- `templates/creative-brief.md` -- Creative Brief reference template (CCO generates dynamically)
-- `templates/production/infographics.md` -- Graphic Designer spec (AI platform + JSON prompts)
-- `templates/production/advisory-document.md` -- Tier 1 Advisory Document DOCX
-- `templates/production/decision-briefing-page.md` -- HTML page spec
-- `templates/production/board-presentation.md` -- PPTX slide structure
-- `templates/production/board-document.md` -- DOCX document structure
-- `templates/production/capsule-structure.md` -- Capsule PDF layers
-
-### Infographic Prompt Templates
-- `templates/infographic-prompts/routing-diagram.json` -- Routing Diagram prompt
-- `templates/infographic-prompts/domain-scorecard.json` -- Domain Scorecard prompt
-- `templates/infographic-prompts/fault-line-map.json` -- Fault Line Map prompt
-- `templates/infographic-prompts/risk-opportunity-matrix.json` -- Risk-Opportunity Matrix prompt
-- `templates/infographic-prompts/action-plan-timeline.json` -- Action Plan Timeline prompt
-- `templates/infographic-prompts/mode-comparison.json` -- Mode Comparison prompt
-
-### Session Records
-- `.cdp-output/*/RECORD.md` -- Persisted session record enabling `/cdp:production` re-runs
-
-### Context Templates
-- `templates/company-context.md` -- Template for `.cdp-context/company.md`
-- `templates/style-context.md` -- Template for `.cdp-context/style.md`
-- `templates/config-context.md` -- Template for `.cdp-context/config.md`
-
-### Agent Definitions (installed to `.claude/agents/` by auto-setup)
-- `agents/ceo.md` -- CEO identity, judgment criteria, and synthesis logic
-- `config/orchestration-protocol.md` -- Five-phase cascade protocol, production pipeline, organizational roster
-- `agents/c-suite/*.md` -- 9 C-suite agent definitions (COO, CFO, CTO, CISO, CAO, VP Sales, VP Delivery, CSO, CCO)
-- `agents/team-leads/{domain}/*.md` -- 38 team lead agent definitions across 9 domains (34 analytical + 4 production)
-- `agents/team-leads/cco/*.md` -- 4 CCO production team leads (Graphic Designer, Writer, Editor, Publisher)
+See `config/file-index.md` for the complete file index covering configuration,
+templates, agent definitions, and session records.
 
 ---
 

@@ -51,7 +51,7 @@ Present any business issue and receive structured, multi-perspective analysis wi
 - [Chapter 10 -- Configuration](#chapter-10----configuration)
   - [10.1 Company Profile](#101-company-profile)
   - [10.2 Company Context](#102-company-context)
-  - [10.3 API Configuration](#103-api-configuration)
+  - [10.3 API & Agent Configuration](#103-api--agent-configuration)
   - [10.4 Routing Table](#104-routing-table)
 
 ### Part VI: Output & Production
@@ -292,7 +292,7 @@ Opus handles cross-domain synthesis where reasoning quality is paramount. Sonnet
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed and configured
 - Git
 - Python 3.6+
-- For production artifacts (optional): Node.js with `pptxgenjs` and `docx` npm packages, Python `weasyprint`
+- For production artifacts (optional): Node.js with `pptxgenjs` and `docx` npm packages, Python `reportlab` + `Pillow` (Results PDF), `weasyprint` (Capsule PDF)
 
 ### Project-Level Install
 
@@ -881,11 +881,13 @@ CDP uses a three-layer model hierarchy that maps organizational structure to mod
 
 </div>
 
-| Layer | Model | Agent Count | Rationale |
-|-------|-------|-------------|-----------|
+| Layer | Default Model | Agent Count | Rationale |
+|-------|---------------|-------------|-----------|
 | **CEO** | Opus | 1 | Cross-domain synthesis demands the highest reasoning quality. The CEO must weigh competing perspectives, identify fault lines, and produce nuanced judgment. This is the most cognitively demanding task in the cascade. |
 | **C-Suite** | Sonnet | 9 | Domain decomposition and synthesis. Each C-suite agent creates a division team, spawns team leads as teammates, collects findings via SendMessage, and synthesizes a domain recommendation. Sonnet balances capability with cost. |
 | **Team Leads** | Haiku | 34 | Narrow specialist analysis. Each team lead has a unique analytical framework and a focused lens. Team leads SendMessage findings back to their C-suite parent. Cost-efficient for high parallelism. Model diversity across the hierarchy improves system robustness. |
+
+Model assignments are configurable -- see [10.3 API & Agent Configuration](#103-api--agent-configuration) for tier defaults and per-agent overrides.
 
 ```mermaid
 flowchart TD
@@ -1391,9 +1393,9 @@ Without this file, agents reason using general frameworks. With it, agents groun
 
 **Privacy:** The `.cdp-context/` directory is gitignored by default. It contains sensitive business data and should never be committed to version control.
 
-### 10.3 API Configuration
+### 10.3 API & Agent Configuration
 
-A markdown file that configures the Gemini API for infographic generation.
+A markdown file that configures the Gemini API for infographic generation and agent model assignments.
 
 **Location:** `.cdp-context/config.md` (gitignored by default)
 
@@ -1406,7 +1408,27 @@ cp .claude/skills/corporate-decision-panel/templates/config-context.md .cdp-cont
 ```
 
 **Available settings:** Gemini API key (required), image model selection,
-retry limit. See `templates/config-context.md` for all fields.
+retry limit, agent model tier defaults, and per-agent model overrides.
+See `templates/config-context.md` for all fields.
+
+#### Agent Model Configuration
+
+The Agent Models section lets you override default model assignments. Set tier-wide defaults under `### Tier Defaults` and per-agent overrides under `### Per-Agent Overrides`:
+
+```markdown
+## Agent Models
+
+### Tier Defaults
+- **CEO:** opus
+- **C-Suite:** sonnet
+- **Team Leads:** haiku
+
+### Per-Agent Overrides
+- **cfo:** opus
+- **vp-sales:** haiku
+```
+
+Resolution order: per-agent override > tier default > built-in default. The orchestration protocol runs `scripts/apply_models.py` at session start to apply these settings to `.claude/agents/` frontmatter. Valid models: `opus`, `sonnet`, `haiku`.
 
 ```mermaid
 flowchart LR
@@ -1613,7 +1635,7 @@ All production artifacts are written to a per-session directory:
 ├── index.html                                    # Interactive decision briefing
 ├── PRESENTATION_<issue-slug>.pptx                # Board-ready slide deck
 ├── REPORT_<issue-slug>.docx                      # Editable document
-├── RESULTS_<issue-slug>.pdf                      # Print rendering of briefing
+├── RESULTS_<issue-slug>.pdf                      # Native PDF from RECORD.md
 ├── CAPSULE_<issue-slug>.pdf                      # Layered archival record
 ├── images/                                       # Analytical infographics
 │   ├── INFOGRAPHIC_routing-diagram.png
@@ -1659,7 +1681,7 @@ flowchart LR
 | **Graphic Designer** | `images/INFOGRAPHIC_*.png` | Gemini API (Python script / JSON prompts) | 5-6 analytical infographics: routing diagram, domain scorecard, fault line map, risk-opportunity matrix, action plan timeline, mode comparison (multi-mode) |
 | **Writer** | `PRESENTATION_*.pptx` + `REPORT_*.docx` | pptxgenjs + docx (Node.js) | 11-slide board deck + editable document (cover, TOC, 8 sections, 2 appendices) |
 | **Editor** | Editorial Review | Read-only (Sonnet) | Reviews all drafts for accuracy, consistency, tone, completeness |
-| **Publisher** | `index.html` + `RESULTS_*.pdf` + `CAPSULE_*.pdf` | Vanilla HTML/CSS/JS + weasyprint (Python) | Interactive briefing page + print PDF + 5-layer archival capsule |
+| **Publisher** | `index.html` + `RESULTS_*.pdf` + `CAPSULE_*.pdf` | Vanilla HTML/CSS/JS + reportlab (Results PDF) + weasyprint (Capsule PDF) | Interactive briefing page + native print PDF + 5-layer archival capsule |
 
 **About the Capsule PDF:** The Deliberation Capsule is a unique artifact designed for long-term archival. It contains five layers that together provide complete provenance for the decision:
 
@@ -1679,7 +1701,9 @@ The production pipeline uses external skills and packages for generating artifac
 |------------|----------|---------|
 | `pptxgenjs` (npm) | Board presentation (PPTX) generation | `npm install pptxgenjs` |
 | `docx` (npm) | Board document and Advisory Document (DOCX) generation | `npm install docx` |
-| `weasyprint` (Python) | Results PDF and Capsule PDF generation | `pip install weasyprint` |
+| `reportlab` (Python) | Results PDF generation (native from RECORD.md) | `pip install reportlab` |
+| `Pillow` (Python) | Image processing for PDF and infographics | `pip install Pillow` |
+| `weasyprint` (Python) | Capsule PDF generation | `pip install weasyprint` |
 | [frontend-design](https://github.com/anthropics/skills) | Decision briefing page (HTML) | `/find-skills frontend-design` |
 | [web-design-guidelines](https://github.com/vercel-labs/agent-skills) | UI review for briefing page | `/find-skills web-design-guidelines` |
 
@@ -1741,6 +1765,13 @@ corporate-decision-panel/               # Clone to .claude/skills/corporate-deci
 │       ├── deliberate.md               # /cdp:deliberate -- Tier 3
 │       ├── evaluate.md                 # /cdp:evaluate -- Auto-Triage
 │       └── production.md              # /cdp:production -- Production Re-run
+│
+├── scripts/                            # Python scripts
+│   ├── apply_models.py                 # Agent model config applicator
+│   ├── build_results_pdf.py            # Native Results PDF generator
+│   ├── config.py                       # Config parser
+│   ├── generate_infographic.py         # Single infographic generation
+│   └── session.py                      # Infographic generation session
 │
 ├── config/                             # Configuration specifications
 │   ├── company-profile.md              # Archetype presets + override mechanism
@@ -1837,7 +1868,7 @@ For detailed specifications, see the config and template files:
 | **Advisory Note** | Tier 1 output: 3-5 sentence recommendation from a single C-suite agent |
 | **Archetype** | Company profile preset (Technology/SaaS, Professional Services, Regulated Industry, Manufacturing) |
 | **Calibration** | Process of verifying that modes produce meaningfully different outcomes for your company |
-| **config.md** | Platform configuration file (`.cdp-context/config.md`) selecting AI platform for infographic generation |
+| **config.md** | Configuration file (`.cdp-context/config.md`) for API keys, agent model overrides, and session settings |
 | **Cascade** | The five-phase execution model for Tier 3 deliberations |
 | **Decision Record** | Tier 3 output: comprehensive 9-section deliberation document |
 | **Disposition** | An agent's built-in orientation (Skeptic, Advocate, Systemic, Investigative, Synthesizer) |

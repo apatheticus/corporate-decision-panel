@@ -27,13 +27,14 @@ The full orchestration protocol is defined in `config/orchestration-protocol.md`
 **Team Architecture:** The main session acts as the CEO. C-suite agents are dispatched as standalone background subagents via the Agent tool without `team_name`. Each C-suite agent is free to create its own division team and spawn team leads as teammates. See `config/dispatch-protocol.md` for the team-based dispatch workflow.
 
 **Company Context Loading:** Check for `.cdp-context/company.md` and include its contents in the Phase 0 broadcast if present.
+**Agent Model Configuration:** Run `python3 -m scripts.apply_models` before dispatching agents to apply model overrides from `.cdp-context/config.md`.
 **Phase 0 -- Shared Consciousness Broadcast:** Broadcast issue context, framing, and Research Dossier (if available) to all activated C-suite agents simultaneously. Shared consciousness -- everyone sees the same picture before reasoning independently.
 **Phase 1 -- Frame and Route:** Decompose the issue into evaluation dimensions, classify decision type, route to C-suite using default activation table (see `config/routing-table.md`), assess full-activation threshold conditions, and state activation/exclusion reasoning.
 **Phase 1.5 -- CSO Research Directive (Conditional):** When the CSO is activated, issue a structured research directive. The CSO produces a Research Dossier with evidence summary, assumption registry, and evidence quality grade.
 **Phase 2 -- C-Suite Dispatches Downward:** Each activated C-suite executive is dispatched as a standalone background subagent (Agent without team_name). Each C-suite agent creates its own division team (TeamCreate) and spawns team leads as teammates. Each C-suite agent translates the CEO framing into domain-specific sub-questions for their team leads. See `config/dispatch-protocol.md`.
 **Phase 3 -- Team Leads Produce Findings:** Team leads perform specialist analysis and SendMessage their findings back to their C-suite parent. The CEO does not see team lead outputs directly.
-**Phase 4 -- C-Suite Synthesizes Upward:** Each C-suite executive collects team lead findings (arriving via SendMessage) and synthesizes them into a domain recommendation. Each C-suite agent writes its recommendation to `{session}/_RECOMMENDATION_{role}.md`. The CEO reads these files after all C-suite agents complete. Each C-suite agent then shuts down its division team.
-**Phase 4.5 -- Pre-Mortem Dispatch (Tier 3 Only):** After Phase 4, the CEO reads all `{session}/_RECOMMENDATION_*.md` files. The CEO then dispatches a second round of standalone C-suite subagents with peer recommendation summaries. Each agent answers: "Assume this decision fails catastrophically in 12 months. What caused the failure?" Each C-suite agent writes its pre-mortem findings to `{session}/_PREMORTEM_{role}.md`.
+**Phase 4 -- C-Suite Synthesizes Upward:** Each C-suite executive collects team lead findings (arriving via SendMessage) and synthesizes them into a domain recommendation. Each C-suite agent writes its recommendation to `{session}/_RECOMMENDATION_{role}.md`. The CEO reads these files after all C-suite agents complete (wait for all background task completion notifications before reading). Each C-suite agent then shuts down its division team.
+**Phase 4.5 -- Pre-Mortem Dispatch (Tier 3 Only):** After Phase 4, the CEO reads all `{session}/_RECOMMENDATION_*.md` files. The CEO then dispatches a second round of standalone C-suite subagents with peer recommendation summaries. Standard C-suite agents receive: "Assume this decision fails catastrophically in 12 months. What caused the failure?" The CSO receives a distinct evidence-gap prompt per `config/orchestration-protocol.md`. Each C-suite agent writes its pre-mortem findings to `{session}/_PREMORTEM_{role}.md`.
 
 For production pipeline trigger, session setup, spawn sequence, and organizational roster details, see `config/orchestration-protocol.md`.
 
@@ -225,6 +226,7 @@ Tier Rationale: [one sentence]
 Recommended Mode: [Guardian | Pioneer | Architect | Analyst | Sentinel]
 Mode Rationale: [one sentence]
 Alternative: [one alternative mode + what it would reveal]
+Scale: ~[N] agents ([K] C-suite x ~[L] team leads avg)
 Suggested Invocation: [exact command, e.g., `/deliberate sentinel: [issue]`]
 ```
 

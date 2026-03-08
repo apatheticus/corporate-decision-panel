@@ -13,6 +13,8 @@ Agent logging is active for your session when **both** of the following appear i
 
 **You do NOT read config files to determine logging status.** The CEO reads `.cdp-context/config.md` once per session and broadcasts the status. If your prompt does not contain both signals, logging is not active -- take no logging action.
 
+**Note:** The CEO reads `.cdp-context/config.md` during session initialization and broadcasts logging status in the Phase 0 context. Individual agents (C-suite, team leads) check for `LOGGING: ON` and `SESSION PATH:` in their received prompt — they do not read config files directly. This protocol governs the agent-side behavior; the CEO-side config reading is defined in `config/orchestration-protocol.md`.
+
 ---
 
 ## When to Log

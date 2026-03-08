@@ -29,6 +29,16 @@ Before broadcasting, check the agent logging configuration:
 
 When agent logging is active, include `LOGGING: ON` and `SESSION PATH: <absolute-path>` in the Phase 0 broadcast and all downstream agent prompts. When not active, omit these lines entirely.
 
+## Agent Model Configuration
+
+Before broadcasting, apply agent model overrides from configuration:
+
+1. Run `python3 -m scripts.apply_models` via the Bash tool
+2. The script reads `.cdp-context/config.md` for tier defaults and per-agent overrides
+3. It updates `model:` fields in `.claude/agents/` definitions to match configuration
+4. If the script reports warnings (unrecognized agent names), note them but proceed
+5. If `.cdp-context/config.md` is absent or has no Agent Models section, built-in defaults apply (CEO=opus, C-Suite=sonnet, Team Leads=haiku)
+
 ---
 
 ## Phase 0 -- Shared Consciousness Broadcast
@@ -123,6 +133,10 @@ Your framing output must include:
 - **CSO Activation:** Whether the CSO is activated, with rationale
 - **Override Notes:** Any deviations from the default routing table, with reasoning
 
+### Step 6: State Expected Agent Count
+
+After routing, state the expected scale: `Scale: ~[N] agents ([K] C-suite x ~[L] team leads avg)`. This helps the user anticipate execution time and cost.
+
 ---
 
 ## Phase 1.5 -- CSO Research Directive (Conditional)
@@ -207,6 +221,10 @@ Each C-suite agent writes its domain recommendation to `{session}/_RECOMMENDATIO
 
 **Your role in Phase 4:** Collect domain recommendations. Do not yet synthesize. Register where you see early fault lines forming but do not anchor on them -- wait for the complete picture.
 
+### Synchronization
+
+CEO dispatches all C-suite agents as background subagents (`run_in_background: true`). The system sends a task completion notification for each agent as it finishes. After all notifications have been received, the CEO reads all `{session}/_RECOMMENDATION_{role}.md` files. If a recommendation file is missing (agent failure or timeout), record the gap explicitly in the Decision Record — a missing recommendation is not a blocker, it is an acknowledged gap.
+
 ---
 
 ## Phase 4.5 -- Pre-Mortem Dispatch (Tier 3 Only)
@@ -220,9 +238,11 @@ After each C-suite officer has produced their own domain recommendation in Phase
 The CEO reads all `{session}/_RECOMMENDATION_*.md` files to collect peer recommendations, then dispatches a second round of standalone C-suite subagents with peer recommendation summaries. Each C-suite agent writes its pre-mortem findings to `{session}/_PREMORTEM_{role}.md` (e.g., `_PREMORTEM_coo.md`).
 
 1. **Distribute all recommendations:** Each C-suite agent (including the CSO) receives summaries of ALL other activated C-suite members' recommendations
-2. **Structured challenge question:** Each agent answers: *"Assume this decision fails catastrophically in 12 months. Based on what you see across all the domain recommendations, what caused the failure?"*
-3. **One round only.** No back-and-forth debate. No rebuttals. Each agent produces one pre-mortem response.
-4. **CSO special focus:** The CSO's pre-mortem contribution focuses specifically on evidence gaps that could invalidate assumptions underlying other domains' recommendations
+2. **Standard C-suite prompt:** *"Assume this decision fails catastrophically in 12 months. Based on what you see across all domain recommendations, what caused the failure?"*
+3. **CSO-specific prompt:** *"Review the evidence base underlying all domain recommendations. Which evidence gaps, if filled differently than assumed, would most likely reverse the decision? Which cross-domain assumptions are unsupported by evidence?"*
+4. **One round only.** No back-and-forth debate. No rebuttals. Each agent produces one pre-mortem response.
+
+**Synchronization:** Same pattern as Phase 4 — dispatch all pre-mortem agents as background subagents (`run_in_background: true`), wait for all completion notifications, then read `{session}/_PREMORTEM_{role}.md` files. Missing pre-mortem files are recorded as gaps, not blockers.
 
 ### Pre-Mortem Output Integration
 
@@ -319,11 +339,52 @@ the orchestrator reads record content from `RECORD.md` instead of conversation
 context and includes it in the CCO Agent prompt. The CCO and its production
 team behave identically regardless of original vs. re-run invocation.
 
-**Tier 1 Spawn Sequence:** Single TaskCreate for the Advisory Document DOCX. No dependencies, no CCO -- one agent, one artifact.
+**Tier 1 Spawn Sequence:** Single Agent tool call for the Advisory Document DOCX. No dependencies, no CCO -- one agent, one artifact.
 ```
-TaskCreate: "Create a Word document (.docx) — the advisory memo
-  Session output: <absolute-path>  Issue slug: <issue-slug>"            -> Task C'
+Agent tool call:
+  subagent_type: "general-purpose"
+  name: "advisory-document-agent"
+  run_in_background: true
+  description: "Advisory Document DOCX"
+  prompt: [Advisory Note content + session context]
 ```
+
+---
+
+## Session Resume Protocol
+
+When invoked via `/cdp:resume`, the orchestrator detects how far a session
+progressed and resumes from that point. Uses the same session resolution
+rules as `/cdp:production`.
+
+### Detection Logic (file-based state scanning)
+
+Scan the session directory for state markers and match to the first
+applicable rule:
+
+| # | Condition | Action |
+|---|-----------|--------|
+| 1 | No `_RECOMMENDATION_*.md` files | Cannot resume. Instruct user to re-run the original command. |
+| 2 | Some `_RECOMMENDATION_*.md` missing vs. `RECORD.md` frontmatter `activated_roles` | Re-dispatch only the missing C-suite agents. After completion, resume at Phase 4.5 or Phase 5 depending on tier. |
+| 3 | All recommendations present, Tier 3, no `_PREMORTEM_*.md` files | Resume at Phase 4.5 (pre-mortem dispatch). |
+| 4 | All recommendations + pre-mortems present, no `RECORD.md` | Resume at Phase 5 (CEO synthesis). |
+| 5 | `RECORD.md` exists, no production artifacts | Resume at production (equivalent to `/cdp:production`). |
+| 6 | `RECORD.md` + production artifacts exist | Session complete. Inform user. |
+
+### Context Recovery
+
+For rules 2-4, the CEO reads all available `_RECOMMENDATION_*.md` and
+`_PREMORTEM_*.md` files to reconstruct the deliberation state. The original
+routing, mode, and tier are recovered from the RECORD.md frontmatter (if
+present) or from the recommendation file headers.
+
+### Limitations
+
+- Cannot resume with zero recommendation files (rule 1)
+- Cannot change routing or decision mode after resume
+- Phase 0/1 context is not recoverable — agents dispatched during resume
+  receive recommendation summaries as context rather than the original
+  Phase 0 broadcast
 
 ---
 
@@ -358,6 +419,12 @@ You lead the following executive team. Understand their dispositions and mandate
 | VP Sales | Sales Operations Lead, Account Management Lead, Business Development Lead, Sales Enablement Lead |
 | VP Delivery | Project/Program Manager, Resource Manager, Client Success Lead, QA/Delivery Standards Lead |
 | CAO | HR/People Ops Lead, Legal/Contracts Lead, Admin/Policy Lead, Corporate Communications Lead |
+
+### Research Team Leads (CSO, Phase 1.5, 5 total)
+
+| C-Suite | Team Leads |
+|---------|-----------|
+| CSO | Market Intelligence, Competitive Intelligence, Technology Scout, Industry & Regulatory Analyst, Precedent & Patterns Analyst |
 
 ### Production Team Leads (CCO, 4 total)
 

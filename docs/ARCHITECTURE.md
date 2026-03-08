@@ -111,13 +111,15 @@ Narrow specialists spawned as teammates in their C-suite parent's division team.
 
 ### Model Tiering Rationale
 
-| Layer | Model | Count | Purpose | Why This Model |
-|-------|-------|-------|---------|----------------|
+| Layer | Default Model | Count | Purpose | Why This Model |
+|-------|---------------|-------|---------|----------------|
 | CEO | Opus | 1 | Cross-domain synthesis, weighting competing perspectives | Highest reasoning quality for the hardest analytical task |
 | C-Suite | Sonnet | 9 | Domain decomposition, team lead coordination, domain synthesis | Balances analytical capability with cost |
 | Team Leads | Haiku | 34 | Narrow specialist analysis within a single domain | Cost-efficient for focused tasks; model diversity improves system robustness |
 
 The three-model design is intentional. Using Opus for all 43 agents would be prohibitively expensive. Using Haiku for synthesis would sacrifice quality where it matters most. The tiering matches model capability to task complexity.
+
+**Configurable model assignments:** Tier defaults and per-agent overrides are configurable via `.cdp-context/config.md` (Agent Models section). The orchestration protocol runs `scripts/apply_models.py` at session start, which reads the config and updates `model:` fields in `.claude/agents/` frontmatter. Resolution order: per-agent override > tier default > built-in default. This enables scenarios like promoting the CFO to Opus for financial decisions or running all team leads on Sonnet for higher-quality analysis.
 
 ---
 
@@ -303,9 +305,9 @@ An optional markdown file (`.cdp-context/company.md`) containing real company da
 
 **Template:** [`templates/company-context.md`](../templates/company-context.md)
 
-### Level 3.5: API Configuration
+### Level 3.5: API & Agent Configuration
 
-A markdown file (`.cdp-context/config.md`) that configures the Gemini API for infographic generation. The Graphic Designer reads this at the start of the production pipeline to get the API key, model ID, and retry limit.
+A markdown file (`.cdp-context/config.md`) that configures the Gemini API for infographic generation and agent model assignments. The Graphic Designer reads API settings at the start of the production pipeline. The Agent Models section defines tier-wide defaults and per-agent overrides for model assignments, applied at session start by `scripts/apply_models.py`.
 
 **Template:** [`templates/config-context.md`](../templates/config-context.md)
 
@@ -403,9 +405,9 @@ Reviews all artifacts for accuracy against RECORD.md, consistency between artifa
 
 | Agent | Artifact | Technology |
 |-------|----------|------------|
-| Publisher | `index.html` (interactive briefing page) + `RESULTS_<slug>.pdf` + `CAPSULE_<slug>.pdf` | Vanilla HTML/CSS/JS + weasyprint (Python) |
+| Publisher | `index.html` (interactive briefing page) + `RESULTS_<slug>.pdf` + `CAPSULE_<slug>.pdf` | Vanilla HTML/CSS/JS + reportlab (Results PDF) + weasyprint (Capsule PDF) |
 
-Embeds infographic images from the Graphic Designer, links PPTX and DOCX downloads from the Writer. HTML is self-contained -- no CDN, works from `file://`. Results PDF is a print rendering of the HTML page. Capsule PDF is a 5-layer archival record (Overview, Decision, Analysis, Process, Context). Incorporates editorial notes from the Editor.
+Embeds infographic images from the Graphic Designer, links PPTX and DOCX downloads from the Writer. HTML is self-contained -- no CDN, works from `file://`. Results PDF is generated natively from RECORD.md via `scripts/build_results_pdf.py` (reportlab) — not rendered from HTML. Capsule PDF is a 5-layer archival record (Overview, Decision, Analysis, Process, Context) rendered via weasyprint. Incorporates editorial notes from the Editor.
 
 ### Tier 1 Production
 
@@ -459,7 +461,7 @@ maxTurns: 5
 
 - **name** -- Agent identifier
 - **description** -- One-line summary of the agent's role
-- **model** -- Which Claude model to use (haiku for team leads, sonnet for C-suite, opus for CEO)
+- **model** -- Which Claude model to use (default: haiku for team leads, sonnet for C-suite, opus for CEO; configurable via `.cdp-context/config.md`)
 - **tools** -- Restricted tool access (analytical team leads get Read, Grep, Glob, WebSearch, SendMessage, TaskUpdate)
 - **maxTurns** -- Maximum agent turns to prevent runaway execution
 
