@@ -255,7 +255,17 @@ The installer is a simple Python script that copies files. If you add new direct
 
 ## Testing Changes
 
-CDP is a prompt-and-configuration system, not a traditional application. There is no automated test suite. Testing is manual and scenario-based.
+CDP is primarily a prompt-and-configuration system. The Python scripts have an automated test suite; agent behavior is tested manually.
+
+### Automated Tests
+
+Run the Python test suite:
+
+```bash
+python3 -m pytest tests/ -v
+```
+
+Tests cover configuration parsing (`test_config.py`), agent model application (`test_apply_models.py`), infographic generation (`test_generate_infographic.py`), and the session pipeline (`test_session.py`).
 
 ### Manual Testing
 
@@ -301,11 +311,15 @@ For changes to decision modes or the CEO's synthesis logic, run the calibration 
 
 ## Project Conventions
 
-### Markdown-Only Codebase
+### Markdown + Scripts Codebase
 
-CDP has no traditional application code. The entire system is defined in Markdown files with YAML frontmatter. The only executable code is:
+CDP is primarily a prompt-and-configuration system defined in Markdown files with YAML frontmatter. Executable code includes:
 
 - `install.py` -- Python installer script
+- `scripts/apply_models.py` -- Agent model configuration applicator
+- `scripts/config.py` -- Configuration parser (shared by other scripts)
+- `scripts/build_results_pdf.py` -- Native Results PDF generator
+- `scripts/session.py` + `scripts/generate_infographic.py` -- Infographic generation pipeline
 - Production build scripts generated at runtime (`build/*.js`, `build/*.py`)
 
 ### Preserving Engineered Dissent

@@ -65,7 +65,7 @@ python3 ~/.claude/skills/corporate-decision-panel/install.py
     - [Company Profile](#company-profile)
     - [Company Context](#company-context)
     - [Infographic Style](#infographic-style)
-    - [API Configuration](#api-configuration)
+    - [API & Agent Configuration](#api--agent-configuration)
     - [Routing Table](#routing-table)
   - [Output Formats](#output-formats)
   - [Production Pipeline](#production-pipeline)
@@ -341,11 +341,13 @@ flowchart TD
 
 ### Model Tiering
 
-| Layer | Model | Rationale |
-|-------|-------|-----------|
+| Layer | Default Model | Rationale |
+|-------|---------------|-----------|
 | CEO | Opus | Cross-domain synthesis. Highest reasoning quality for weighting competing perspectives. |
 | C-Suite (8 agents) | Sonnet | Domain decomposition and synthesis. Balances capability with cost. |
 | Team Leads (34 agents) | Haiku | Narrow specialist analysis. Cost-efficient. Model diversity improves system robustness. |
+
+Model assignments are configurable via `.cdp-context/config.md` (Agent Models section). Set tier-wide defaults or per-agent overrides -- e.g., promote the CFO to Opus or run team leads on Sonnet. Changes take effect at session start when `scripts/apply_models.py` updates `.claude/agents/` frontmatter.
 
 ### Engineered Dissent
 
@@ -561,9 +563,9 @@ visual preferences.
 
 **Privacy:** The `.cdp-context/` directory is gitignored by default. It contains sensitive business data and should never be committed.
 
-### API Configuration
+### API & Agent Configuration
 
-A markdown file that configures the Gemini API for infographic generation.
+A markdown file that configures the Gemini API for infographic generation and agent model assignments.
 
 **Location:** `.cdp-context/config.md` (gitignored by default)
 
@@ -575,7 +577,8 @@ cp .claude/skills/corporate-decision-panel/templates/config-context.md .cdp-cont
 ```
 
 **Available settings:** Gemini API key (required), image model selection,
-retry limit. See `templates/config-context.md` for all fields.
+retry limit, agent model tier defaults, per-agent model overrides.
+See `templates/config-context.md` for all fields.
 
 ```mermaid
 flowchart LR
@@ -762,6 +765,12 @@ corporate-decision-panel/               # Clone to .claude/skills/corporate-deci
 │       ├── consult.md, panel.md
 │       ├── deliberate.md, evaluate.md
 │       └── production.md
+├── scripts/
+│   ├── apply_models.py                 # Agent model config applicator
+│   ├── build_results_pdf.py            # Native Results PDF generator
+│   ├── config.py                       # Config parser
+│   ├── generate_infographic.py         # Single infographic generation
+│   └── session.py                      # Infographic generation session
 ├── config/
 │   ├── cco-dispatch-protocol.md
 │   ├── company-profile.md

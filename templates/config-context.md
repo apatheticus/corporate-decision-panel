@@ -18,3 +18,21 @@
 ## Agent Logging
 
 - **Agent Logging:** (default: off)
+
+## Agent Models
+
+### Tier Defaults
+
+- **CEO:** (default: opus)
+- **C-Suite:** (default: sonnet)
+- **Team Leads:** (default: haiku)
+
+### Per-Agent Overrides
+
+> Override specific agents. Use agent filename without .md extension.
+> Valid models: opus, sonnet, haiku
+>
+> Examples:
+> - **cfo:** opus
+> - **vp-sales:** haiku
+> - **editor:** sonnet

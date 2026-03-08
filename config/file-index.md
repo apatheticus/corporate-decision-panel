@@ -9,7 +9,7 @@
 - `config/production-pipeline.md` -- Full production pipeline specification (trigger logic, dependencies, wave dispatch, record persistence)
 - `.cdp-context/company.md` -- Company facts for grounded reasoning (user-created, gitignored)
 - `.cdp-context/style.md` -- Infographic style overrides (user-created, gitignored)
-- `.cdp-context/config.md` -- API configuration for Graphic Designer (user-created, gitignored)
+- `.cdp-context/config.md` -- API keys, agent model overrides, and session settings (user-created, gitignored)
 
 ### Output Templates
 - `templates/advisory-note.md` -- Tier 1 Advisory Note + Escalation Brief
@@ -35,6 +35,7 @@
 - `templates/infographic-prompts/mode-comparison.json` -- Mode Comparison prompt
 
 ### Scripts
+- `scripts/apply_models.py` -- Agent model config applicator (reads config.md, updates .claude/agents/ frontmatter)
 - `scripts/build_results_pdf.py` -- Native Results PDF generator (reportlab, from RECORD.md)
 - `scripts/session.py` -- Infographic generation session orchestrator
 - `scripts/generate_infographic.py` -- Single infographic generation via Gemini API

@@ -29,6 +29,16 @@ Before broadcasting, check the agent logging configuration:
 
 When agent logging is active, include `LOGGING: ON` and `SESSION PATH: <absolute-path>` in the Phase 0 broadcast and all downstream agent prompts. When not active, omit these lines entirely.
 
+## Agent Model Configuration
+
+Before broadcasting, apply agent model overrides from configuration:
+
+1. Run `python3 -m scripts.apply_models` via the Bash tool
+2. The script reads `.cdp-context/config.md` for tier defaults and per-agent overrides
+3. It updates `model:` fields in `.claude/agents/` definitions to match configuration
+4. If the script reports warnings (unrecognized agent names), note them but proceed
+5. If `.cdp-context/config.md` is absent or has no Agent Models section, built-in defaults apply (CEO=opus, C-Suite=sonnet, Team Leads=haiku)
+
 ---
 
 ## Phase 0 -- Shared Consciousness Broadcast

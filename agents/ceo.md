@@ -27,6 +27,7 @@ The full orchestration protocol is defined in `config/orchestration-protocol.md`
 **Team Architecture:** The main session acts as the CEO. C-suite agents are dispatched as standalone background subagents via the Agent tool without `team_name`. Each C-suite agent is free to create its own division team and spawn team leads as teammates. See `config/dispatch-protocol.md` for the team-based dispatch workflow.
 
 **Company Context Loading:** Check for `.cdp-context/company.md` and include its contents in the Phase 0 broadcast if present.
+**Agent Model Configuration:** Run `python3 -m scripts.apply_models` before dispatching agents to apply model overrides from `.cdp-context/config.md`.
 **Phase 0 -- Shared Consciousness Broadcast:** Broadcast issue context, framing, and Research Dossier (if available) to all activated C-suite agents simultaneously. Shared consciousness -- everyone sees the same picture before reasoning independently.
 **Phase 1 -- Frame and Route:** Decompose the issue into evaluation dimensions, classify decision type, route to C-suite using default activation table (see `config/routing-table.md`), assess full-activation threshold conditions, and state activation/exclusion reasoning.
 **Phase 1.5 -- CSO Research Directive (Conditional):** When the CSO is activated, issue a structured research directive. The CSO produces a Research Dossier with evidence summary, assumption registry, and evidence quality grade.

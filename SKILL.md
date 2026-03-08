@@ -389,10 +389,10 @@ requires stronger reasoning. The Editor is read-only for production artifacts
 
 ### Model Tiering
 
-Models are specified in each agent definition's frontmatter (`model` field), not in dispatch syntax. The Agent tool does not accept a `model` parameter — model selection comes from the agent definition.
+Models are specified in each agent definition's frontmatter (`model` field), not in dispatch syntax. The Agent tool does not accept a `model` parameter — model selection comes from the agent definition. Model assignments are configurable via `.cdp-context/config.md` (Agent Models section) -- the orchestration protocol runs `scripts/apply_models.py` at session start to apply tier defaults and per-agent overrides.
 
-| Layer | Model | Rationale |
-|-------|-------|-----------|
+| Layer | Default Model | Rationale |
+|-------|---------------|-----------|
 | Analytical Team Leads | Haiku | Narrow analysis. Cost-efficient. Model diversity. |
 | Production Team Leads | Haiku | Production execution. Cost-efficient. |
 | Editor | Sonnet | Editorial judgment requires stronger reasoning. |
@@ -486,16 +486,16 @@ Without this file, the Graphic Designer uses the default values from each
 JSON prompt template. With it, all infographics reflect your brand
 palette and visual preferences.
 
-### API Configuration
+### API & Agent Configuration
 
-A markdown file that configures the Gemini API for infographic generation.
+A markdown file that configures the Gemini API for infographic generation and agent model assignments.
 
 - **Location:** `.cdp-context/config.md` in the project root
 - **Create it:** Copy `templates/config-context.md` to `.cdp-context/config.md` and set your API key.
-- **How it flows:** The generation script reads the API key, model ID, and retry limit before generating infographics. Pre-flight validation verifies the key and billing status.
+- **How it flows:** The generation script reads the API key, model ID, and retry limit before generating infographics. Pre-flight validation verifies the key and billing status. The Agent Models section configures tier defaults and per-agent model overrides -- applied at session start by `scripts/apply_models.py`.
 - **Privacy:** The `.cdp-context/` directory is gitignored by default -- it contains sensitive business data and should not be committed.
 
-Without this file, the generation script cannot run -- a valid API key is required.
+Without this file, the generation script cannot run (a valid API key is required) and agent models use built-in defaults (CEO=opus, C-Suite=sonnet, Team Leads=haiku).
 
 ---
 

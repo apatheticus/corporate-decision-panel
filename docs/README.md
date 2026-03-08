@@ -51,7 +51,7 @@ Present any business issue and receive structured, multi-perspective analysis wi
 - [Chapter 10 -- Configuration](#chapter-10----configuration)
   - [10.1 Company Profile](#101-company-profile)
   - [10.2 Company Context](#102-company-context)
-  - [10.3 API Configuration](#103-api-configuration)
+  - [10.3 API & Agent Configuration](#103-api--agent-configuration)
   - [10.4 Routing Table](#104-routing-table)
 
 ### Part VI: Output & Production
@@ -881,11 +881,13 @@ CDP uses a three-layer model hierarchy that maps organizational structure to mod
 
 </div>
 
-| Layer | Model | Agent Count | Rationale |
-|-------|-------|-------------|-----------|
+| Layer | Default Model | Agent Count | Rationale |
+|-------|---------------|-------------|-----------|
 | **CEO** | Opus | 1 | Cross-domain synthesis demands the highest reasoning quality. The CEO must weigh competing perspectives, identify fault lines, and produce nuanced judgment. This is the most cognitively demanding task in the cascade. |
 | **C-Suite** | Sonnet | 9 | Domain decomposition and synthesis. Each C-suite agent creates a division team, spawns team leads as teammates, collects findings via SendMessage, and synthesizes a domain recommendation. Sonnet balances capability with cost. |
 | **Team Leads** | Haiku | 34 | Narrow specialist analysis. Each team lead has a unique analytical framework and a focused lens. Team leads SendMessage findings back to their C-suite parent. Cost-efficient for high parallelism. Model diversity across the hierarchy improves system robustness. |
+
+Model assignments are configurable -- see [10.3 API & Agent Configuration](#103-api--agent-configuration) for tier defaults and per-agent overrides.
 
 ```mermaid
 flowchart TD
@@ -1391,9 +1393,9 @@ Without this file, agents reason using general frameworks. With it, agents groun
 
 **Privacy:** The `.cdp-context/` directory is gitignored by default. It contains sensitive business data and should never be committed to version control.
 
-### 10.3 API Configuration
+### 10.3 API & Agent Configuration
 
-A markdown file that configures the Gemini API for infographic generation.
+A markdown file that configures the Gemini API for infographic generation and agent model assignments.
 
 **Location:** `.cdp-context/config.md` (gitignored by default)
 
@@ -1406,7 +1408,27 @@ cp .claude/skills/corporate-decision-panel/templates/config-context.md .cdp-cont
 ```
 
 **Available settings:** Gemini API key (required), image model selection,
-retry limit. See `templates/config-context.md` for all fields.
+retry limit, agent model tier defaults, and per-agent model overrides.
+See `templates/config-context.md` for all fields.
+
+#### Agent Model Configuration
+
+The Agent Models section lets you override default model assignments. Set tier-wide defaults under `### Tier Defaults` and per-agent overrides under `### Per-Agent Overrides`:
+
+```markdown
+## Agent Models
+
+### Tier Defaults
+- **CEO:** opus
+- **C-Suite:** sonnet
+- **Team Leads:** haiku
+
+### Per-Agent Overrides
+- **cfo:** opus
+- **vp-sales:** haiku
+```
+
+Resolution order: per-agent override > tier default > built-in default. The orchestration protocol runs `scripts/apply_models.py` at session start to apply these settings to `.claude/agents/` frontmatter. Valid models: `opus`, `sonnet`, `haiku`.
 
 ```mermaid
 flowchart LR
@@ -1744,6 +1766,13 @@ corporate-decision-panel/               # Clone to .claude/skills/corporate-deci
 │       ├── evaluate.md                 # /cdp:evaluate -- Auto-Triage
 │       └── production.md              # /cdp:production -- Production Re-run
 │
+├── scripts/                            # Python scripts
+│   ├── apply_models.py                 # Agent model config applicator
+│   ├── build_results_pdf.py            # Native Results PDF generator
+│   ├── config.py                       # Config parser
+│   ├── generate_infographic.py         # Single infographic generation
+│   └── session.py                      # Infographic generation session
+│
 ├── config/                             # Configuration specifications
 │   ├── company-profile.md              # Archetype presets + override mechanism
 │   ├── decision-modes.md               # Five mode definitions + CEO prompt modifiers
@@ -1839,7 +1868,7 @@ For detailed specifications, see the config and template files:
 | **Advisory Note** | Tier 1 output: 3-5 sentence recommendation from a single C-suite agent |
 | **Archetype** | Company profile preset (Technology/SaaS, Professional Services, Regulated Industry, Manufacturing) |
 | **Calibration** | Process of verifying that modes produce meaningfully different outcomes for your company |
-| **config.md** | Platform configuration file (`.cdp-context/config.md`) selecting AI platform for infographic generation |
+| **config.md** | Configuration file (`.cdp-context/config.md`) for API keys, agent model overrides, and session settings |
 | **Cascade** | The five-phase execution model for Tier 3 deliberations |
 | **Decision Record** | Tier 3 output: comprehensive 9-section deliberation document |
 | **Disposition** | An agent's built-in orientation (Skeptic, Advocate, Systemic, Investigative, Synthesizer) |
