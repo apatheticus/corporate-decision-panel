@@ -65,6 +65,7 @@ Recent decisions affecting current work:
 - Alias resolution only in load_template; generate_infographic/generate_with_retry preserve shorthand slugs for output filenames (10-02)
 - Shorthand entries added directly to ASPECT_RATIOS dict rather than resolving at runtime (10-02)
 - [Phase 10]: Alias resolution only in load_template; shorthand slugs preserved in output filenames (10-02)
+- [Phase 11]: Inline protocol replaces file-path reference; config/logging-protocol.md preserved as source for team leads (11-01)
 - [Phase 11]: Bash heredoc for 34 analytical team leads, Write tool for 4 CCO production team leads (11-02)
 
 ### Pending Todos
