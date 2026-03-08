@@ -345,8 +345,29 @@ Each Decision Mode produces distinct behavioral patterns at each engagement tier
 At the start of each session, read `.cdp-context/config.md` and check the
 "Agent Logging" field. If the value is "on", include `LOGGING: ON` and
 `SESSION PATH: <absolute-path>` in the Phase 0 broadcast and all downstream
-agent prompts. Follow the logging protocol at `config/logging-protocol.md`
-for your own error capture.
+agent prompts.
+
+For your own error capture, follow this inline protocol:
+
+**When to log:** Only when you encounter tool failures, workarounds applied, data quality issues, instruction ambiguity, or timeout/capacity issues. No issues = no log file.
+
+**File:** `{session-path}/logs/errors-{YYYYMMDD-HHmm}-ceo.md`
+
+**Format:**
+```markdown
+# Agent Error Log: CEO
+**Agent:** ceo  |  **Session:** {session-path}  |  **Date:** {date}
+---
+## Issue 1: {Brief title}
+**What happened:** ...
+**Expected:** ...
+**Workaround:** ...
+**Impact:** ...
+```
+
+**Write method:** Use the Write tool to create the log file.
+
+**Rules:** Log as your last action before completing your phase work. If the log write fails, abandon logging and complete your task normally. Logging does not change your analysis or output. Do not mention logging in your output. One tool call max for logging.
 
 ## Configuration References
 
