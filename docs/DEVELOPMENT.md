@@ -44,7 +44,9 @@
 | Node.js + npm | PPTX generation (pptxgenjs), DOCX generation (docx) | [nodejs.org](https://nodejs.org) |
 | pptxgenjs | Board presentation generation | `npm install pptxgenjs` |
 | docx | Board document and advisory document generation | `npm install docx` |
-| weasyprint | PDF generation (Results PDF, Capsule PDF) | `pip install weasyprint` |
+| reportlab | Results PDF generation (native from RECORD.md) | `pip install reportlab` |
+| Pillow | Image processing for PDF and infographics | `pip install Pillow` |
+| weasyprint | Capsule PDF generation | `pip install weasyprint` |
 
 Without the optional dependencies, the deliberation cascade works fully -- only the production artifact generation is affected.
 
@@ -217,7 +219,7 @@ When adding a new team lead:
 4. Add a `## Team Communication` section instructing the team lead to SendMessage findings back to its C-suite parent
 5. Follow the structure of existing team leads (identity, framework, template, forcing questions, blind spots, team communication)
 
-> **Production agents** may need higher limits. The Publisher uses `maxTurns: 15` because it writes a build script and runs weasyprint, which can require debugging iterations.
+> **Production agents** may need higher limits. The Publisher uses `maxTurns: 15` because it runs the Results PDF script, writes a Capsule build script, and runs weasyprint, which can require debugging iterations.
 
 ### Slash Commands
 
@@ -380,7 +382,7 @@ The production pipeline uses these external Claude Code skills for generating ar
 | Skill | Used For | Install |
 |-------|----------|---------|
 | [docx](https://github.com/anthropics/skills) | Board document (DOCX) and advisory document generation | `/find-skills docx` |
-| [pdf](https://github.com/anthropics/skills) | Results PDF and Capsule PDF generation | `/find-skills pdf` |
+| [pdf](https://github.com/anthropics/skills) | PDF QA validation and Capsule PDF generation | `/find-skills pdf` |
 | [frontend-design](https://github.com/anthropics/skills) | Decision briefing page (HTML) | `/find-skills frontend-design` |
 | [web-design-guidelines](https://github.com/vercel-labs/agent-skills) | UI review for briefing page | `/find-skills web-design-guidelines` |
 | [find-skills](https://github.com/vercel-labs/skills) | Skill discovery | `/install find-skills` |

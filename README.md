@@ -675,7 +675,7 @@ All production artifacts are written to a per-session directory:
 ├── index.html                                    # Interactive decision briefing
 ├── PRESENTATION_<issue-slug>.pptx                # Board-ready slide deck
 ├── REPORT_<issue-slug>.docx                      # Editable document
-├── RESULTS_<issue-slug>.pdf                      # Print rendering of briefing
+├── RESULTS_<issue-slug>.pdf                      # Native PDF from RECORD.md
 ├── CAPSULE_<issue-slug>.pdf                      # Layered archival record
 ├── images/                                       # Analytical infographics
 │   ├── INFOGRAPHIC_routing-diagram.png
@@ -719,9 +719,9 @@ flowchart LR
 | Graphic Designer | `images/INFOGRAPHIC_*.png` | Gemini API (Python script / JSON prompts) | 5-6 analytical infographics: routing diagram, domain scorecard, fault line map, risk-opportunity matrix, action plan timeline, mode comparison (multi-mode) |
 | Writer | `PRESENTATION_*.pptx` + `REPORT_*.docx` | pptxgenjs + docx (Node.js) | 11-slide board deck + editable document (cover, TOC, 8 sections, 2 appendices) |
 | Editor | Editorial Review | Read-only (Sonnet) | Reviews all drafts for accuracy, consistency, tone, completeness |
-| Publisher | `index.html` + `RESULTS_*.pdf` + `CAPSULE_*.pdf` | Vanilla HTML/CSS/JS + weasyprint (Python) | Interactive briefing page + print PDF + 5-layer archival capsule |
+| Publisher | `index.html` + `RESULTS_*.pdf` + `CAPSULE_*.pdf` | Vanilla HTML/CSS/JS + reportlab (Results PDF) + weasyprint (Capsule PDF) | Interactive briefing page + native print PDF + 5-layer archival capsule |
 
-**Technology requirements:** `pptxgenjs` and `docx` (npm packages), `weasyprint` (Python, for PDF generation).
+**Technology requirements:** `pptxgenjs` and `docx` (npm packages), `reportlab` and `Pillow` (Results PDF), `weasyprint` (Capsule PDF).
 
 ---
 

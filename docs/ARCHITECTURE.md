@@ -403,9 +403,9 @@ Reviews all artifacts for accuracy against RECORD.md, consistency between artifa
 
 | Agent | Artifact | Technology |
 |-------|----------|------------|
-| Publisher | `index.html` (interactive briefing page) + `RESULTS_<slug>.pdf` + `CAPSULE_<slug>.pdf` | Vanilla HTML/CSS/JS + weasyprint (Python) |
+| Publisher | `index.html` (interactive briefing page) + `RESULTS_<slug>.pdf` + `CAPSULE_<slug>.pdf` | Vanilla HTML/CSS/JS + reportlab (Results PDF) + weasyprint (Capsule PDF) |
 
-Embeds infographic images from the Graphic Designer, links PPTX and DOCX downloads from the Writer. HTML is self-contained -- no CDN, works from `file://`. Results PDF is a print rendering of the HTML page. Capsule PDF is a 5-layer archival record (Overview, Decision, Analysis, Process, Context). Incorporates editorial notes from the Editor.
+Embeds infographic images from the Graphic Designer, links PPTX and DOCX downloads from the Writer. HTML is self-contained -- no CDN, works from `file://`. Results PDF is generated natively from RECORD.md via `scripts/build_results_pdf.py` (reportlab) — not rendered from HTML. Capsule PDF is a 5-layer archival record (Overview, Decision, Analysis, Process, Context) rendered via weasyprint. Incorporates editorial notes from the Editor.
 
 ### Tier 1 Production
 

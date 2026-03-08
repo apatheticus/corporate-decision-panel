@@ -34,6 +34,11 @@
 - `templates/infographic-prompts/action-plan-timeline.json` -- Action Plan Timeline prompt
 - `templates/infographic-prompts/mode-comparison.json` -- Mode Comparison prompt
 
+### Scripts
+- `scripts/build_results_pdf.py` -- Native Results PDF generator (reportlab, from RECORD.md)
+- `scripts/session.py` -- Infographic generation session orchestrator
+- `scripts/generate_infographic.py` -- Single infographic generation via Gemini API
+
 ### Session Records
 - `.cdp-output/*/RECORD.md` -- Persisted session record enabling `/cdp:production` re-runs
 

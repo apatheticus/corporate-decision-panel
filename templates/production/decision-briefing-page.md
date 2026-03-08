@@ -24,7 +24,7 @@ Before starting implementation, review available skills for any relevant to this
 - **No external dependencies**: No CDN links, no frameworks (no Bootstrap, no Tailwind, no React). Vanilla HTML, CSS, and JavaScript only.
 - **Works from `file://` protocol**: Must open correctly when double-clicked from the filesystem. No server required. All asset references use relative paths.
 - **Responsive**: Readable on desktop, tablet, and mobile screen sizes.
-- **PDF-compatible**: Design patterns must work when rendered to PDF by the Publisher (see PDF Compatibility section below).
+- **Print CSS**: Include `@media print` styles for direct browser printing. The Results PDF is generated natively from RECORD.md (not from this HTML), so PDF-specific workarounds are not needed in the HTML design.
 
 ---
 
@@ -178,37 +178,9 @@ Before starting implementation, review available skills for any relevant to this
 
 ---
 
-## PDF Compatibility Requirements
+## Results PDF
 
-The Publisher renders this page to PDF via weasyprint. The following patterns ensure PDF output is clean:
-
-1. **Scroll-reveal animations**: Use class-based patterns (`.reveal` with `opacity: 0`, JS adds `.visible` class on scroll). The Publisher injects print CSS: `.reveal { opacity: 1 !important; transform: none !important; }` to neutralize these.
-
-2. **`backdrop-filter`**: Not supported in weasyprint. Use solid fallback backgrounds for any frosted-glass effects:
-   ```css
-   .glass-panel {
-     background: rgba(255, 255, 255, 0.95); /* fallback */
-     backdrop-filter: blur(10px); /* enhancement for browsers */
-   }
-   ```
-
-3. **CSS custom properties**: Supported and encouraged. Use `var(--name)` for the color palette to enable easy theme adjustment.
-
-4. **Fixed-position elements**: The sticky nav bar will be hidden in PDF. Use `@media print { .nav { display: none; } }` and the Publisher will also strip it.
-
-5. **Viewport units**: Avoid `vh`/`vw` for critical sizing. Use `rem`, `em`, or `px` for content dimensions.
-
-6. **Page breaks**: Add `page-break-before: always` hints on major section boundaries for clean PDF pagination:
-   ```css
-   @media print {
-     .section { page-break-before: always; }
-     .section:first-child { page-break-before: avoid; }
-   }
-   ```
-
-7. **Image sizing**: Infographic images should have explicit `width` and `height` attributes or CSS dimensions, not rely on `max-width: 100%` alone.
-
-8. **Script blocks**: The Publisher strips all `<script>` blocks before PDF rendering. All critical content must be in the HTML/CSS, not JS-generated.
+The Results PDF is generated natively from RECORD.md by `scripts/build_results_pdf.py` using reportlab. It follows the same content mapping as this HTML page (see table below) but is optimized for print — single-column layout, proper page breaks, embedded infographics. The HTML page and Results PDF are sibling artifacts, not a source-and-rendering pair.
 
 ---
 

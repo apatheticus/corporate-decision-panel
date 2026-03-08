@@ -292,7 +292,7 @@ Opus handles cross-domain synthesis where reasoning quality is paramount. Sonnet
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed and configured
 - Git
 - Python 3.6+
-- For production artifacts (optional): Node.js with `pptxgenjs` and `docx` npm packages, Python `weasyprint`
+- For production artifacts (optional): Node.js with `pptxgenjs` and `docx` npm packages, Python `reportlab` + `Pillow` (Results PDF), `weasyprint` (Capsule PDF)
 
 ### Project-Level Install
 
@@ -1613,7 +1613,7 @@ All production artifacts are written to a per-session directory:
 ├── index.html                                    # Interactive decision briefing
 ├── PRESENTATION_<issue-slug>.pptx                # Board-ready slide deck
 ├── REPORT_<issue-slug>.docx                      # Editable document
-├── RESULTS_<issue-slug>.pdf                      # Print rendering of briefing
+├── RESULTS_<issue-slug>.pdf                      # Native PDF from RECORD.md
 ├── CAPSULE_<issue-slug>.pdf                      # Layered archival record
 ├── images/                                       # Analytical infographics
 │   ├── INFOGRAPHIC_routing-diagram.png
@@ -1659,7 +1659,7 @@ flowchart LR
 | **Graphic Designer** | `images/INFOGRAPHIC_*.png` | Gemini API (Python script / JSON prompts) | 5-6 analytical infographics: routing diagram, domain scorecard, fault line map, risk-opportunity matrix, action plan timeline, mode comparison (multi-mode) |
 | **Writer** | `PRESENTATION_*.pptx` + `REPORT_*.docx` | pptxgenjs + docx (Node.js) | 11-slide board deck + editable document (cover, TOC, 8 sections, 2 appendices) |
 | **Editor** | Editorial Review | Read-only (Sonnet) | Reviews all drafts for accuracy, consistency, tone, completeness |
-| **Publisher** | `index.html` + `RESULTS_*.pdf` + `CAPSULE_*.pdf` | Vanilla HTML/CSS/JS + weasyprint (Python) | Interactive briefing page + print PDF + 5-layer archival capsule |
+| **Publisher** | `index.html` + `RESULTS_*.pdf` + `CAPSULE_*.pdf` | Vanilla HTML/CSS/JS + reportlab (Results PDF) + weasyprint (Capsule PDF) | Interactive briefing page + native print PDF + 5-layer archival capsule |
 
 **About the Capsule PDF:** The Deliberation Capsule is a unique artifact designed for long-term archival. It contains five layers that together provide complete provenance for the decision:
 
@@ -1679,7 +1679,9 @@ The production pipeline uses external skills and packages for generating artifac
 |------------|----------|---------|
 | `pptxgenjs` (npm) | Board presentation (PPTX) generation | `npm install pptxgenjs` |
 | `docx` (npm) | Board document and Advisory Document (DOCX) generation | `npm install docx` |
-| `weasyprint` (Python) | Results PDF and Capsule PDF generation | `pip install weasyprint` |
+| `reportlab` (Python) | Results PDF generation (native from RECORD.md) | `pip install reportlab` |
+| `Pillow` (Python) | Image processing for PDF and infographics | `pip install Pillow` |
+| `weasyprint` (Python) | Capsule PDF generation | `pip install weasyprint` |
 | [frontend-design](https://github.com/anthropics/skills) | Decision briefing page (HTML) | `/find-skills frontend-design` |
 | [web-design-guidelines](https://github.com/vercel-labs/agent-skills) | UI review for briefing page | `/find-skills web-design-guidelines` |
 

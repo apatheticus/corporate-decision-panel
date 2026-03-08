@@ -56,7 +56,8 @@ Before spawning the CCO, the orchestrator validates external dependencies using 
 | Writer (PPTX) | node, pptxgenjs | `node -e "require('pptxgenjs')"` | `npm install pptxgenjs` |
 | Writer (DOCX) | node, docx | `node -e "require('docx')"` | `npm install docx` |
 | Publisher (HTML) | none | -- | -- |
-| Publisher (PDFs) | python3, weasyprint | `python3 -c "import weasyprint"` | `pip install weasyprint` |
+| Publisher (Results PDF) | python3, reportlab, Pillow | `python3 -c "from reportlab.platypus import SimpleDocTemplate; from PIL import Image"` | `pip install reportlab Pillow` |
+| Publisher (Capsule PDF) | python3, weasyprint | `python3 -c "import weasyprint"` | `pip install weasyprint` |
 
 **Execution protocol:**
 
@@ -149,15 +150,17 @@ Creates self-contained interactive HTML briefing page (Hero, Executive
 Summary, Problem Context, Analytical Framework, Domain Analysis cards,
 Fault Line Visualization, The Decision, Dissenting Views, Action Plan,
 Download Section, Metadata, Navigation). Inline CSS/JS, no CDN, works
-from `file://`, PDF-compatible. Also produces Results PDF (print
-rendering of index.html) and Deliberation Capsule PDF (Cover + 5 layers:
-Overview, Decision, Analysis, Process, Context). Incorporates editorial
-notes from the Editor.
+from `file://`. Also produces Results PDF (generated natively from
+RECORD.md via `scripts/build_results_pdf.py` using reportlab — not
+rendered from HTML) and Deliberation Capsule PDF (Cover + 5 layers:
+Overview, Decision, Analysis, Process, Context via weasyprint).
+Incorporates editorial notes from the Editor.
 
 Output: `{session-output}/index.html`
          `{session-output}/RESULTS_<issue-slug>.pdf`
          `{session-output}/CAPSULE_<issue-slug>.pdf`
-Build: `{session-output}/build/build_capsule.py`
+Build: `scripts/build_results_pdf.py` (Results PDF, permanent),
+         `{session-output}/build/build_capsule.py` (Capsule PDF, per-session)
 Spec: `templates/production/decision-briefing-page.md`,
          `templates/production/capsule-structure.md`
 
