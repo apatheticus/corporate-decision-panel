@@ -832,7 +832,7 @@ def generate_with_retry(
 
         # Success -- run vision validation
         validation = validate_infographic(
-            result.output_path, data_path, config_dir
+            result.output_path, data_path, config_dir, type_slug=type_slug
         )
 
         if validation.passed and not validation.warning_only:

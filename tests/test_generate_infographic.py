@@ -1364,7 +1364,7 @@ class TestRetryWithFeedback:
 
         validate_count = 0
 
-        def mock_validate(image_path, data_path, config_dir):
+        def mock_validate(image_path, data_path, config_dir, type_slug=None):
             nonlocal validate_count
             validate_count += 1
             if validate_count == 1:
@@ -1408,7 +1408,7 @@ class TestRetryWithFeedback:
 
         validate_calls = [0]
 
-        def mock_validate(image_path, data_path, config_dir):
+        def mock_validate(image_path, data_path, config_dir, type_slug=None):
             validate_calls[0] += 1
             if validate_calls[0] == 1:
                 return MagicMock(
@@ -1447,7 +1447,7 @@ class TestRetryWithFeedback:
                 prompt_path=tmp_path / "prompt.txt",
             )
 
-        def mock_validate(image_path, data_path, config_dir):
+        def mock_validate(image_path, data_path, config_dir, type_slug=None):
             return MagicMock(
                 passed=True, warning_only=True,
                 feedback="Label X truncated", warnings=["Label X truncated"],
@@ -1701,7 +1701,7 @@ class TestWarningOnlyPropagation:
                 prompt_path=tmp_path / "prompt.txt",
             )
 
-        def mock_validate(image_path, data_path, config_dir):
+        def mock_validate(image_path, data_path, config_dir, type_slug=None):
             return MagicMock(
                 passed=True, warning_only=True,
                 feedback="Label X truncated", warnings=["Label X truncated"],
@@ -1737,7 +1737,7 @@ class TestWarningOnlyPropagation:
                 prompt_path=tmp_path / "prompt.txt",
             )
 
-        def mock_validate(image_path, data_path, config_dir):
+        def mock_validate(image_path, data_path, config_dir, type_slug=None):
             return MagicMock(passed=True, warning_only=False)
 
         with (
