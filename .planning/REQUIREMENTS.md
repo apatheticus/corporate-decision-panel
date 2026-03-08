@@ -17,7 +17,7 @@ Requirements for Team Refactor milestone. Each maps to roadmap phases.
 ### Agent Infrastructure
 
 - [x] **AGINF-01**: Publisher agent uses `cd <skill-directory> &&` prefix for `python3 -m scripts.build_results_pdf` invocation
-- [ ] **AGINF-02**: All 48 agent files use inline logging protocol summary instead of `config/logging-protocol.md` file path reference
+- [x] **AGINF-02**: All 48 agent files use inline logging protocol summary instead of `config/logging-protocol.md` file path reference
 
 ### Dispatch Architecture
 
@@ -76,7 +76,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | INFRA-03 | Phase 10 | Complete |
 | INFRA-04 | Phase 10 | Complete |
 | AGINF-01 | Phase 10 | Complete |
-| AGINF-02 | Phase 11 | Pending |
+| AGINF-02 | Phase 11 | Complete |
 | DISP-01 | Phase 12 | Pending |
 | DISP-02 | Phase 12 | Pending |
 | DISP-03 | Phase 12 | Pending |
