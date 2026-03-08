@@ -473,6 +473,122 @@ class TestAspectRatios:
         assert set(ASPECT_RATIOS.keys()) == expected
 
 
+class TestSlugAliases:
+    """Tests for SLUG_ALIASES: shorthand slugs resolve to canonical template
+    files in load_template, ASPECT_RATIOS includes shorthand entries, and
+    output filenames preserve shorthand slugs."""
+
+    def test_alias_resolves_fault_lines(self, tmp_path):
+        """load_template('fault-lines') loads fault-line-map.json via alias."""
+        from scripts.generate_infographic import load_template
+
+        template_dir = tmp_path / "templates"
+        template_dir.mkdir()
+        canonical = {"core": {"subject": "Fault Line Map"}, "style": {}}
+        (template_dir / "fault-line-map.json").write_text(json.dumps(canonical))
+
+        result = load_template("fault-lines", template_dir=template_dir)
+        assert result["core"]["subject"] == "Fault Line Map"
+
+    def test_alias_resolves_risk_matrix(self, tmp_path):
+        """load_template('risk-matrix') loads risk-opportunity-matrix.json via alias."""
+        from scripts.generate_infographic import load_template
+
+        template_dir = tmp_path / "templates"
+        template_dir.mkdir()
+        canonical = {"core": {"subject": "Risk Opportunity Matrix"}, "style": {}}
+        (template_dir / "risk-opportunity-matrix.json").write_text(json.dumps(canonical))
+
+        result = load_template("risk-matrix", template_dir=template_dir)
+        assert result["core"]["subject"] == "Risk Opportunity Matrix"
+
+    def test_alias_resolves_action_plan(self, tmp_path):
+        """load_template('action-plan') loads action-plan-timeline.json via alias."""
+        from scripts.generate_infographic import load_template
+
+        template_dir = tmp_path / "templates"
+        template_dir.mkdir()
+        canonical = {"core": {"subject": "Action Plan Timeline"}, "style": {}}
+        (template_dir / "action-plan-timeline.json").write_text(json.dumps(canonical))
+
+        result = load_template("action-plan", template_dir=template_dir)
+        assert result["core"]["subject"] == "Action Plan Timeline"
+
+    def test_non_alias_unchanged(self, tmp_path):
+        """load_template('domain-scorecard') loads domain-scorecard.json (no alias interference)."""
+        from scripts.generate_infographic import load_template
+
+        template_dir = tmp_path / "templates"
+        template_dir.mkdir()
+        canonical = {"core": {"subject": "Domain Scorecard"}, "style": {}}
+        (template_dir / "domain-scorecard.json").write_text(json.dumps(canonical))
+
+        result = load_template("domain-scorecard", template_dir=template_dir)
+        assert result["core"]["subject"] == "Domain Scorecard"
+
+    def test_aspect_ratio_shorthand_entries(self):
+        """ASPECT_RATIOS includes shorthand entries with correct ratios."""
+        from scripts.generate_infographic import ASPECT_RATIOS
+
+        assert ASPECT_RATIOS["fault-lines"] == "16:9"
+        assert ASPECT_RATIOS["risk-matrix"] == "4:3"
+        assert ASPECT_RATIOS["action-plan"] == "16:9"
+
+    def test_output_filename_uses_shorthand(self):
+        """generate_infographic normalizes type_slug without alias resolution.
+
+        The shorthand slug 'fault-lines' should be used directly for output
+        naming (INFOGRAPHIC_fault-lines.png), NOT resolved to 'fault-line-map'.
+        Verify via the generate_infographic function which passes type_slug
+        to save_prompt -- the prompt file should contain the shorthand slug.
+        """
+        from scripts.generate_infographic import generate_infographic
+
+        # We just need to verify that type_slug stays as the shorthand.
+        # The simplest way: check that generate_infographic does NOT
+        # resolve aliases for type_slug (only load_template does).
+        # We do this by checking save_prompt is called with shorthand slug.
+        with (
+            patch("scripts.generate_infographic.genai") as mock_genai,
+            patch("scripts.generate_infographic.load_config") as mock_cfg,
+            patch("scripts.generate_infographic.load_template") as mock_load,
+            patch("scripts.generate_infographic.run_preflight") as mock_pf,
+            patch("scripts.generate_infographic.save_prompt") as mock_save,
+        ):
+            mock_pf.return_value = MagicMock(success=True)
+            mock_cfg.return_value = {"api_key": "k", "model_id": "m"}
+            mock_load.return_value = {"core": {"subject": "test"}, "style": {}}
+
+            # Mock successful API response with image
+            mock_part = MagicMock()
+            mock_part.inline_data = MagicMock()
+            mock_img = MagicMock()
+            mock_part.as_image.return_value = mock_img
+            mock_response = MagicMock()
+            mock_response.parts = [mock_part]
+            mock_response.prompt_feedback = None
+            mock_response.candidates = []
+
+            mock_client = MagicMock()
+            mock_client.models.generate_content.return_value = mock_response
+            mock_genai.Client.return_value = mock_client
+
+            mock_save.return_value = Path("/tmp/prompt.txt")
+
+            from pathlib import Path as P
+            result = generate_infographic(
+                "fault-lines",
+                P("/tmp/data.json"),
+                P("/tmp/out.png"),
+                skip_preflight=True,
+            )
+
+            # save_prompt should be called with 'fault-lines', NOT 'fault-line-map'
+            mock_save.assert_called_once()
+            call_args = mock_save.call_args
+            assert call_args[0][2] == "fault-lines"  # type_slug arg
+
+
 class TestThinkingConfig:
     """Tests for conditional thinking_config: applied only for supported models
     AND complex infographic types (fault-line-map, mode-comparison)."""
