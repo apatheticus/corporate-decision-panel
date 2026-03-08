@@ -52,7 +52,7 @@
 **Plans**: 2 plans
 
 Plans:
-- [ ] 10-01-PLAN.md — Validation leniency for high-density types + publisher path fix
+- [x] 10-01-PLAN.md — Validation leniency for high-density types + publisher path fix
 - [ ] 10-02-PLAN.md — Slug alias resolution + ASPECT_RATIOS shorthand entries + validate_infographic wiring
 
 ### Phase 11: Inline Logging Protocol
@@ -116,7 +116,7 @@ Phases execute in numeric order: 10 -> 11 -> 12 -> 13
 | 7. Specification Formalization | v1.1 | 3/3 | Complete | 2026-03-05 |
 | 8. Test Scenarios | v1.1 | 2/2 | Complete | 2026-03-05 |
 | 9. Integration Polish | v1.1 | 1/1 | Complete | 2026-03-05 |
-| 10. Production Quick Wins | v1.4 | 0/2 | Not started | - |
+| 10. Production Quick Wins | v1.4 | 1/2 | In Progress | - |
 | 11. Inline Logging Protocol | v1.4 | 0/? | Not started | - |
 | 12. Dispatch Architecture Rewrite | v1.4 | 0/? | Not started | - |
 | 13. Documentation | v1.4 | 0/? | Not started | - |
