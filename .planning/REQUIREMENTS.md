@@ -9,8 +9,8 @@ Requirements for Team Refactor milestone. Each maps to roadmap phases.
 
 ### Infographic Pipeline
 
-- [ ] **INFRA-01**: Slug alias map resolves shorthand slugs (`fault-lines`, `risk-matrix`, `action-plan`) to canonical template slugs in `generate_infographic.py` and `session.py`
-- [ ] **INFRA-02**: Graphic designer agent definition uses correct canonical slugs (`fault-line-map`, `risk-opportunity-matrix`, `action-plan-timeline`)
+- [x] **INFRA-01**: Slug alias map resolves shorthand slugs (`fault-lines`, `risk-matrix`, `action-plan`) to canonical template slugs in `generate_infographic.py` and `session.py`
+- [x] **INFRA-02**: Graphic designer agent definition uses correct canonical slugs (`fault-line-map`, `risk-opportunity-matrix`, `action-plan-timeline`)
 - [x] **INFRA-03**: Validation accepts PARTIAL labels for high-density infographic types (`routing-diagram`) without triggering failure
 - [x] **INFRA-04**: `validate_infographic()` accepts `type_slug` parameter and applies lenient validation prompt conditionally via `LENIENT_TYPES` set
 
@@ -71,8 +71,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INFRA-01 | Phase 10 | Pending |
-| INFRA-02 | Phase 10 | Pending |
+| INFRA-01 | Phase 10 | Complete |
+| INFRA-02 | Phase 10 | Complete |
 | INFRA-03 | Phase 10 | Complete |
 | INFRA-04 | Phase 10 | Complete |
 | AGINF-01 | Phase 10 | Complete |
