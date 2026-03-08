@@ -459,7 +459,7 @@ class TestAspectRatios:
         assert ASPECT_RATIOS["routing-diagram"] == "16:9"
 
     def test_all_types_covered(self):
-        """All 6 infographic types are present in ASPECT_RATIOS."""
+        """All 9 infographic types (6 canonical + 3 shorthand) are present in ASPECT_RATIOS."""
         from scripts.generate_infographic import ASPECT_RATIOS
 
         expected = {
@@ -469,6 +469,10 @@ class TestAspectRatios:
             "fault-line-map",
             "mode-comparison",
             "action-plan-timeline",
+            # Shorthand aliases
+            "fault-lines",
+            "risk-matrix",
+            "action-plan",
         }
         assert set(ASPECT_RATIOS.keys()) == expected
 
@@ -534,7 +538,7 @@ class TestSlugAliases:
         assert ASPECT_RATIOS["risk-matrix"] == "4:3"
         assert ASPECT_RATIOS["action-plan"] == "16:9"
 
-    def test_output_filename_uses_shorthand(self):
+    def test_output_filename_uses_shorthand(self, tmp_path):
         """generate_infographic normalizes type_slug without alias resolution.
 
         The shorthand slug 'fault-lines' should be used directly for output
@@ -544,6 +548,11 @@ class TestSlugAliases:
         """
         from scripts.generate_infographic import generate_infographic
 
+        # Create data file
+        data_path = tmp_path / "data.json"
+        data_path.write_text(json.dumps({"key": "value"}))
+        output_path = tmp_path / "output" / "out.png"
+
         # We just need to verify that type_slug stays as the shorthand.
         # The simplest way: check that generate_infographic does NOT
         # resolve aliases for type_slug (only load_template does).
@@ -552,10 +561,8 @@ class TestSlugAliases:
             patch("scripts.generate_infographic.genai") as mock_genai,
             patch("scripts.generate_infographic.load_config") as mock_cfg,
             patch("scripts.generate_infographic.load_template") as mock_load,
-            patch("scripts.generate_infographic.run_preflight") as mock_pf,
             patch("scripts.generate_infographic.save_prompt") as mock_save,
         ):
-            mock_pf.return_value = MagicMock(success=True)
             mock_cfg.return_value = {"api_key": "k", "model_id": "m"}
             mock_load.return_value = {"core": {"subject": "test"}, "style": {}}
 
@@ -573,13 +580,12 @@ class TestSlugAliases:
             mock_client.models.generate_content.return_value = mock_response
             mock_genai.Client.return_value = mock_client
 
-            mock_save.return_value = Path("/tmp/prompt.txt")
+            mock_save.return_value = tmp_path / "prompt.txt"
 
-            from pathlib import Path as P
             result = generate_infographic(
                 "fault-lines",
-                P("/tmp/data.json"),
-                P("/tmp/out.png"),
+                data_path,
+                output_path,
                 skip_preflight=True,
             )
 
