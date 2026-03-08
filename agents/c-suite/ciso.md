@@ -237,10 +237,27 @@ CONDITIONS FOR APPROVAL (if recommendation is Approve with Conditions):
 
 ## Agent Logging
 
-If agent logging is active for this session (the Phase 0 broadcast or your prompt
-contains `LOGGING: ON` and `SESSION PATH:`), follow the error logging protocol at
-`config/logging-protocol.md` after completing your synthesis. Pass the logging context
-(`LOGGING: ON` and `SESSION PATH:`) to all team lead dispatch prompts.
+If agent logging is active for this session (the Phase 0 broadcast or your prompt contains `LOGGING: ON` and `SESSION PATH:`), follow this inline protocol after completing your synthesis. Pass the logging context (`LOGGING: ON` and `SESSION PATH:`) to all team lead dispatch prompts.
+
+**When to log:** Only when you encounter tool failures, workarounds applied, data quality issues, instruction ambiguity, or timeout/capacity issues. No issues = no log file.
+
+**File:** `{session-path}/logs/errors-{YYYYMMDD-HHmm}-{agent-name}.md`
+
+**Format:**
+```markdown
+# Agent Error Log: {Role Title}
+**Agent:** {name}  |  **Session:** {session-path}  |  **Date:** {date}
+---
+## Issue 1: {Brief title}
+**What happened:** ...
+**Expected:** ...
+**Workaround:** ...
+**Impact:** ...
+```
+
+**Write method:** Use the Write tool to create the log file.
+
+**Rules:** Log as your last action before SendMessage/TaskUpdate. If the log write fails, abandon logging and complete your task normally. Logging does not change your analysis or output. Do not mention logging in your output or SendMessage. One tool call max for logging.
 
 ## Escalation Brief Capability
 

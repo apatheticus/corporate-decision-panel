@@ -193,11 +193,27 @@ After producing the CCO Production Report, shut down the production team:
 
 ## Agent Logging
 
-If agent logging is active for this session (your prompt contains `LOGGING: ON`
-and `SESSION PATH:`), follow the error logging protocol at
-`config/logging-protocol.md` after completing your production report. Pass the
-logging context (`LOGGING: ON` and `SESSION PATH:`) to all production team lead
-dispatch prompts.
+If agent logging is active for this session (your prompt contains `LOGGING: ON` and `SESSION PATH:`), follow this inline protocol after completing your production report. Pass the logging context (`LOGGING: ON` and `SESSION PATH:`) to all production team lead dispatch prompts.
+
+**When to log:** Only when you encounter tool failures, workarounds applied, data quality issues, instruction ambiguity, or timeout/capacity issues. No issues = no log file.
+
+**File:** `{session-path}/logs/errors-{YYYYMMDD-HHmm}-cco.md`
+
+**Format:**
+```markdown
+# Agent Error Log: CCO
+**Agent:** cco  |  **Session:** {session-path}  |  **Date:** {date}
+---
+## Issue 1: {Brief title}
+**What happened:** ...
+**Expected:** ...
+**Workaround:** ...
+**Impact:** ...
+```
+
+**Write method:** Use the Write tool to create the log file.
+
+**Rules:** Log as your last action before completing your phase work. If the log write fails, abandon logging and complete your task normally. Logging does not change your analysis or output. Do not mention logging in your output. One tool call max for logging.
 
 ## Configuration References
 
