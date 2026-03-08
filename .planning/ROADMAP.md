@@ -63,10 +63,11 @@ Plans:
   1. Every agent file in `agents/` contains the inline logging protocol summary text
   2. No agent file contains a file path reference to `config/logging-protocol.md`
   3. `grep -r "logging-protocol.md" agents/` returns zero matches
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 11-01: TBD
+- [ ] 11-01-PLAN.md — Inline logging protocol for CEO + 9 C-suite agents (10 files)
+- [ ] 11-02-PLAN.md — Inline logging protocol for 38 team lead agents (34 analytical + 4 CCO production)
 
 ### Phase 12: Dispatch Architecture Rewrite
 **Goal**: CEO creates all division teams and dispatches all agents (C-suite and team leads); C-suite agents communicate sub-questions via files; CCO production pipeline runs under CEO wave management
@@ -117,6 +118,6 @@ Phases execute in numeric order: 10 -> 11 -> 12 -> 13
 | 8. Test Scenarios | v1.1 | 2/2 | Complete | 2026-03-05 |
 | 9. Integration Polish | v1.1 | 1/1 | Complete | 2026-03-05 |
 | 10. Production Quick Wins | 2/2 | Complete    | 2026-03-08 | - |
-| 11. Inline Logging Protocol | v1.4 | 0/? | Not started | - |
+| 11. Inline Logging Protocol | v1.4 | 0/2 | Not started | - |
 | 12. Dispatch Architecture Rewrite | v1.4 | 0/? | Not started | - |
 | 13. Documentation | v1.4 | 0/? | Not started | - |
