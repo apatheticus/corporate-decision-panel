@@ -501,7 +501,7 @@ Without this file, the generation script cannot run -- a valid API key is requir
 
 ## File References
 
-See `ref/file-index.md` for the complete file index covering configuration,
+See `config/file-index.md` for the complete file index covering configuration,
 templates, agent definitions, and session records.
 
 ---
