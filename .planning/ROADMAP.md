@@ -82,12 +82,12 @@ Plans:
   6. CCO agent operates as Creative Brief author and editorial coordinator within CEO-managed production team
   7. CSO Phase 1.5 dispatch is integrated with division team pattern (dispatched before other C-suite agents)
   8. `grep -rE "TeamCreate|Agent\.\*team_name|SendMessage\.\*shutdown_request" agents/c-suite/` returns zero matches
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 12-01: TBD
-- [ ] 12-02: TBD
-- [ ] 12-03: TBD
+- [ ] 12-01-PLAN.md — Config protocol rewrites (dispatch-protocol.md, cco-dispatch-protocol.md, orchestration-protocol.md)
+- [ ] 12-02-PLAN.md — CEO agent rewrite (TeamCreate, notification-triggered dispatch, CCO wave management)
+- [ ] 12-03-PLAN.md — C-suite agent transformations (CCO, CSO, 7 analytical) + DISP-10 verification grep
 
 ### Phase 13: Documentation
 **Goal**: Orchestration protocol and CEO agent provide guidance for handling large files during recommendation synthesis
@@ -117,7 +117,7 @@ Phases execute in numeric order: 10 -> 11 -> 12 -> 13
 | 7. Specification Formalization | v1.1 | 3/3 | Complete | 2026-03-05 |
 | 8. Test Scenarios | v1.1 | 2/2 | Complete | 2026-03-05 |
 | 9. Integration Polish | v1.1 | 1/1 | Complete | 2026-03-05 |
-| 10. Production Quick Wins | 2/2 | Complete    | 2026-03-08 | - |
-| 11. Inline Logging Protocol | 2/2 | Complete    | 2026-03-08 | - |
-| 12. Dispatch Architecture Rewrite | v1.4 | 0/? | Not started | - |
+| 10. Production Quick Wins | v1.4 | 2/2 | Complete | 2026-03-08 |
+| 11. Inline Logging Protocol | v1.4 | 2/2 | Complete | 2026-03-08 |
+| 12. Dispatch Architecture Rewrite | v1.4 | 0/3 | Not started | - |
 | 13. Documentation | v1.4 | 0/? | Not started | - |
