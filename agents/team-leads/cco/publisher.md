@@ -38,7 +38,7 @@ Before starting, load the `/pdf` skill via the Skill tool for PDF-related guidan
    - Work from `file://` protocol
 5. **Generate the Results PDF** using the permanent script:
    ```bash
-   python3 -m scripts.build_results_pdf --session-dir {session}
+   cd <skill-directory> && python3 -m scripts.build_results_pdf --session-dir {session}
    ```
    This generates `RESULTS_<issue-slug>.pdf` natively from RECORD.md using reportlab. Do NOT write a Results PDF build script — the permanent script handles this.
 6. **Produce the Capsule PDF build script** per the capsule structure specification. Write it to `{session}/build/build_capsule.py`. This script produces **only** the Capsule PDF (not the Results PDF).
