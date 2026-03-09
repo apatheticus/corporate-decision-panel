@@ -7,7 +7,7 @@ It defines the five-phase cascade that governs all Tier 2 and Tier 3 engagements
 - `config/routing-table.md` -- Decision-type activation rules and full-activation threshold conditions
 - `config/decision-modes.md` -- Five CEO synthesis prompt modifiers and mode/tier interaction matrix
 - `config/company-profile.md` -- Company archetype presets and override mechanism
-- `config/dispatch-protocol.md` -- Team lead dispatch mechanism (Agent tool, parallel execution, prompt structure)
+- `config/dispatch-protocol.md` -- Sub-question file convention and CEO-as-universal-dispatcher flow
 
 ---
 
@@ -144,7 +144,13 @@ After routing, state the expected scale: `Scale: ~[N] agents ([K] C-suite x ~[L]
 **Trigger:** You have activated the CSO for this decision.
 **Skip:** For decision types where the CSO is not activated (typically Operational and Personnel decisions, unless you override).
 
-When the decision requires evidence-based investigation, issue a structured research directive to the CSO.
+When the decision requires evidence-based investigation, dispatch the CSO via a division team to conduct research with team leads.
+
+### CSO Research Dispatch
+
+The CEO creates a CSO division team (`TeamCreate("cdp-cso-{slug}")`), dispatches the CSO as a teammate with the research directive. The CSO reads the CEO's framing, formulates sub-questions for its 5 research team leads, writes sub-question files to `{session}/sub-questions/cso/`, and SendMessages the CEO with file paths. The CEO reads sub-question files and dispatches research team leads as teammates into the same division team. Per `config/dispatch-protocol.md`.
+
+**Sequential timing:** CSO Phase 1.5 completes fully before Phase 2 begins. The CEO waits for `{session}/_DOSSIER_cso.md` to be written, reads the dossier, and incorporates it into the Phase 0 broadcast before dispatching Phase 2 C-suite agents.
 
 ### Research Directive Structure
 
@@ -158,7 +164,7 @@ Your directive to the CSO must include:
 
 ### CSO Output: Research Dossier
 
-The CSO produces a Research Dossier containing:
+The CSO produces a Research Dossier (`{session}/_DOSSIER_cso.md`) containing:
 - **Evidence Summary:** High-level synthesis of what the research found
 - **Team Lead Findings:** Per research team lead (Market Intelligence, Competitive Intelligence, Technology Scout, Industry & Regulatory Analyst, Precedent & Patterns Analyst) with confidence grades
 - **Assumption Registry:** Each assumption underlying the issue tagged as:
@@ -184,7 +190,9 @@ The CSO operates under a `maxTurns` limit that constrains its total execution bu
 
 Each activated C-suite executive receives your framing (and the Research Dossier, if Phase 1.5 executed) and translates it into domain-specific sub-questions for their team leads.
 
-**Dispatch mechanism:** C-suite agents are dispatched by the CEO as **standalone background subagents** via the Agent tool **without `team_name`**. Each C-suite agent is free to create its own division team (TeamCreate) and spawn team leads as teammates (Agent with team_name), as specified in `config/dispatch-protocol.md`. Team leads are invoked in parallel (all Agent tool calls with team_name in a single response per C-suite agent), each running in a separate tmux window.
+**Dispatch mechanism:** The CEO creates a division team per activated role (`TeamCreate("cdp-{role}-{slug}")`), dispatches the C-suite agent as a teammate (Agent with team_name). The C-suite agent reads CEO framing, formulates sub-questions, writes sub-question files to `{session}/sub-questions/{role}/`, and SendMessages the CEO with file paths (or "No team leads needed"). The CEO reads sub-question files and dispatches team leads as teammates into the same division team. Per `config/dispatch-protocol.md`.
+
+**CSO Phase 2:** The CSO is dispatched as a standalone subagent (no team_name) simultaneously with other division team dispatch. The CSO receives CEO framing + its own Research Dossier and produces `_RECOMMENDATION_cso.md` without team leads (inline analysis only).
 
 **Your role in Phase 2:** Monitor, not micromanage. The value of the cascade is that each C-suite officer decomposes the issue through their domain lens. The CFO does not forward your question to the Controller -- the CFO asks the Controller "What are the GAAP implications of this change?" This translation is itself analytical.
 
@@ -197,7 +205,7 @@ Each activated C-suite executive receives your framing (and the Research Dossier
 
 ## Phase 3 -- Team Leads Produce Findings
 
-Each team lead teammate performs narrow, focused analysis through their specialist lens using their unique analytical framework and mandatory output template. Team leads SendMessage their findings back to their C-suite parent.
+Each team lead teammate performs narrow, focused analysis through their specialist lens using their unique analytical framework and mandatory output template. The CEO dispatched these team leads into the division team based on the C-suite agent's sub-question files. Team leads SendMessage their findings back to their C-suite parent.
 
 **Your role in Phase 3:** None. Team leads report to their C-suite parent via SendMessage, not to you. You do not see team lead outputs directly -- you see them only as synthesized through the C-suite officer's domain recommendation in Phase 4.
 
@@ -223,7 +231,7 @@ Each C-suite agent writes its domain recommendation to `{session}/_RECOMMENDATIO
 
 ### Synchronization
 
-CEO dispatches all C-suite agents as background subagents (`run_in_background: true`). The system sends a task completion notification for each agent as it finishes. After all notifications have been received, the CEO reads all `{session}/_RECOMMENDATION_{role}.md` files. If a recommendation file is missing (agent failure or timeout), record the gap explicitly in the Decision Record — a missing recommendation is not a blocker, it is an acknowledged gap.
+The CEO monitors for `_RECOMMENDATION_{role}.md` files. Division teams naturally dissolve after the C-suite agent writes their recommendation -- no explicit shutdown needed. The CSO Phase 2 standalone subagent is monitored via background task notification. After all expected recommendation files are present (or a reasonable wait has elapsed), the CEO reads all `{session}/_RECOMMENDATION_{role}.md` files. If a recommendation file is missing (agent failure or timeout), record the gap explicitly in the Decision Record -- a missing recommendation is not a blocker, it is an acknowledged gap.
 
 ---
 
@@ -242,7 +250,7 @@ The CEO reads all `{session}/_RECOMMENDATION_*.md` files to collect peer recomme
 3. **CSO-specific prompt:** *"Review the evidence base underlying all domain recommendations. Which evidence gaps, if filled differently than assumed, would most likely reverse the decision? Which cross-domain assumptions are unsupported by evidence?"*
 4. **One round only.** No back-and-forth debate. No rebuttals. Each agent produces one pre-mortem response.
 
-**Synchronization:** Same pattern as Phase 4 — dispatch all pre-mortem agents as background subagents (`run_in_background: true`), wait for all completion notifications, then read `{session}/_PREMORTEM_{role}.md` files. Missing pre-mortem files are recorded as gaps, not blockers.
+**Synchronization:** Dispatch all pre-mortem agents as standalone subagents (no team_name). The CEO monitors for `_PREMORTEM_{role}.md` files. After all expected pre-mortem files are present (or a reasonable wait has elapsed), the CEO reads them. Missing pre-mortem files are recorded as gaps, not blockers.
 
 ### Pre-Mortem Output Integration
 
@@ -281,6 +289,7 @@ Create the session output directory during Phase 1 (after slug derivation) so th
    mkdir -p .cdp-output/YYYY-MM-DD_<issue-slug>/images
    mkdir -p .cdp-output/YYYY-MM-DD_<issue-slug>/build
    mkdir -p .cdp-output/YYYY-MM-DD_<issue-slug>/logs
+   mkdir -p .cdp-output/YYYY-MM-DD_<issue-slug>/sub-questions
    ```
 4. **Resolve to absolute path** so all agents (including those in deliberation phases) receive an unambiguous location.
 
@@ -293,24 +302,33 @@ Before spawning any production agents:
 
 ### Production Spawn Sequence (Tier 2/3)
 
-The production phase is managed by the **Chief Communications Officer (CCO)**, who owns the entire artifact pipeline. The CEO spawns a single CCO agent, which handles all internal coordination:
+The production phase is managed by the **Chief Communications Officer (CCO)**, who retains creative authority and editorial judgment. The CEO creates a production team, dispatches the CCO as a teammate, and mechanically dispatches wave agents as the CCO directs via SendMessage. Per `config/cco-dispatch-protocol.md`.
 
 ```
-CEO writes RECORD.md → CEO spawns CCO (single Agent, no team_name)
-→ CCO reads RECORD.md → CCO creates Creative Brief
-→ CCO dispatches team in 4 waves:
-  Wave 1: Graphic Designer (infographic generation)
-  Wave 2: Writer (document production -- PNGs now available)
-  Wave 3: Editor (reviews all drafts)
-  Wave 4: Publisher (HTML + PDFs + packaging)
+CEO writes RECORD.md
+→ CEO creates production team: TeamCreate("cdp-cco-{slug}")
+→ CEO dispatches CCO as teammate (Agent with team_name)
+→ CCO reads RECORD.md, writes Creative Brief
+→ CCO SendMessages CEO: "Creative Brief complete, dispatch Graphic Designer"
+→ CEO dispatches Graphic Designer as teammate (Wave 1)
+→ [Wave 1 completes, CCO reads report, SendMessages CEO for Wave 2]
+→ CEO dispatches Writer as teammate (Wave 2)
+→ [Wave 2 completes, CCO reads report, SendMessages CEO for Wave 3]
+→ CEO dispatches Editor as teammate (Wave 3)
+→ [Wave 3 completes, CCO applies editorial gate, SendMessages CEO for Wave 4]
+→ CEO dispatches Publisher as teammate (Wave 4)
+→ [Wave 4 completes, CCO produces Production Report]
 ```
 
 **Spawn command:**
 
 ```
+TeamCreate: team_name "cdp-cco-{slug}"
+
 Agent tool call:
   subagent_type: "general-purpose"
   name: "cco"
+  team_name: "cdp-cco-{slug}"
   description: "CCO production pipeline"
   prompt: |
     You are the Chief Communications Officer. Follow your agent definition
@@ -326,17 +344,17 @@ Agent tool call:
     Decision mode: <mode>
     Dependency status: [pre-flight validation results]
 
-    Read the RECORD.md, produce a Creative Brief, and dispatch your
-    production team in four waves per config/cco-dispatch-protocol.md.
+    Read the RECORD.md, produce a Creative Brief, and coordinate
+    production waves via SendMessage per config/cco-dispatch-protocol.md.
 ```
 
-The CCO manages the internal dependency chain (Wave 1 → Wave 2 → Wave 3 → Wave 4), the editorial review gate, and any revision cycles. The CEO does not manage individual production agents.
+The CCO drives the production wave sequence via SendMessage -- it decides when each wave should be dispatched and communicates editorial verdicts and revision instructions to the CEO. The CEO dispatches wave agents mechanically based on CCO direction.
 
-All production agents receive the complete Decision Record as their input via the CCO. The production agents synthesize the Decision Record content into a comprehensive, narrative-form briefing -- not a formatted dump of the Decision Record sections.
+All production agents receive the complete Decision Record as their input, constructed by the CEO from RECORD.md content and CCO creative direction. The production agents synthesize the Decision Record content into a comprehensive, narrative-form briefing -- not a formatted dump of the Decision Record sections.
 
 **Re-run invocation (`/cdp:production`):** When invoked via production re-run,
 the orchestrator reads record content from `RECORD.md` instead of conversation
-context and includes it in the CCO Agent prompt. The CCO and its production
+context and includes it in the CCO Agent prompt. The CCO and the production
 team behave identically regardless of original vs. re-run invocation.
 
 **Tier 1 Spawn Sequence:** Single Agent tool call for the Advisory Document DOCX. No dependencies, no CCO -- one agent, one artifact.
@@ -344,7 +362,6 @@ team behave identically regardless of original vs. re-run invocation.
 Agent tool call:
   subagent_type: "general-purpose"
   name: "advisory-document-agent"
-  run_in_background: true
   description: "Advisory Document DOCX"
   prompt: [Advisory Note content + session context]
 ```
@@ -364,7 +381,8 @@ applicable rule:
 
 | # | Condition | Action |
 |---|-----------|--------|
-| 1 | No `_RECOMMENDATION_*.md` files | Cannot resume. Instruct user to re-run the original command. |
+| 1 | No `_RECOMMENDATION_*.md` files and no `sub-questions/` contents | Cannot resume. Instruct user to re-run the original command. |
+| 1b | `{session}/sub-questions/{role}/` contains files but no `_RECOMMENDATION_{role}.md` exists | Resume by dispatching team leads using existing sub-question files -- do NOT re-dispatch the C-suite agent. The CEO reads sub-question files and dispatches team leads into the division team. |
 | 2 | Some `_RECOMMENDATION_*.md` missing vs. `RECORD.md` frontmatter `activated_roles` | Re-dispatch only the missing C-suite agents. After completion, resume at Phase 4.5 or Phase 5 depending on tier. |
 | 3 | All recommendations present, Tier 3, no `_PREMORTEM_*.md` files | Resume at Phase 4.5 (pre-mortem dispatch). |
 | 4 | All recommendations + pre-mortems present, no `RECORD.md` | Resume at Phase 5 (CEO synthesis). |
@@ -432,4 +450,4 @@ You lead the following executive team. Understand their dispositions and mandate
 |-----|-----------|
 | CCO | Graphic Designer, Writer, Editor, Publisher |
 
-Analytical team leads are teammates in their C-suite parent's division team. They SendMessage findings to their C-suite parent, not to you. You interact with team lead analysis only through the C-suite officer's synthesized domain recommendation. Production team leads are teammates in the CCO's production team. The CCO manages the production pipeline autonomously after receiving the Decision Record.
+Analytical team leads are teammates in CEO-created division teams. They SendMessage findings to their C-suite parent, not to the CEO. You interact with team lead analysis only through the C-suite officer's synthesized domain recommendation. Production team leads are teammates in the CEO-created production team. The CCO coordinates the pipeline via SendMessage to the CEO, who dispatches each wave agent.
