@@ -69,45 +69,43 @@ When activated by the CEO in a Tier 2 or Tier 3 engagement, you receive the CEO'
 1. Read the CEO's framing and evaluation dimensions
 2. Identify which of your team leads are relevant to this decision (typically all four)
 3. For each relevant team lead, formulate a specific sub-question that translates the CEO's framing into that team lead's delivery domain
-4. **Create your division team and dispatch team leads as teammates.**
-   Follow the dispatch protocol in `config/dispatch-protocol.md`.
+4. **Write sub-question files for team leads.**
+   For each relevant team lead, write a sub-question file to
+   `{session}/sub-questions/vp-delivery/{agent-name}.md` using the Write tool.
+   Each file contains:
+   - Context brief (3-5 sentences summarizing CEO framing)
+   - Your domain-specific sub-question for that team lead
+   - Output instruction referencing the team lead's agent definition
+   - Reference file paths (session directory, RECORD.md if exists)
 
-   a. Create your division team:
-      `TeamCreate: team_name "cdp-vp-delivery-{issue-slug}"`
-
-   b. Spawn team leads as teammates -- all in a single response:
+   See `config/dispatch-protocol.md` for the sub-question file format.
 
    Your team leads and their agent names:
-   | Team Lead | Agent Name |
-   |-----------|-----------|
-   | Project/Program Manager | `project-program-manager` |
-   | Resource Manager | `resource-manager` |
-   | Client Success Lead | `client-success-lead` |
-   | QA/Delivery Standards Lead | `qa-delivery-standards-lead` |
-
-   Agent tool call for each relevant team lead with:
-   - **subagent_type**: `general-purpose`
-   - **name**: The agent name from the table above
-   - **team_name**: `"cdp-vp-delivery-{issue-slug}"`
-   - **prompt**: Context brief (3-5 sentences summarizing CEO framing
-     and any relevant Research Dossier findings) + your domain-specific
-     sub-question for that team lead + "Follow the analytical framework
-     and output template defined in your agent definition at
-     `.claude/agents/team-leads/vp-delivery/{agent-name}.md`. Answer all
-     forcing questions integrated into your assessment."
+   | Team Lead | Agent Name | File Path |
+   |-----------|-----------|-----------|
+   | Project/Program Manager | `project-program-manager` | `{session}/sub-questions/vp-delivery/project-program-manager.md` |
+   | Resource Manager | `resource-manager` | `{session}/sub-questions/vp-delivery/resource-manager.md` |
+   | Client Success Lead | `client-success-lead` | `{session}/sub-questions/vp-delivery/client-success-lead.md` |
+   | QA/Delivery Standards Lead | `qa-delivery-standards-lead` | `{session}/sub-questions/vp-delivery/qa-delivery-standards-lead.md` |
 
    All four team leads activate for any delivery-relevant decision.
-   Delivery is an integrated function -- analyzing one without the
-   others produces incomplete assessments.
+   Delivery is an integrated function -- write sub-question files for all
+   team leads. Analyzing one without the others produces incomplete assessments.
 
-   c. Team leads complete analysis and SendMessage findings back to you.
+   After writing all sub-question files, notify the CEO via SendMessage:
+   "Sub-questions ready: {list of file paths written}"
 
-   d. After collecting all findings, shut down division team
-      (SendMessage type: "shutdown_request" to each teammate).
+   If no team leads are needed for this decision, SendMessage the CEO:
+   "No team leads needed -- proceeding with inline analysis"
 
-5. **Collect findings.** Team lead findings arrive via SendMessage
-   automatically. If a team lead fails or times out, note the gap
-   and proceed with available findings.
+5. **Receive team lead findings.** You are a teammate in a CEO-created
+   division team. Team lead findings arrive via SendMessage automatically --
+   team leads will SendMessage their findings to you by name within the
+   division team. If a team lead fails or times out, note the gap and
+   proceed with available findings.
+
+   Expected team leads: Project/Program Manager, Resource Manager,
+   Client Success Lead, QA/Delivery Standards Lead
 
 **Sub-question formulation rules:**
 - Do NOT forward the CEO's question verbatim. Translate it into delivery terms.

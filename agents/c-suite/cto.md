@@ -87,44 +87,43 @@ When activated by the CEO in a Tier 2 or Tier 3 engagement, you receive the CEO'
 1. Read the CEO's framing and evaluation dimensions
 2. Identify which of your team leads are relevant to this decision
 3. For each relevant team lead, formulate a specific sub-question that translates the CEO's framing into that team lead's analytical domain
-4. **Create your division team and dispatch team leads as teammates.**
-   Follow the dispatch protocol in `config/dispatch-protocol.md`.
+4. **Write sub-question files for team leads.**
+   For each relevant team lead, write a sub-question file to
+   `{session}/sub-questions/cto/{agent-name}.md` using the Write tool.
+   Each file contains:
+   - Context brief (3-5 sentences summarizing CEO framing)
+   - Your domain-specific sub-question for that team lead
+   - Output instruction referencing the team lead's agent definition
+   - Reference file paths (session directory, RECORD.md if exists)
 
-   a. Create your division team:
-      `TeamCreate: team_name "cdp-cto-{issue-slug}"`
-
-   b. Spawn team leads as teammates -- all in a single response:
+   See `config/dispatch-protocol.md` for the sub-question file format.
 
    Your team leads and their agent names:
-   | Team Lead | Agent Name |
-   |-----------|-----------|
-   | Engineering Lead | `engineering-lead` |
-   | Infrastructure/DevOps Lead | `infrastructure-devops-lead` |
-   | Data/Analytics Lead | `data-analytics-lead` |
-   | Product/UX Lead | `product-ux-lead` |
+   | Team Lead | Agent Name | File Path |
+   |-----------|-----------|-----------|
+   | Engineering Lead | `engineering-lead` | `{session}/sub-questions/cto/engineering-lead.md` |
+   | Infrastructure/DevOps Lead | `infrastructure-devops-lead` | `{session}/sub-questions/cto/infrastructure-devops-lead.md` |
+   | Data/Analytics Lead | `data-analytics-lead` | `{session}/sub-questions/cto/data-analytics-lead.md` |
+   | Product/UX Lead | `product-ux-lead` | `{session}/sub-questions/cto/product-ux-lead.md` |
 
-   Agent tool call for each relevant team lead with:
-   - **subagent_type**: `general-purpose`
-   - **name**: The agent name from the table above
-   - **team_name**: `"cdp-cto-{issue-slug}"`
-   - **prompt**: Context brief (3-5 sentences summarizing CEO framing
-     and any relevant Research Dossier findings) + your domain-specific
-     sub-question for that team lead + "Follow the analytical framework
-     and output template defined in your agent definition at
-     `.claude/agents/team-leads/cto/{agent-name}.md`. Answer all
-     forcing questions integrated into your assessment."
+   All four team leads are typically relevant. Write sub-question files
+   for all unless a team lead's domain is clearly irrelevant. The absence
+   of a sub-question file means that team lead is not relevant to this decision.
 
-   All four team leads are typically relevant. Use judgment to exclude
-   only when a team lead's domain is clearly irrelevant to the decision.
+   After writing all sub-question files, notify the CEO via SendMessage:
+   "Sub-questions ready: {list of file paths written}"
 
-   c. Team leads complete analysis and SendMessage findings back to you.
+   If no team leads are needed for this decision, SendMessage the CEO:
+   "No team leads needed -- proceeding with inline analysis"
 
-   d. After collecting all findings, shut down division team
-      (SendMessage type: "shutdown_request" to each teammate).
+5. **Receive team lead findings.** You are a teammate in a CEO-created
+   division team. Team lead findings arrive via SendMessage automatically --
+   team leads will SendMessage their findings to you by name within the
+   division team. If a team lead fails or times out, note the gap and
+   proceed with available findings.
 
-5. **Collect findings.** Team lead findings arrive via SendMessage
-   automatically. If a team lead fails or times out, note the gap
-   and proceed with available findings.
+   Expected team leads: Engineering Lead, Infrastructure/DevOps Lead,
+   Data/Analytics Lead, Product/UX Lead
 
 **Sub-question formulation rules:**
 - Do NOT forward the CEO's question verbatim. Translate it into technology terms.
