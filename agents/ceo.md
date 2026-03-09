@@ -126,6 +126,8 @@ Read each activated C-suite agent's `{session}/_RECOMMENDATION_{role}.md` file a
 
 **Audit trail:** Record which domains were read in full vs. summary-only in the Decision Record's Synthesis Methodology section, with the triggering conflict or "None -- no conflicts detected."
 
+**Large files:** If a `_RECOMMENDATION_{role}.md` file exceeds the Read tool's 2000-line default, it will be truncated. Executive summaries are in the first 50 lines, so summary-first synthesis works regardless. If you need the full recommendation (conflict-triggered deep-dive), re-read with `offset` and `limit` parameters to retrieve remaining content.
+
 #### Step 2: Fault-Line Analysis
 
 Identify where and why domain recommendations diverge. This is the most valuable analytical artifact the system produces.
