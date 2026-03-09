@@ -6,7 +6,7 @@
 
 *How to set up a development environment and contribute to CDP.*
 
-*Version 1.0 · February 2026*
+*Version 1.7 · March 2026*
 
 </div>
 
@@ -93,15 +93,37 @@ corporate-decision-panel/
 │       ├── panel.md                     # /cdp:panel (Tier 2)
 │       ├── deliberate.md               # /cdp:deliberate (Tier 3)
 │       ├── evaluate.md                 # /cdp:evaluate (auto-triage)
-│       └── production.md              # /cdp:production (re-run production)
+│       ├── production.md              # /cdp:production (re-run production)
+│       ├── resume.md                  # /cdp:resume (session resume)
+│       └── cleanup.md                 # /cdp:cleanup (session cleanup)
 │
 ├── config/                              # System configuration
+│   ├── cco-dispatch-protocol.md         # CEO-managed 4-wave production dispatch
 │   ├── company-profile.md               # Archetype presets + override mechanism
 │   ├── decision-modes.md                # Five mode definitions + prompt modifiers
-│   ├── routing-table.md                 # Decision-type routing + threshold conditions
-│   ├── dispatch-protocol.md             # Team lead dispatch (TeamCreate + Agent with team_name)
-│   ├── cco-dispatch-protocol.md         # CCO production team dispatch (3-wave pattern)
-│   └── orchestration-protocol.md        # Five-phase cascade + production pipeline
+│   ├── dispatch-protocol.md             # CEO-as-universal-dispatcher protocol
+│   ├── file-index.md                    # Complete file index
+│   ├── logging-protocol.md              # Agent logging protocol
+│   ├── orchestration-protocol.md        # Five-phase cascade + session resume
+│   ├── production-pipeline.md           # Production pipeline specification
+│   └── routing-table.md                 # Decision-type routing + threshold conditions
+│
+├── scripts/                             # Python scripts
+│   ├── apply_models.py                  # Agent model config applicator
+│   ├── build_results_pdf.py             # Native Results PDF generator
+│   ├── config.py                        # Config parser
+│   ├── generate_infographic.py          # Single infographic generation
+│   ├── preflight.py                     # Pre-flight validation
+│   ├── session.py                       # Infographic generation session
+│   └── validation.py                    # Session validation utilities
+│
+├── tests/                               # Automated tests
+│   ├── test_apply_models.py
+│   ├── test_config.py
+│   ├── test_generate_infographic.py
+│   ├── test_preflight.py
+│   ├── test_session.py
+│   └── test_validation.py
 │
 ├── templates/                           # Output format specifications
 │   ├── advisory-note.md                 # Tier 1 output format
@@ -115,8 +137,9 @@ corporate-decision-panel/
 │       ├── advisory-document.md         # Tier 1 DOCX spec
 │       ├── board-document.md            # DOCX report spec
 │       ├── board-presentation.md        # PPTX slide deck spec
+│       ├── capsule-structure.md         # Archival PDF spec
 │       ├── decision-briefing-page.md    # HTML briefing page spec
-│       └── capsule-structure.md         # Archival PDF spec
+│       └── infographics.md             # Graphic Designer spec
 │
 └── docs/                                # Documentation
     ├── README.md                        # User manual
@@ -265,7 +288,7 @@ Run the Python test suite:
 python3 -m pytest tests/ -v
 ```
 
-Tests cover configuration parsing (`test_config.py`), agent model application (`test_apply_models.py`), infographic generation (`test_generate_infographic.py`), and the session pipeline (`test_session.py`).
+Tests cover configuration parsing (`test_config.py`), agent model application (`test_apply_models.py`), infographic generation (`test_generate_infographic.py`), the session pipeline (`test_session.py`), session validation (`test_validation.py`), and pre-flight checks (`test_preflight.py`).
 
 ### Manual Testing
 
@@ -305,7 +328,7 @@ For changes to decision modes or the CEO's synthesis logic, run the calibration 
 | Routing rule | Run `/cdp:evaluate` with several issue types; verify the CEO routes correctly |
 | Decision mode | Run a multi-mode comparison; verify the mode produces a distinct synthesis |
 | Output template | Run the relevant tier; verify the output matches the template structure |
-| Production spec | Run with `--produce` (Tier 2) or Tier 3; verify the artifact is generated correctly |
+| Production spec | Run Tier 2 or Tier 3; verify the artifact is generated correctly |
 
 ---
 
@@ -320,6 +343,8 @@ CDP is primarily a prompt-and-configuration system defined in Markdown files wit
 - `scripts/config.py` -- Configuration parser (shared by other scripts)
 - `scripts/build_results_pdf.py` -- Native Results PDF generator
 - `scripts/session.py` + `scripts/generate_infographic.py` -- Infographic generation pipeline
+- `scripts/validation.py` -- Session validation utilities
+- `scripts/preflight.py` -- Pre-flight validation (API key, billing status)
 - Production build scripts generated at runtime (`build/*.js`, `build/*.py`)
 
 ### Preserving Engineered Dissent

@@ -1,6 +1,6 @@
 ---
 name: corporate-decision-panel
-version: 1.5
+version: 1.7
 description: >
   A complete organizational reasoning engine that emulates SMB executive
   committee decision-making. Presents any business issue through a structured
@@ -214,19 +214,21 @@ Output spec: `templates/production/advisory-document.md`
    - Decomposes issue into evaluation dimensions
    - Classifies decision type
    - Routes to user-specified roles (or auto-routes)
-4. Dispatch activated C-suite agents as standalone background subagents:
-   Agent tool with `run_in_background: true` for each activated role
+4. CEO creates a division team per activated role (`TeamCreate: "cdp-{role}-{issue-slug}"`)
+   and dispatches each C-suite agent as a teammate with `run_in_background: true`.
 5. Each C-suite agent runs **Mode B** (full analysis):
-   - Creates own division team (`TeamCreate: "cdp-{role}-{issue-slug}"`)
-   - Spawns team leads as teammates (Agent with team_name)
-   - Collects findings via SendMessage
+   - Writes sub-question files to `{session}/sub-questions/{role}/`
+   - Notifies CEO via SendMessage when sub-questions are ready
+   - CEO reads sub-question files and dispatches team leads as teammates
+   - Collects team lead findings via SendMessage
    - Writes domain recommendation to `{session}/_RECOMMENDATION_{role}.md`
-   - Shuts down division team
+   See `config/dispatch-protocol.md`.
 6. CEO runs **Phase 5** (abbreviated synthesis):
    - Reads `_RECOMMENDATION_*.md` files after all agents complete
    - Applies Decision Mode
    - Produces Panel Assessment
-7. Dispatch CCO as standalone background subagent for production.
+7. CEO creates production team (`cdp-cco-{slug}`), dispatches CCO as teammate.
+   CCO coordinates wave dispatch via SendMessage. See `config/cco-dispatch-protocol.md`.
 8. Return Panel Assessment to user
 
 Output template: `templates/panel-assessment.md`
@@ -251,22 +253,22 @@ activation AND exclusion reasoning. Evaluates full-activation threshold
 conditions. Issues CSO research directive if applicable.
 
 **Phase 1.5 -- Research Investigation** (conditional)
-If CEO activates the CSO (standalone background subagent): CSO creates its
-own division team, spawns 5 research team leads as teammates (Market
-Intelligence, Competitive Intelligence, Technology Scout, Industry &
-Regulatory Analyst, Precedent & Patterns Analyst). CSO collects findings
-via SendMessage, synthesizes into Research Dossier with evidence quality
-grade and Assumption Registry. Dossier broadcast to all activated C-suite.
+If CEO activates the CSO: CEO creates CSO division team (`cdp-cso-{slug}`),
+dispatches CSO as teammate. CSO writes sub-question files for 5 research
+team leads (Market Intelligence, Competitive Intelligence, Technology Scout,
+Industry & Regulatory Analyst, Precedent & Patterns Analyst). CEO dispatches
+them as teammates. CSO collects findings via SendMessage, synthesizes into
+Research Dossier with evidence quality grade and Assumption Registry.
+Dossier broadcast to all activated C-suite.
 **Skipped if CSO not activated.**
 
 **Phase 2 -- C-Suite Dispatches Downward**
-Dispatch activated C-suite agents as standalone background subagents:
-Agent tool with `run_in_background: true` for each activated role.
-Each C-suite agent creates a division team (TeamCreate) and spawns
-team leads as teammates (Agent with team_name). See
-`config/dispatch-protocol.md`. This translation is analytical -- the
-CFO does not forward the question; the CFO asks the Controller "what are
-the GAAP implications?"
+CEO creates a division team per activated role (`cdp-{role}-{slug}`) and
+dispatches C-suite agents as teammates with `run_in_background: true`.
+Each C-suite agent writes sub-question files; CEO reads them and dispatches
+team leads as teammates. See `config/dispatch-protocol.md`. This
+translation is analytical -- the CFO does not forward the question; the
+CFO asks the Controller "what are the GAAP implications?"
 
 **Phase 3 -- Team Leads Produce Findings**
 Each team lead teammate performs narrow, focused analysis through their
@@ -278,8 +280,9 @@ parent. Different methods produce structurally different outputs.
 Each C-suite agent collects team lead findings (via SendMessage),
 synthesizes a domain recommendation with confidence level, key risks,
 and key opportunities. Internal contradictions between team leads flagged
-as analytical signals. Each C-suite agent shuts down its division team
-and writes domain recommendation to `{session}/_RECOMMENDATION_{role}.md`.
+as analytical signals. Each C-suite agent writes domain recommendation
+to `{session}/_RECOMMENDATION_{role}.md`. CEO manages division team
+lifecycle.
 
 **Phase 4.5 -- Pre-Mortem Challenge** (Tier 3 only)
 After producing their own recommendation, each C-suite agent receives
@@ -293,7 +296,9 @@ fault lines, determines most determinative perspective, applies Decision
 Mode, produces the Decision Record.
 
 **Production automatically triggered after Phase 5.**
-Dispatch CCO as standalone background subagent.
+CEO creates production team (`cdp-cco-{slug}`), dispatches CCO as
+teammate. CCO coordinates wave dispatch via SendMessage; CEO dispatches
+each wave agent as teammate. See `config/cco-dispatch-protocol.md`.
 
 Output template: `templates/decision-record.md`
 Comparative output: `templates/comparative-decision-record.md`
@@ -350,8 +355,8 @@ it owns only the production pipeline.
 
 ### Layer 2: Division Team Agents — Analytical Team Leads (Haiku)
 
-34 domain specialists spawned as teammates in their C-suite parent's
-division team: 29 analytical team leads (Phase 2-4) and 5 research
+34 domain specialists spawned as teammates in CEO-created division
+teams: 29 analytical team leads (Phase 2-4) and 5 research
 team leads (CSO, Phase 1.5). Each has a unique analytical framework, mandatory output
 template, three forcing questions (Pre-Mortem, Adversarial Empathy,
 Domain Devil's Advocate), and restricted tool access (Read, Grep, Glob,
@@ -374,7 +379,7 @@ blind spots.
 
 ### Layer 2: Production Team Agents — CCO Team Leads
 
-4 production specialists spawned as teammates in the CCO's production
+4 production specialists spawned as teammates in the CEO-created production
 team, dispatched in four sequential waves. These are not analytical agents -- they
 produce artifacts from completed Decision Records.
 
@@ -415,9 +420,10 @@ Production always triggers after deliberation. The full specification is in
 
 **Session output:** `.cdp-output/YYYY-MM-DD_<issue-slug>/`
 
-**CCO dispatch (Tier 2/3):** CEO spawns CCO as a standalone background
-subagent. CCO reads RECORD.md, produces a Creative Brief, and dispatches
-its production team in four sequential waves: Graphic Designer → Writer →
+**CCO dispatch (Tier 2/3):** CEO creates production team (`cdp-cco-{slug}`),
+dispatches CCO as teammate. CCO reads RECORD.md, produces a Creative Brief,
+and coordinates four sequential production waves via SendMessage. CEO
+dispatches each wave agent as teammate: Graphic Designer → Writer →
 Editor → Publisher. See `config/cco-dispatch-protocol.md`.
 
 **Tier 1:** Single Agent tool call for Advisory Document DOCX (no CCO).
