@@ -50,6 +50,9 @@ tests/fixtures/*_SAMPLE.png
 # Temporary live test output
 .tmp-live-test-output/
 
+# Planning (internal GSD workflow)
+.planning/
+
 # Claude Code
 .claude/
 
