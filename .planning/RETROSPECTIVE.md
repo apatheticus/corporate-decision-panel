@@ -100,6 +100,53 @@
 
 ---
 
+## Milestone: v1.4 — Team Refactor
+
+**Shipped:** 2026-03-09
+**Phases:** 4 | **Plans:** 8
+
+### What Was Built
+- Dispatch architecture rewrite: CEO becomes universal dispatcher, C-suite agents become teammates with file-based sub-question protocol
+- All 9 C-suite agents transformed to Mode B (sub-question file writing + SendMessage notification)
+- CEO-managed CCO production pipeline with wave sequencing and editorial coordination
+- Inline logging protocol embedded in all 48 agent files (eliminated external file dependency)
+- Infographic pipeline fixes: slug alias resolution, validation leniency for routing diagrams, publisher path fix
+- Large file read guidance in orchestration protocol and CEO agent
+
+### What Worked
+- Phase dependency chain was critical: production fixes (10) → logging (11) → dispatch rewrite (12) → docs (13) — each phase built on stable foundations
+- Bulk file editing with bash heredocs (34 files in one command) was extremely efficient for Phase 11
+- Notification-triggered dispatch (SendMessage) replaced polling — simpler and more reliable design
+- 3-source cross-reference audit verified all 18 requirements with zero gaps
+- Context gathering session (Phase 12) before planning prevented misunderstanding of CEO dispatch mechanics
+
+### What Was Inefficient
+- ROADMAP.md Phase 13 row had shifted columns (missing Milestone column) — same recurring ROADMAP sync issue
+- ROADMAP.md 13-01 plan checkbox was unchecked despite completion — documentation drift persists
+- REQUIREMENTS.md INFRA-02 description said "canonical slugs" but implementation uses shorthand slugs with alias resolution — scope adjusted during context gathering but REQUIREMENTS.md text not updated
+- Nyquist validation strategies were created but sign-off checkboxes not completed — process gap continues from v1.1
+
+### Patterns Established
+- CEO-as-universal-dispatcher: only main session uses Agent/TeamCreate, subagents communicate via SendMessage
+- Sub-question file protocol: C-suite writes `{session}/sub-questions/{role}/{team-lead-name}.md`, CEO reads and dispatches
+- Notification-triggered dispatch: teammates SendMessage CEO when ready, CEO dispatches next wave
+- Inline protocol embedding: each agent carries its own protocol summary rather than referencing external files
+- Natural team dissolution: teams dissolve when recommendations are written, no explicit shutdown needed
+
+### Key Lessons
+1. Context gathering sessions before major rewrites prevent misunderstanding scope — Phase 12 context session was essential
+2. Bash heredocs with sed are the fastest way to apply identical changes across 30+ files
+3. Platform constraints (only lead can use Agent/TeamCreate) should drive architecture, not be worked around
+4. Sub-question file convention enables domain expertise preservation — C-suite agents frame team lead work with their expertise
+5. SendMessage notification is simpler than polling for inter-agent coordination
+
+### Cost Observations
+- Model mix: ~85% sonnet (execution), ~15% opus (planning, audit)
+- Total execution: ~1 day across ~4 sessions
+- Notable: 82 files modified in a single day — highest throughput milestone yet
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -108,6 +155,7 @@
 |-----------|----------|--------|------------|
 | v1.0 | ~10 | 4 | Initial project — established TDD + gap closure patterns |
 | v1.1 | ~8 | 5 | Specification work — established config extraction + integration audit patterns |
+| v1.4 | ~4 | 4 | Architecture rewrite — established dispatch + sub-question file patterns |
 
 ### Cumulative Quality
 
@@ -115,10 +163,12 @@
 |-----------|-------|----------|---------------|
 | v1.0 | 188 | n/a | 5 Python modules (config, preflight, generate, validation, session) |
 | v1.1 | 188 | n/a | 38 markdown files (agents, config, templates, test scenarios) |
+| v1.4 | 188 | n/a | 48 agent files rewritten (dispatch + logging), 3 config protocols rewritten |
 
 ### Top Lessons (Verified Across Milestones)
 
-1. Audit milestone before completion — catches documentation drift, missing interfaces, and integration gaps (v1.0: session.py CLI, v1.1: INT-01/INT-02)
+1. Audit milestone before completion — catches documentation drift, missing interfaces, and integration gaps (v1.0: session.py CLI, v1.1: INT-01/INT-02, v1.4: ROADMAP column shift)
 2. Non-blocking quality gates are more robust than hard failures for AI-generated content
-3. ROADMAP.md plan completion counts drift during execution — needs automation or post-phase sync
+3. ROADMAP.md plan completion counts and table formatting drift during execution — needs automation or post-phase sync (verified across all 3 milestones)
 4. Integration checker catches cross-phase issues that individual verifiers miss — run at milestone level
+5. Platform constraints should drive architecture rather than be worked around — leads to cleaner designs (v1.4: dispatch rewrite)

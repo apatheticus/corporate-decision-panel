@@ -1,5 +1,24 @@
 # Milestones
 
+## v1.4 Team Refactor (Shipped: 2026-03-09)
+
+**Delivered:** Fixed the nested session limitation preventing C-suite agents from dispatching team leads by moving all Agent/TeamCreate to the CEO, plus addressed 5 production issues from the 2026-03-08 error logs.
+
+**Phases completed:** 4 phases, 8 plans
+**Files modified:** 82 (+6,149 / -727 lines)
+**Timeline:** 1 day (2026-03-08)
+**Git range:** d4bffe9 → 456ce71
+
+**Key accomplishments:**
+1. Rewrote dispatch architecture — CEO becomes universal dispatcher, solving nested session limitation
+2. Transformed all 9 C-suite agents to Mode B sub-question file protocol (no TeamCreate/Agent/shutdown)
+3. Built CEO-managed CCO production pipeline with wave sequencing and editorial coordination
+4. Embedded inline logging protocol in all 48 agent files, eliminating external file dependency
+5. Fixed infographic pipeline — slug alias resolution, validation leniency, publisher path fix
+6. Added large file read guidance to orchestration protocol and CEO agent
+
+---
+
 ## v1.1 Initial Design Concerns (Shipped: 2026-03-05)
 
 **Delivered:** Addressed architectural, specification, and testing concerns identified in the codebase audit — cleaner agent architecture, hardened orchestration, formalized specifications, and comprehensive test scenarios.
