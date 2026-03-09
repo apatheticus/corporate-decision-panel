@@ -53,6 +53,21 @@ class ValidationResult:
 
 
 # ---------------------------------------------------------------------------
+# Lenient validation types
+# ---------------------------------------------------------------------------
+
+LENIENT_TYPES: set[str] = {"routing-diagram"}
+"""Infographic types where PARTIAL labels are acceptable (clean pass).
+
+High-density types like routing diagrams have inherently dense text that
+triggers PARTIAL label detection during vision validation.  For these types,
+PARTIAL labels are expected and should not waste retry budget.
+
+Garbled text detection remains strict for all types.
+"""
+
+
+# ---------------------------------------------------------------------------
 # Label extraction
 # ---------------------------------------------------------------------------
 
@@ -211,6 +226,7 @@ def validate_infographic(
     image_path: Path,
     data_path: Path,
     config_dir: Path,
+    type_slug: str | None = None,
 ) -> ValidationResult:
     """Validate that expected data labels are present in a generated infographic.
 
@@ -225,10 +241,14 @@ def validate_infographic(
     On API error, returns ``passed=False`` -- validation fails closed
     to prevent bad images from passing silently.
 
+    For types listed in :data:`LENIENT_TYPES`, PARTIAL label warnings
+    are promoted to a clean pass (garbled text detection stays strict).
+
     Args:
         image_path: Path to the generated PNG file.
         data_path: Path to the source data JSON file.
         config_dir: Directory containing ``config.md`` with API key and model.
+        type_slug: Optional infographic type slug for leniency lookup.
 
     Returns:
         :class:`ValidationResult` with verdict, warnings, and feedback.
@@ -246,9 +266,9 @@ def validate_infographic(
     data = json.loads(data_path.read_text())
     expected_labels = _extract_expected_labels(data)
 
-    # Derive type slug from image filename for status output
-    type_slug = image_path.stem.replace("INFOGRAPHIC_", "")
-    _status("VALIDATING", type_slug)
+    # Derive type label from image filename for status output
+    status_label_slug = image_path.stem.replace("INFOGRAPHIC_", "")
+    _status("VALIDATING", status_label_slug)
 
     prompt = (
         "You are a strict quality checker for data infographics.\n\n"
@@ -289,6 +309,23 @@ def validate_infographic(
         )
 
         result = _parse_validation_response(response.text)
+
+        # Apply leniency for high-density types: PARTIAL labels count as clean pass
+        # Garbled text detection stays strict for all types
+        if (
+            type_slug is not None
+            and type_slug in LENIENT_TYPES
+            and result.warning_only
+            and not result.garbled
+        ):
+            result = ValidationResult(
+                passed=True,
+                warning_only=False,
+                feedback=None,
+                warnings=result.warnings,
+                missing=result.missing,
+                garbled=result.garbled,
+            )
 
     except (APIError, Exception) as e:
         _status("VALIDATION", f"ERROR {e}")

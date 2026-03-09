@@ -1,546 +1,608 @@
-# Architecture: v1.1 Concern Fix Integration
+# Architecture: v1.4 Team Refactor Integration
 
-**Domain:** Integrating 11 concern fixes into existing CDP multi-agent orchestration system
-**Researched:** 2026-03-04
-**Confidence:** HIGH (analysis based on direct reading of all affected source files)
+**Domain:** Division team dispatch, sub-question file protocol, CEO-managed wave sequencing, and file-based inter-agent coordination
+**Researched:** 2026-03-08
+**Confidence:** HIGH (analysis based on direct reading of all affected source files, reference documents, and error logs from 2026-03-08 production session)
+
+---
 
 ## Executive Summary
 
-The 11 v1.1 concern fixes fall into three architectural categories: **extraction** (pulling embedded specs into standalone documents), **augmentation** (adding new behaviors to existing agent/script flows), and **creation** (building entirely new components). The critical insight is that most fixes touch `agents/ceo.md` -- the 682-line CEO agent is the gravity well of the system. Six of the eleven fixes either read from, write to, or restructure content currently embedded in that file. This makes the CEO refactor (concern #1) the foundational change that most other fixes depend on or benefit from.
+The v1.4 Team Refactor is an architectural inversion: moving all Agent/TeamCreate calls from C-suite agents to the CEO, while preserving the three-tier deliberation hierarchy (CEO > C-suite > team leads). The refactor is necessary because nested Claude Code sessions cannot use Agent/TeamCreate tools -- a hard platform constraint confirmed by three independent agent failures in the 2026-03-08 session. The solution (Option A -- "Division teams with CEO as universal dispatcher") introduces three new architectural components: division team dispatch from the CEO, a sub-question file protocol for C-suite-to-CEO communication, and CEO-managed wave sequencing for the CCO production pipeline. These integrate with the existing file-based output convention (_RECOMMENDATION_*.md, _REPORT_*.md) and SendMessage-based intra-team communication.
 
-The existing architecture is a prompt-and-configuration system with zero application code for the deliberation engine itself (Python scripts handle only infographic generation). All 11 concern fixes are therefore markdown specification changes, Python script additions, or new markdown documents -- not traditional software engineering. The "build" metaphor here means "write and validate specification documents that agents follow."
+The refactor touches 14 files directly (3 config protocols, 1 CEO agent, 9 C-suite agents, 1 SKILL.md) but changes zero application code for the deliberation engine -- all changes are markdown specification edits. The five supporting fixes (slug aliases, PDF path, logging inline, validation leniency, large file guidance) are independent and can be implemented before or in parallel with the core dispatch rewrite.
 
-## Existing Architecture (As-Is)
+---
 
-### System Components
+## Existing Architecture (As-Is, v1.5 Codebase)
+
+### System Overview
+
+The CDP is a prompt-as-code system. The deliberation engine has zero application code -- agent behavior is defined entirely by markdown specifications. Python scripts handle only infographic generation, validation, PDF production, and model configuration. "Architecture" here means the structure of markdown specifications that agents follow.
+
+### Current Component Map
 
 ```
-agents/
-  ceo.md                     (682 lines -- orchestration + identity + routing + modes)
-  c-suite/
-    cao.md, cfo.md, ciso.md, coo.md, cso.md, cto.md, vp-delivery.md, vp-sales.md
-  team-leads/
-    cao/, cfo/, ciso/, coo/, cso/, cto/, vp-delivery/, vp-sales/
+ORCHESTRATION LAYER (config/)
+  orchestration-protocol.md    Five-phase cascade, production trigger, session setup
+  dispatch-protocol.md         C-suite -> team lead dispatch pattern (BROKEN)
+  cco-dispatch-protocol.md     CCO -> production team dispatch (BROKEN)
+  routing-table.md             Decision-type activation rules, thresholds
+  decision-modes.md            Five CEO synthesis modes
+  production-pipeline.md       Artifact specs, dependency table
+  company-profile.md           Archetype presets
+  logging-protocol.md          Agent error logging
 
-config/
-  routing-table.md            (routing rules + threshold conditions + CSO activation)
-  decision-modes.md           (5 modes + mode/tier matrix + multi-mode comparison)
-  company-profile.md          (archetype presets + overrides)
+AGENTS (agents/)
+  ceo.md                       CEO identity + orchestration reference (348 lines)
+  c-suite/                     9 C-suite agents (CAO, CCO, CFO, CISO, COO, CSO, CTO, VP-Delivery, VP-Sales)
+  team-leads/                  34 team lead agents across 9 divisions
 
-templates/
-  decision-record.md          (Tier 3 output format)
-  comparative-decision-record.md  (multi-mode output format)
-  panel-assessment.md         (Tier 2 output format)
-  advisory-note.md            (Tier 1 output format)
-  production/
-    infographics.md, board-presentation.md, board-document.md,
-    advisory-document.md, decision-briefing-page.md, capsule-structure.md
+SCRIPTS (scripts/)
+  config.py                    API key + model config from .cdp-context/
+  preflight.py                 Dependency validation
+  generate_infographic.py      Gemini API infographic generation
+  validation.py                AI vision quality validation
+  session.py                   Batch infographic session runner
+  build_results_pdf.py         Results PDF via reportlab
+  apply_models.py              Agent model override from config
 
-scripts/
-  config.py, preflight.py, generate_infographic.py, validation.py, session.py
+TEMPLATES (templates/)
+  Decision record, panel assessment, advisory note formats
+  production/                  Artifact production specs
+  infographic-prompts/         JSON prompt templates for 6 infographic types
 
-SKILL.md                      (invocation grammar + orchestration protocol + production spec)
+SKILL (SKILL.md)
+  Invocation grammar, orchestration overview, agent roster
 ```
 
-### Data Flow (Current)
+### Current Data Flow (Documented, Not Working)
 
 ```
-User input
-  -> SKILL.md (parses invocation, determines tier/mode)
-  -> agents/ceo.md (Phase 0-1: frame, route, broadcast)
-    -> config/routing-table.md (routing rules applied)
-    -> agents/c-suite/cso.md (Phase 1.5: conditional research)
-    -> agents/c-suite/*.md (Phase 2-4: domain analysis + synthesis)
-      -> agents/team-leads/*/*.md (Phase 3: specialist findings)
-    -> config/decision-modes.md (Phase 5: mode modifier applied)
-  -> templates/decision-record.md (output formatted)
-  -> templates/production/*.md (production artifacts)
-    -> scripts/*.py (infographic generation only)
-  -> .cdp-output/YYYY-MM-DD_<slug>/ (session output)
+Phase 0: CEO broadcasts issue context to all activated C-suite
+Phase 1: CEO frames, routes, classifies decision type
+Phase 1.5: CSO research (conditional) -- CSO dispatches research team leads
+Phase 2: CEO dispatches C-suite as standalone subagents (Agent, no team_name)
+         C-suite creates division team (TeamCreate) <-- FAILS
+         C-suite dispatches team leads (Agent with team_name) <-- FAILS
+Phase 3: Team leads SendMessage findings to C-suite parent
+Phase 4: C-suite synthesizes -> _RECOMMENDATION_{role}.md
+Phase 4.5: Pre-mortem round (Tier 3 only) -> _PREMORTEM_{role}.md
+Phase 5: CEO reads recommendations, produces Decision Record
+Production: CEO dispatches CCO as standalone subagent
+            CCO creates production team (TeamCreate) <-- FAILS
+            CCO dispatches waves (Agent with team_name) <-- FAILS
 ```
 
-### Key Architectural Properties
+### What Actually Happens (Workaround)
 
-1. **Prompt-as-code:** The deliberation engine has zero application code. Agent behavior is defined entirely by markdown specifications. "Changing architecture" means "editing markdown documents."
-2. **CEO monolith:** The CEO agent contains the orchestration protocol (5-phase cascade), routing logic, mode application, triage protocol, multi-mode comparison, susceptibility mitigations, tier-specific behavior, and production pipeline trigger -- all in 682 lines.
-3. **Config externalized:** Routing rules and decision modes already live in `config/` as separate documents. The CEO agent references them but duplicates key content inline.
-4. **C-suite autonomy:** Each C-suite agent has self-contained identity, team composition, Tier 1 behavior, Tier 2/3 behavior, Phase 4.5 behavior, and synthesis instructions. They produce structured output (Advisory Note or Domain Recommendation) that the CEO ingests.
-5. **Production pipeline is append-only:** After deliberation, production agents run sequentially/parallel to create artifacts. No feedback loop from production back to deliberation.
-6. **Session directories are write-once:** `.cdp-output/` directories are created and written to, but never cleaned up, archived, or managed.
+Because C-suite agents are standalone subagents and cannot use Agent/TeamCreate:
+- C-suite agents perform all team lead analysis inline (defeating expert collaboration)
+- CCO performs all wave work inline (defeating sequential pipeline)
+- Design goals 2 (expert collaboration) and partially 3 (C-suite independence) are not met
 
----
+### Communication Patterns (Current)
 
-## Per-Concern Integration Analysis
-
-### Concern 1: Extract Orchestration Protocol from CEO Agent
-
-**Category:** Extraction
-**What changes:** `agents/ceo.md`
-**What is created:** New document (e.g., `config/orchestration-protocol.md` or `docs/orchestration-protocol.md`)
-**What stays:** CEO identity, mandate, susceptibility mitigations, organizational roster
-
-**Current state:** The CEO agent contains three distinct concerns in one file:
-1. **Identity and judgment principles** (~30 lines) -- who the CEO is and how they think
-2. **Orchestration protocol** (~350 lines) -- the 5-phase cascade, Phase 4.5 pre-mortem, multi-mode comparison, production pipeline trigger, session output setup
-3. **Triage protocol** (~70 lines) -- `/evaluate` logic
-4. **Configuration references and susceptibility mitigations** (~80 lines)
-
-**Integration approach:**
-- Extract the orchestration protocol (Phases 0-5, Phase 4.5, multi-mode comparison, production spawn sequence) into a standalone spec document
-- CEO agent retains identity, mandate, principles, susceptibility mitigations, organizational roster, and `\`references\`` the orchestration spec
-- The extracted spec becomes the canonical source of truth for phase execution; the CEO agent becomes the canonical source for CEO judgment and identity
-- Production pipeline trigger and session output setup move with the orchestration protocol (they are procedural, not identity)
-
-**Dependency:** This is the foundational refactor. Concerns 3, 5, 6, and 7 all modify content currently embedded in the CEO agent. Extracting the protocol first creates clean separation, so subsequent fixes modify the right document.
-
-**Files affected:**
-| File | Action | Scope |
-|------|--------|-------|
-| `agents/ceo.md` | MODIFY -- remove orchestration protocol, add reference to extracted spec | Major reduction (~350 lines removed) |
-| `config/orchestration-protocol.md` (NEW) | CREATE -- extracted 5-phase cascade, production pipeline, session setup | ~350 lines |
-| `SKILL.md` | MODIFY -- update references if SKILL.md currently delegates to CEO agent for protocol | Minor |
+| Pattern | Mechanism | Status |
+|---------|-----------|--------|
+| CEO -> C-suite | Agent tool (standalone, run_in_background) | Working |
+| C-suite -> team leads | Agent tool (with team_name) | BROKEN |
+| Team leads -> C-suite | SendMessage | Never exercised (dispatch fails) |
+| C-suite -> CEO | File output (_RECOMMENDATION_*.md) | Working |
+| CEO -> CCO | Agent tool (standalone) | Working |
+| CCO -> production team | Agent tool (with team_name) | BROKEN |
+| Production team -> CCO | File output (_REPORT_*.md) | Never exercised |
 
 ---
 
-### Concern 2: Pre-Flight Validation for Production Pipeline
+## New Architecture (To-Be, v1.4)
 
-**Category:** Augmentation
-**What changes:** Orchestration protocol (wherever it lives after concern #1)
-**What is created:** Pre-flight checklist specification in orchestration protocol or production spec
+### Core Inversion
 
-**Current state:** The production pipeline trigger in the CEO agent immediately spawns 5 production tasks after the Decision Record is produced. There is no validation that prerequisites exist before production begins. The infographic pipeline has its own `scripts/preflight.py` for API validation, but the broader production pipeline (PPTX, DOCX, HTML, PDF) has no equivalent.
+**Before:** C-suite agents create teams and dispatch team leads (two-hop dispatch).
+**After:** CEO creates all teams and dispatches all agents (single-hop dispatch). C-suite agents communicate sub-questions via files.
 
-**What could fail without pre-flight:**
-- Decision Record not fully formed (missing sections)
-- Session output directory not created
-- `.cdp-context/config.md` missing (API key for infographics)
-- Build dependencies not available (Node.js for PPTX/DOCX generation scripts)
+This is an inversion of the dispatch authority, not a change to the deliberation model. The intellectual hierarchy remains: CEO frames -> C-suite translates -> team leads analyze -> C-suite synthesizes -> CEO decides.
 
-**Integration approach:**
-- Add a "Production Pre-Flight" section to the orchestration protocol that executes between Decision Record completion and production task spawning
-- Pre-flight validates: (a) Decision Record completeness (all mandatory sections present), (b) session output directory exists with correct structure, (c) `.cdp-context/config.md` accessible (for infographic generation), (d) RECORD.md written to session directory
-- This is a spec addition, not code -- the CEO agent (or orchestrator) follows these steps as part of the protocol
-- Failure at any step produces a structured error message and does not spawn production tasks
-
-**Dependency:** Benefits from concern #1 being done first (adds to extracted orchestration protocol rather than bloating CEO agent further). But can be done independently by adding to whichever document owns the production pipeline trigger.
-
-**Files affected:**
-| File | Action | Scope |
-|------|--------|-------|
-| Orchestration protocol (wherever it lives) | MODIFY -- add pre-flight section before production spawn | ~30-40 lines added |
-| `templates/production/infographics.md` | No change -- infographic pre-flight already exists in `scripts/preflight.py` |  |
-
----
-
-### Concern 3: CSO Phase 1.5 Timeout Handling
-
-**Category:** Augmentation
-**What changes:** Orchestration protocol (Phase 1.5 section), `agents/c-suite/cso.md`
-**What stays:** CSO identity, research process, dossier format
-
-**Current state:** Phase 1.5 describes the CSO research investigation but has no timeout or error handling. If the CSO research takes too long, stalls, or produces incomplete results, there is no specified fallback. The orchestration protocol says "the CSO produces a Research Dossier" but does not define what happens when the CSO fails to produce one.
-
-**Integration approach:**
-- Add timeout/fallback section to Phase 1.5 in the orchestration protocol
-- Define three failure modes: (a) CSO produces no dossier (timeout/failure), (b) CSO produces partial dossier (some team leads responded, others did not), (c) CSO produces low-quality dossier (Grade D evidence quality)
-- For each failure mode, specify the CEO's response: proceed without dossier (with explicit notation in Decision Record), proceed with partial dossier (flag gaps), request CSO to focus on highest-priority sub-questions only
-- Add a "Research Scope Control" section to the CSO agent that accepts a `priority_subset` directive from the CEO, allowing narrower research scope under time pressure
-
-**Dependency:** Independent. Can be done before or after concern #1. Touches the orchestration protocol (Phase 1.5 section) and the CSO agent spec.
-
-**Files affected:**
-| File | Action | Scope |
-|------|--------|-------|
-| Orchestration protocol (Phase 1.5 section) | MODIFY -- add timeout handling, fallback protocol | ~40-50 lines added |
-| `agents/c-suite/cso.md` | MODIFY -- add priority_subset directive handling, scope control | ~20-30 lines added |
-| `templates/decision-record.md` | MODIFY -- add notation for "Research Dossier unavailable/partial" | ~5 lines |
-
----
-
-### Concern 4: Executive Summary Layer for C-Suite Agents
-
-**Category:** Augmentation
-**What changes:** All 8 C-suite agent files
-**What stays:** Agent identity, team composition, analytical process
-
-**Current state:** In Tier 2/3 mode, each C-suite agent produces a Domain Recommendation that includes Summary (2-3 sentences), Team Lead Findings (1-2 sentences each, up to 5 team leads), Internal Contradictions, Key Risks, Key Opportunities, and Conditions for Approval. The CEO receives ALL of this from ALL activated agents before synthesizing. For a Tier 3 full-activation with 8 C-suite agents, each with 4-5 team leads, the CEO must process ~40+ team lead findings plus 8 domain syntheses.
-
-**The token cost problem:** The CEO (Opus model) ingests the full output of every activated C-suite agent. More C-suite output = more Opus input tokens = higher cost. The Domain Recommendation format currently includes per-team-lead findings that the CEO should not need -- the CEO is supposed to engage with domain-level synthesis, not individual team lead findings (this is explicitly stated in Phase 3: "You do not see team lead outputs directly -- you see them only as synthesized through the C-suite officer's domain recommendation").
-
-**Integration approach:**
-- Add an "Executive Summary" output requirement to each C-suite agent's Tier 2/3 mode
-- The Executive Summary is a 3-5 sentence structured block placed at the TOP of the Domain Recommendation, containing: recommendation, confidence, most determinative finding, strongest risk, strongest opportunity
-- The CEO ingests only the Executive Summary from each agent for initial synthesis, then can reference the full Domain Recommendation if needed for fault line analysis
-- This does NOT change the Domain Recommendation structure -- it ADDS a structured prefix that enables the CEO to work with compressed input
-- Each C-suite agent adds ~10 lines to their Mode B section defining the Executive Summary format
-
-**Dependency:** Independent of all other concerns. Purely a C-suite agent spec change. Can be done in any order.
-
-**Files affected:**
-| File | Action | Scope |
-|------|--------|-------|
-| `agents/c-suite/cao.md` | MODIFY -- add Executive Summary to Mode B output | ~10 lines |
-| `agents/c-suite/cfo.md` | MODIFY -- add Executive Summary to Mode B output | ~10 lines |
-| `agents/c-suite/ciso.md` | MODIFY -- add Executive Summary to Mode B output | ~10 lines |
-| `agents/c-suite/coo.md` | MODIFY -- add Executive Summary to Mode B output | ~10 lines |
-| `agents/c-suite/cso.md` | N/A -- CSO produces Research Dossier, not Domain Recommendation | No change |
-| `agents/c-suite/cto.md` | MODIFY -- add Executive Summary to Mode B output | ~10 lines |
-| `agents/c-suite/vp-delivery.md` | MODIFY -- add Executive Summary to Mode B output | ~10 lines |
-| `agents/c-suite/vp-sales.md` | MODIFY -- add Executive Summary to Mode B output | ~10 lines |
-| Orchestration protocol (Phase 4) | MODIFY -- specify CEO ingests Executive Summaries first | ~10 lines |
-
----
-
-### Concern 5: Formalize Routing Thresholds into Decision Trees
-
-**Category:** Extraction + Formalization
-**What changes:** `config/routing-table.md`
-**What stays:** Routing logic semantics (the actual rules do not change)
-
-**Current state:** The routing table specifies 5 full-activation threshold conditions as prose descriptions:
-1. Irreversibility
-2. Headcount Impact (>30%)
-3. Market Position Change
-4. Existential Financial Risk
-5. Domain Uncertainty
-
-These are currently described in natural language in both `config/routing-table.md` AND duplicated in `agents/ceo.md` (Step 4 of Phase 1). The CEO must interpret prose to make routing decisions. There are no structured decision criteria, branching logic, or explicit examples distinguishing "triggered" from "not triggered."
-
-**Integration approach:**
-- Formalize each threshold condition into a structured decision tree with explicit criteria, examples of triggered vs. not-triggered, and edge cases
-- Keep the decision trees in `config/routing-table.md` (its natural home)
-- Remove the duplicated threshold prose from `agents/ceo.md` (or the extracted orchestration protocol) and replace with a reference to `config/routing-table.md`
-- Each decision tree should have: condition name, trigger question (yes/no), positive examples, negative examples, edge cases, and escalation guidance
-
-**Dependency:** Benefits from concern #1 (duplication in CEO agent is easier to clean up if orchestration is already extracted). But can proceed independently -- just needs to update both `config/routing-table.md` and `agents/ceo.md`.
-
-**Files affected:**
-| File | Action | Scope |
-|------|--------|-------|
-| `config/routing-table.md` | MODIFY -- expand threshold conditions into decision trees | Major expansion (~100-150 lines added) |
-| `agents/ceo.md` or orchestration protocol | MODIFY -- remove duplicated threshold prose, add reference | Lines removed |
-
----
-
-### Concern 6: Explicit Mode-to-Weighting Mappings
-
-**Category:** Formalization
-**What changes:** `config/decision-modes.md`
-**What stays:** Mode semantics, mode/tier interaction matrix
-
-**Current state:** Each decision mode has a "Resolution Pattern" description and a "CEO Prompt Modifier" block. The Resolution Pattern says things like "Weights skeptic roles (CISO, CFO, COO, VP Delivery) more heavily" (Guardian) or "Weights advocate roles (VP Sales, CTO) more heavily" (Pioneer). But there are no explicit condition-to-weighting tables showing HOW the weighting works. The CEO interprets prose modifiers to determine weighting.
-
-**Integration approach:**
-- Add a "Weighting Table" to each mode in `config/decision-modes.md`
-- Each table maps: role -> base weight (equal) -> mode modifier -> effective weight direction
-- Example for Guardian mode: `CISO: base + skeptic bonus = HIGH`, `CTO: base - advocate penalty = MODERATE`, `CFO: base + skeptic bonus = HIGH`
-- These are directional indicators (HIGH/MODERATE/LOW), not numeric weights -- the CEO still exercises judgment, but the direction is formalized
-- Add a "Conflict Resolution Rule" for each mode: what happens when two HIGH-weight roles disagree
-- This makes implicit weighting explicit and auditable
-
-**Dependency:** Independent. Modifies only `config/decision-modes.md`. Can proceed in any order.
-
-**Files affected:**
-| File | Action | Scope |
-|------|--------|-------|
-| `config/decision-modes.md` | MODIFY -- add weighting tables and conflict resolution rules per mode | ~100-120 lines added |
-
----
-
-### Concern 7: Document Multi-Mode Cost Formula
-
-**Category:** Creation (documentation)
-**What changes:** `config/decision-modes.md` (Multi-Mode Comparison section)
-**What stays:** Multi-mode comparison protocol
-
-**Current state:** The multi-mode comparison section says "Approximately 1.1x a single deliberation for 5x the strategic insight" but does not show how this is calculated. The claim "domain analysis runs once; CEO synthesis runs N times" is stated but not quantified in terms of actual token costs, agent invocations, or practical cost implications.
-
-**Integration approach:**
-- Add a "Cost Model" subsection to the Multi-Mode Comparison section of `config/decision-modes.md`
-- Document the actual cost components: (a) Phase 0-4 agent invocations (mode-independent, runs once), (b) Phase 5 CEO synthesis (mode-dependent, runs N times), (c) Phase 4.5 pre-mortem (mode-independent, runs once if Tier 3)
-- Provide a formula: `Total cost = C(phases 0-4) + N * C(phase 5)` where N = number of modes
-- Show example calculations for common scenarios: single mode Tier 2, single mode Tier 3, 2-mode comparison, all-modes (5x)
-- Include the model cost basis: CEO = Opus, C-suite = Sonnet, Team leads = Haiku
-
-**Dependency:** Independent. Documentation-only change to `config/decision-modes.md`.
-
-**Files affected:**
-| File | Action | Scope |
-|------|--------|-------|
-| `config/decision-modes.md` | MODIFY -- add Cost Model subsection | ~40-60 lines added |
-
----
-
-### Concern 8: Session Output Cleanup Mechanism
-
-**Category:** Creation (new component)
-**What changes:** Nothing existing
-**What is created:** New specification or script for session cleanup
-
-**Current state:** Session output directories (`.cdp-output/YYYY-MM-DD_<slug>/`) are created during production and never cleaned up. Over time, this directory accumulates session directories with images, build artifacts, PPTX/DOCX/HTML/PDF files. There is no archive, cleanup, or lifecycle management.
-
-**Integration approach:**
-- Create a cleanup specification that can be invoked via a new slash command (`/cdp:cleanup`) or as a script
-- Two options exist:
-  - **Option A (Spec-only):** Add a cleanup protocol to `SKILL.md` that the CEO agent follows when invoked. Lists sessions, lets user confirm deletion, removes selected directories.
-  - **Option B (Script):** Add a Python script `scripts/cleanup.py` that lists sessions with metadata (date, slug, file count, total size), supports `--older-than N` days, `--dry-run`, and `--confirm` flags.
-- **Recommendation: Option B (Script)** -- cleanup is mechanical and benefits from actual code rather than prompt-based execution. File enumeration, size calculation, and date comparison are more reliable in Python than in an LLM prompt.
-- The script should: (a) scan `.cdp-output/` for session directories, (b) parse date from directory name prefix, (c) calculate total size per session, (d) support `--older-than` days filter, (e) support `--dry-run` to preview without deleting, (f) require `--confirm` for actual deletion
-
-**Dependency:** Fully independent. New component with no dependencies on any other concern.
-
-**Files affected:**
-| File | Action | Scope |
-|------|--------|-------|
-| `scripts/cleanup.py` (NEW) | CREATE -- session cleanup script | ~100-150 lines |
-| `tests/test_cleanup.py` (NEW) | CREATE -- tests for cleanup script | ~80-120 lines |
-| `SKILL.md` | MODIFY -- add `/cdp:cleanup` invocation documentation | ~15-20 lines |
-
----
-
-### Concern 9: Test Scenario -- Tier 2 Routing Partial Activation Exclusion
-
-**Category:** Creation (test specification)
-**What changes:** Nothing existing
-**What is created:** Test scenario document
-
-**Current state:** Tier 2 routing activates 2-4 C-suite members. The routing table specifies default activation per decision type. But there is no test scenario that validates: (a) excluded agents are actually excluded (not consulted), (b) partial activation produces coherent output without missing domain coverage, (c) the CEO's exclusion reasoning is stated and justified.
-
-**Integration approach:**
-- Create a test scenario document that defines specific test cases for Tier 2 routing
-- Each test case specifies: input issue, expected decision type classification, expected activated roles, expected excluded roles, validation criteria for exclusion reasoning
-- Test cases should cover: (a) a pure Financial decision (only CEO, CFO, COO activated -- verify CISO, CTO, VP Sales, VP Delivery, CAO are excluded), (b) a multi-type decision (e.g., Financial + Technical) where activation sets merge, (c) an edge case where threshold conditions should trigger full activation but the issue was presented as narrow-scope
-- These are specification-level test scenarios (manual or prompt-based validation), not pytest unit tests
-
-**Dependency:** Benefits from concern #5 (formalized routing thresholds make test criteria clearer). But can proceed independently.
-
-**Files affected:**
-| File | Action | Scope |
-|------|--------|-------|
-| `tests/scenarios/tier-2-routing.md` (NEW) | CREATE -- test scenarios for partial activation | ~80-100 lines |
-
----
-
-### Concern 10: Test Scenario -- Pre-Mortem Phase 4.5 with Partial/Missing Responses
-
-**Category:** Creation (test specification)
-**What changes:** Nothing existing
-**What is created:** Test scenario document
-
-**Current state:** Phase 4.5 pre-mortem requires each activated C-suite agent to produce a pre-mortem response. But the spec does not define what happens when: (a) an agent fails to produce a pre-mortem response, (b) an agent's pre-mortem is low-quality or tautological ("the decision fails because it was a bad decision"), (c) the CSO's evidence-gap-focused pre-mortem contradicts other agents' pre-mortem findings.
-
-**Integration approach:**
-- Create test scenarios for Phase 4.5 edge cases
-- Test cases: (a) one C-suite agent produces no pre-mortem (CEO synthesis should note the gap), (b) pre-mortem responses that merely restate Phase 4 domain risks (quality validation), (c) CSO evidence-gap pre-mortem that invalidates assumptions used in other agents' pre-mortem responses (cross-reference validation)
-- Include both "expected behavior" and "anti-pattern" examples
-- May also surface a need to add fallback handling to the orchestration protocol (Phase 4.5 section)
-
-**Dependency:** Independent. Can inform a future augmentation of Phase 4.5 in the orchestration protocol.
-
-**Files affected:**
-| File | Action | Scope |
-|------|--------|-------|
-| `tests/scenarios/pre-mortem-phase-4-5.md` (NEW) | CREATE -- test scenarios for pre-mortem edge cases | ~80-100 lines |
-
----
-
-### Concern 11: Mode Sensitivity Criteria and Test
-
-**Category:** Creation (specification + test)
-**What changes:** `config/decision-modes.md` (Mode Sensitivity section)
-**What is created:** Formal sensitivity criteria + test scenario document
-
-**Current state:** Mode Sensitivity is defined in the Comparative Decision Record template as LOW/MEDIUM/HIGH with informal descriptions:
-- LOW: "All modes converge on the same answer"
-- MEDIUM: "Modes agree on direction but differ on conditions, pace, or scope"
-- HIGH: "Modes produce fundamentally different decisions"
-
-There are no formal criteria for what constitutes "same answer" vs "different direction" vs "fundamentally different." The CEO currently makes this judgment without guidance.
-
-**Integration approach:**
-- Formalize sensitivity criteria in `config/decision-modes.md`:
-  - LOW: All modes produce the same recommendation category (Approve/Oppose/Defer) AND the same or compatible conditions
-  - MEDIUM: All modes produce the same recommendation category but with materially different conditions, scope, or timeline
-  - HIGH: Modes produce different recommendation categories (some Approve, some Oppose) or incompatible conditions
-- Create test scenarios that exercise multi-mode comparison with known inputs to verify consistent sensitivity classification
-- Test cases should include: (a) a clear-cut decision where all modes should converge (expected: LOW), (b) a balanced decision where modes agree on direction but differ on risk framing (expected: MEDIUM), (c) a polarizing decision where risk appetite is the deciding factor (expected: HIGH)
-
-**Dependency:** Benefits from concern #6 (explicit mode weightings make sensitivity analysis more rigorous). Can proceed independently.
-
-**Files affected:**
-| File | Action | Scope |
-|------|--------|-------|
-| `config/decision-modes.md` | MODIFY -- formalize Mode Sensitivity criteria | ~30-40 lines added |
-| `tests/scenarios/mode-sensitivity.md` (NEW) | CREATE -- test scenarios for sensitivity classification | ~80-100 lines |
-
----
-
-## Component Dependency Map
+### New Component Map (Changes Highlighted)
 
 ```
-Concern 1 (CEO Extraction)
-    |
-    |-- enables cleaner implementation of:
-    |       Concern 2 (Production Pre-Flight)
-    |       Concern 3 (CSO Timeout)
-    |       Concern 5 (Routing Decision Trees)
-    |
-    v
-Concern 5 (Routing Decision Trees)
-    |
-    |-- informs test criteria for:
-    |       Concern 9 (Tier 2 Routing Test)
-    |
-    v
-Concern 6 (Mode Weightings)
-    |
-    |-- informs sensitivity analysis for:
-    |       Concern 11 (Mode Sensitivity)
-    |
-    v
+ORCHESTRATION LAYER (config/)
+  orchestration-protocol.md    ** REWRITE Phases 2/3/4 + Production Spawn Sequence **
+  dispatch-protocol.md         ** COMPLETE REWRITE: sub-question file protocol **
+  cco-dispatch-protocol.md     ** COMPLETE REWRITE: CEO-managed wave sequencing **
+  routing-table.md             (unchanged)
+  decision-modes.md            (unchanged)
+  production-pipeline.md       (unchanged)
+  company-profile.md           (unchanged)
+  logging-protocol.md          (unchanged, but 48 agents get inline summary)
 
-Independent concerns (no dependencies):
-    Concern 4 (Executive Summaries) -- touches only C-suite agents
-    Concern 7 (Cost Formula) -- documentation only
-    Concern 8 (Session Cleanup) -- new component, no existing deps
-    Concern 10 (Pre-Mortem Test) -- new test scenario
+AGENTS (agents/)
+  ceo.md                       ** MAJOR UPDATE: TeamCreate + dispatch + polling **
+  c-suite/                     ** ALL 9 UPDATED: remove dispatch, add sub-Q file writing **
+  team-leads/                  (NO CHANGES -- transparent to dispatch mechanism)
+
+SESSION DIRECTORY (new subdirectory)
+  {session}/sub-questions/     ** NEW: sub-question file exchange directory **
+    {role}/                    One directory per C-suite role
+      {team-lead-name}.md     One file per team lead sub-question
 ```
 
-## Recommended Build Order
+### New Data Flow
 
-The build order optimizes for: (1) foundational changes first, (2) dependent changes after their prerequisites, (3) independent concerns parallelized or interleaved freely.
+```
+Phase 0: CEO broadcasts issue context (unchanged)
+Phase 1: CEO frames, routes (unchanged)
+         CEO creates session directory including sub-questions/
 
-### Phase 1: Foundation (do first)
+Phase 1.5: CSO research (conditional)
+         ** NEW: CEO creates CSO division team (TeamCreate)
+         ** NEW: CEO dispatches CSO as teammate
+         CSO formulates research sub-Qs -> writes to {session}/sub-questions/cso/
+         ** NEW: CEO polls for sub-Q files -> dispatches research team leads as teammates
+         Research team leads SendMessage findings to CSO
+         CSO synthesizes Research Dossier -> {session}/_RECOMMENDATION_cso.md (or dossier file)
 
-| Order | Concern | Rationale |
-|-------|---------|-----------|
-| 1.1 | **#1: CEO Extraction** | Foundational. Creates clean separation between CEO identity and orchestration protocol. All subsequent orchestration changes go into the extracted spec instead of bloating the CEO agent further. |
-| 1.2 | **#4: Executive Summaries** | Independent but high-value. Reduces CEO token ingestion. Touches only C-suite agents (no conflict with CEO extraction). |
+Phase 2: ** NEW: CEO creates all division teams (one TeamCreate per activated role)
+         ** NEW: CEO dispatches C-suite agents as teammates (first wave)
+         C-suite reads CEO framing from prompt
+         C-suite formulates domain sub-questions
+         ** NEW: C-suite writes sub-Qs to {session}/sub-questions/{role}/{team-lead}.md
 
-### Phase 2: Orchestration Hardening (requires Phase 1)
+Phase 2.5 (new implicit step):
+         ** NEW: CEO polls {session}/sub-questions/{role}/ directories
+         ** NEW: CEO dispatches team leads as teammates with sub-Qs in prompts
+         Team leads are placed in same division team as their C-suite parent
 
-| Order | Concern | Rationale |
-|-------|---------|-----------|
-| 2.1 | **#2: Production Pre-Flight** | Adds to extracted orchestration protocol. |
-| 2.2 | **#3: CSO Timeout** | Adds to extracted orchestration protocol (Phase 1.5). |
-| 2.3 | **#8: Session Cleanup** | Independent but groups naturally with production pipeline work. |
+Phase 3: Team leads analyze, SendMessage findings to C-suite parent (unchanged mechanism)
+         Team leads can SendMessage peer insights within same division (unchanged)
 
-### Phase 3: Specification Formalization (benefits from Phase 1)
+Phase 4: C-suite receives findings via SendMessage (unchanged mechanism)
+         C-suite synthesizes -> _RECOMMENDATION_{role}.md (unchanged output)
+         CEO reads recommendation files after all agents complete (unchanged)
 
-| Order | Concern | Rationale |
-|-------|---------|-----------|
-| 3.1 | **#5: Routing Decision Trees** | Removes duplication created/revealed by CEO extraction. |
-| 3.2 | **#6: Mode Weightings** | Formalizes implicit weighting in decision modes. |
-| 3.3 | **#7: Cost Formula** | Documentation addition to decision modes. Natural to do alongside #6. |
+Phase 4.5: CEO reads all recommendations (unchanged)
+         ** CLARIFY: CEO dispatches second-round C-suite agents as standalone subagents?
+         OR: CEO dispatches into existing division teams?
+         -> RECOMMENDATION: Standalone subagents (new context, no team state to preserve)
+         C-suite writes _PREMORTEM_{role}.md (unchanged output)
 
-### Phase 4: Test Scenarios (benefits from Phases 2-3)
+Phase 5: CEO synthesis (unchanged)
 
-| Order | Concern | Rationale |
-|-------|---------|-----------|
-| 4.1 | **#9: Tier 2 Routing Test** | Tests routing logic formalized in #5. |
-| 4.2 | **#10: Pre-Mortem Test** | Tests Phase 4.5 (benefits from orchestration hardening in Phase 2). |
-| 4.3 | **#11: Mode Sensitivity** | Tests mode mechanics formalized in #6. |
-
-### Phase ordering rationale
-
-- **Phase 1 before Phase 2:** The CEO extraction (#1) creates the document where production pre-flight (#2) and CSO timeout (#3) will be added. Without extraction, those additions bloat the already-682-line CEO agent.
-- **Phase 1 before Phase 3:** Routing decision trees (#5) need to clean up duplication between CEO agent and routing table. Extraction makes this cleaner -- the duplication in the CEO agent is removed as part of extraction, and the routing table becomes the single source of truth.
-- **Phase 3 before Phase 4:** Test scenarios (#9, #10, #11) validate the specifications formalized in Phase 3. Writing tests before the specs are formalized means testing against ambiguous criteria.
-- **Executive Summaries (#4) in Phase 1:** This is independent of all other concerns and high-value (token cost reduction). It can run in parallel with CEO extraction since it touches only C-suite agents, not the CEO agent.
+Production:
+         ** NEW: CEO creates CCO production team (TeamCreate)
+         ** NEW: CEO dispatches CCO as first teammate
+         CCO reads RECORD.md, writes Creative Brief
+         ** NEW: CEO dispatches Graphic Designer as teammate (Wave 1)
+         ** NEW: CEO polls for _REPORT_graphic-designer.md -> dispatches Writer (Wave 2)
+         ** NEW: CEO polls for _REPORT_writer.md -> dispatches Editor (Wave 3)
+         ** NEW: CEO polls for _REPORT_editor.md -> dispatches Publisher (Wave 4)
+         CCO coordinates via SendMessage throughout
+```
 
 ---
 
-## Change Impact Summary
+## Integration Points
 
-### Files Modified
+### Integration Point 1: Session Directory Setup
 
-| File | Concerns | Total Change Estimate |
-|------|----------|----------------------|
-| `agents/ceo.md` | #1, #5 | Major reduction (~350 lines removed, ~20 lines reference added) |
-| `agents/c-suite/cao.md` | #4 | Minor (~10 lines added) |
-| `agents/c-suite/cfo.md` | #4 | Minor (~10 lines added) |
-| `agents/c-suite/ciso.md` | #4 | Minor (~10 lines added) |
-| `agents/c-suite/coo.md` | #4 | Minor (~10 lines added) |
-| `agents/c-suite/cso.md` | #3, (no #4) | Minor (~20-30 lines added for timeout handling) |
-| `agents/c-suite/cto.md` | #4 | Minor (~10 lines added) |
-| `agents/c-suite/vp-delivery.md` | #4 | Minor (~10 lines added) |
-| `agents/c-suite/vp-sales.md` | #4 | Minor (~10 lines added) |
-| `config/routing-table.md` | #5 | Major expansion (~100-150 lines added) |
-| `config/decision-modes.md` | #6, #7, #11 | Moderate expansion (~170-220 lines added) |
-| `templates/decision-record.md` | #3 | Minor (~5 lines added) |
-| `SKILL.md` | #1, #8 | Minor (~20-35 lines changed) |
+**Existing:** `mkdir -p {session}/images {session}/build {session}/logs`
+**New:** Add `mkdir -p {session}/sub-questions/{role}` for each activated role
 
-### Files Created
+**Location:** `config/orchestration-protocol.md` Session Output Setup section (currently lines 276-286)
+**Dependency:** Must happen in Phase 1, after routing determines activated roles
+**Risk:** LOW -- additive change to existing directory creation
 
-| File | Concern | Type | Size Estimate |
-|------|---------|------|---------------|
-| `config/orchestration-protocol.md` | #1 | Specification | ~350 lines |
-| `scripts/cleanup.py` | #8 | Python script | ~100-150 lines |
-| `tests/test_cleanup.py` | #8 | Python tests | ~80-120 lines |
-| `tests/scenarios/tier-2-routing.md` | #9 | Test scenario | ~80-100 lines |
-| `tests/scenarios/pre-mortem-phase-4-5.md` | #10 | Test scenario | ~80-100 lines |
-| `tests/scenarios/mode-sensitivity.md` | #11 | Test scenario | ~80-100 lines |
+### Integration Point 2: CEO Division Team Creation
 
-### Files Unchanged
+**New component:** CEO calls TeamCreate for each activated C-suite role
 
-- `agents/team-leads/**/*` -- No team lead agents are affected
-- `config/company-profile.md` -- Company profile is not involved in any concern
-- `scripts/config.py`, `scripts/generate_infographic.py`, `scripts/validation.py`, `scripts/session.py` -- Existing Python scripts are not affected
-- `templates/production/*` -- Production templates are not affected
-- `templates/comparative-decision-record.md`, `templates/panel-assessment.md`, `templates/advisory-note.md` -- Not affected
+**What changes:**
+- `config/orchestration-protocol.md` Phase 2 section: CEO creates teams instead of dispatching standalone subagents
+- `agents/ceo.md`: Add TeamCreate instructions and team naming convention
+- `SKILL.md`: Update Tier 2/3 orchestration overview to reflect team dispatch
+
+**Team naming convention (preserved from existing dispatch-protocol.md):**
+```
+cdp-{role}-{issue-slug}
+```
+Examples: `cdp-cfo-acquire-competitor-x`, `cdp-cco-acquire-competitor-x`
+
+**Parallel execution:** CEO creates ALL division teams and dispatches ALL C-suite agents in a single response. This is critical for performance -- dispatching sequentially would serialize the entire cascade.
+
+**Risk:** MEDIUM -- CEO prompt becomes significantly more complex with TeamCreate + dispatch for N roles. Need to ensure CEO instructions are clear enough that the model executes all dispatches in one tool-call batch.
+
+### Integration Point 3: C-Suite Agent Transformation
+
+**What changes:** Mode B (Tier 2/3) dispatch section in all 9 C-suite agents
+
+**Current Mode B flow:**
+1. Read CEO framing
+2. Formulate sub-questions
+3. TeamCreate + Agent dispatch team leads (REMOVE)
+4. Collect findings via SendMessage
+5. Synthesize -> _RECOMMENDATION_{role}.md
+
+**New Mode B flow:**
+1. Read CEO framing (unchanged)
+2. Formulate sub-questions (unchanged)
+3. Write sub-question files to `{session}/sub-questions/{role}/` (NEW)
+4. Receive findings via SendMessage (unchanged mechanism, updated wording)
+5. Synthesize -> _RECOMMENDATION_{role}.md (unchanged)
+
+**Transformation scope:** 9 agents, each ~10-50 lines of Mode B dispatch section replaced
+
+**Files affected:**
+| Agent File | Current Dispatch Lines | Action |
+|------------|----------------------|--------|
+| `agents/c-suite/cfo.md` | 98-134 | Replace step 3-4 |
+| `agents/c-suite/cto.md` | ~similar range | Replace step 3-4 |
+| `agents/c-suite/coo.md` | ~similar range | Replace step 3-4 |
+| `agents/c-suite/ciso.md` | ~similar range | Replace step 3-4 |
+| `agents/c-suite/cao.md` | ~similar range | Replace step 3-4 |
+| `agents/c-suite/cso.md` | ~similar range | Replace step 3-4 |
+| `agents/c-suite/vp-delivery.md` | 64-107 | Replace step 3-4 |
+| `agents/c-suite/vp-sales.md` | 82-125 | Replace step 3-4 |
+| `agents/c-suite/cco.md` | 87-139 | Special: becomes Creative Brief author + coordinator |
+
+**CCO special case:** The CCO transformation is different from analytical C-suite agents. The CCO does not formulate sub-questions for analytical team leads. Instead, the CCO:
+- Reads RECORD.md
+- Produces Creative Brief
+- Provides editorial direction via SendMessage to production team leads
+- Receives _REPORT files and manages editorial gate decisions
+- But does NOT dispatch production team leads (CEO does)
+
+**Risk:** LOW -- the transformation pattern is mechanical and identical across 8 analytical agents. CCO is the only special case.
+
+### Integration Point 4: Sub-Question File Protocol
+
+**New component:** File-based communication from C-suite to CEO for team lead dispatch
+
+**File convention:**
+```
+{session}/sub-questions/{role}/{team-lead-name}.md
+```
+
+Example: `{session}/sub-questions/cfo/controller.md`
+
+**File format (reuses existing dispatch-protocol.md prompt structure):**
+```markdown
+# Sub-Question: {Team Lead Name}
+
+## Context Brief
+[3-5 sentences summarizing CEO framing and Research Dossier findings]
+
+## Sub-Question
+[Domain-specific translated question for this team lead]
+
+## Output Instruction
+Follow the analytical framework and output template defined in your
+agent definition at .claude/agents/team-leads/{role}/{agent-name}.md.
+Answer all forcing questions integrated into your assessment.
+
+## Reference Files
+Session: {absolute-session-path}
+Record: {absolute-session-path}/RECORD.md (if exists)
+```
+
+**Location of protocol definition:** `config/dispatch-protocol.md` (complete rewrite)
+
+**CEO polling mechanism:** The CEO monitors `{session}/sub-questions/{role}/` directories for new files. As files appear for a given role, the CEO reads them and dispatches the corresponding team leads into that role's division team.
+
+**Polling design decision:** The CEO should poll ALL role directories in a single pass rather than polling one role at a time. This enables cross-role parallelism -- as soon as ANY C-suite agent writes sub-questions, its team leads can be dispatched without waiting for other C-suite agents.
+
+**Risk:** MEDIUM -- polling file systems in a loop is inherently racy. The CEO might check a directory before a C-suite agent finishes writing all sub-question files for that role, resulting in partial team lead dispatch. **Mitigation:** C-suite agents should write ALL sub-question files before signaling readiness, or the CEO should wait for a sentinel file (e.g., `{session}/sub-questions/{role}/_READY.md`). The reference plan does not specify a sentinel -- the CEO polls and dispatches as files appear. This is acceptable because dispatching team leads incrementally is fine; the C-suite agent will receive findings from however many team leads the CEO dispatched.
+
+**Alternative considered:** Sentinel file pattern (`_READY.md`). This would be cleaner but adds complexity to both C-suite agents (write sentinel) and CEO (check for sentinel). Given that incremental dispatch works, the simpler polling approach is sufficient for v1.4.
+
+### Integration Point 5: CEO Team Lead Dispatch
+
+**New component:** CEO dispatches team leads as teammates in division teams
+
+**What changes:**
+- `config/orchestration-protocol.md` Phase 2: CEO dispatch instructions
+- `agents/ceo.md`: Team lead mapping table or reference to find team lead agent names
+
+**Dispatch mechanics:**
+- CEO reads sub-question file for team lead X in role Y's directory
+- CEO dispatches team lead X with:
+  - `team_name`: `"cdp-{role}-{issue-slug}"`
+  - `prompt`: Contents of sub-question file + file-path preamble + logging context
+  - `name`: Agent name from team lead mapping (e.g., `controller`, `engineering-lead`)
+
+**Team lead mapping source:** Each C-suite agent definition contains a team lead table (e.g., CFO has controller, fpa-analyst, treasury-manager, ap-ar-manager, tax-lead). The CEO needs access to these mappings to dispatch correctly. Two options:
+
+1. **Embed full mapping in CEO agent** -- adds ~30 lines but ensures CEO has all info without reading C-suite agent files
+2. **Reference C-suite agent files** -- CEO reads `agents/c-suite/{role}.md` to find team lead table. More maintainable but requires extra Read calls.
+
+**Recommendation:** Embed the mapping in `config/dispatch-protocol.md` as the canonical reference. The CEO reads this file (which it already references). C-suite agent definitions retain their own team lead tables for Mode A (Tier 1) use. This avoids duplication anxiety -- the same table exists in two places but serves different purposes (CEO dispatch vs. C-suite context).
+
+**Risk:** LOW -- team lead dispatch is the same Agent tool call pattern the CEO already uses for C-suite agents. The only difference is adding `team_name` parameter and deriving prompts from sub-question files rather than CEO framing.
+
+### Integration Point 6: CEO-Managed CCO Production Waves
+
+**What changes:** The CCO no longer creates its own production team or dispatches team leads. The CEO manages the four-wave sequential pipeline.
+
+**Current flow (broken):**
+```
+CEO -> Agent(CCO, standalone) -> CCO creates team -> CCO dispatches waves
+```
+
+**New flow:**
+```
+CEO -> TeamCreate("cdp-cco-{slug}")
+CEO -> Agent(CCO, team_name) -> CCO reads RECORD.md, writes Creative Brief
+CEO -> Agent(graphic-designer, team_name) -> Wave 1
+CEO polls _REPORT_graphic-designer.md
+CEO -> Agent(writer, team_name) -> Wave 2
+CEO polls _REPORT_writer.md
+CEO -> Agent(editor, team_name) -> Wave 3
+CEO polls _REPORT_editor.md
+CEO -> Agent(publisher, team_name) -> Wave 4
+```
+
+**Wave gating:** The CEO reads the `_REPORT_*.md` file after each wave to verify completion before dispatching the next wave. This is the same file-based monitoring used for analytical recommendations -- the `_REPORT` file convention already exists and works.
+
+**CCO coordination role:** The CCO remains alive in the production team and can SendMessage editorial direction, quality notes, and revision requests to production team leads. The CCO does NOT dispatch team leads -- it advises. When the Editor returns REVISION REQUIRED, the CCO can SendMessage revision instructions, but the CEO must re-dispatch the responsible team lead.
+
+**Editorial gate handling:** The reference plan states the CEO monitors for `_REPORT_editor.md`, reads the Editorial Review verdict, and either:
+- APPROVED / APPROVED WITH NOTES -> proceed to Wave 4 (Publisher)
+- REVISION REQUIRED -> re-dispatch the responsible team lead (maximum one revision cycle)
+
+This means the CEO must understand editorial verdicts. This is new CEO logic that should be documented in `config/orchestration-protocol.md` Production Spawn Sequence.
+
+**Files affected:**
+| File | Action | Scope |
+|------|--------|-------|
+| `config/cco-dispatch-protocol.md` | COMPLETE REWRITE | Remove TeamCreate/Agent from CCO, describe CEO wave management |
+| `config/orchestration-protocol.md` | REWRITE Production Spawn Sequence | CEO-managed waves, editorial gate |
+| `agents/c-suite/cco.md` | MAJOR UPDATE | Remove dispatch section, become Creative Brief author + SendMessage coordinator |
+| `agents/ceo.md` | ADD | CCO wave management protocol |
+
+**Risk:** MEDIUM -- the sequential wave dependency chain is the most complex coordination the CEO manages. Getting the polling and gating right requires clear instructions. The CEO is already managing analytical dispatch (which is parallel and simpler), and now must also manage sequential wave dispatch with editorial gates.
+
+### Integration Point 7: Phase 4.5 Pre-Mortem Dispatch
+
+**Existing mechanism:** CEO dispatches second-round C-suite agents as standalone subagents with peer recommendation summaries. Each writes `_PREMORTEM_{role}.md`.
+
+**Question for v1.4:** Should pre-mortem agents be standalone subagents or teammates in existing division teams?
+
+**Recommendation: Standalone subagents.** Rationale:
+- Pre-mortem is a fresh analytical pass with new context (all peer recommendations)
+- The division team from Phase 2-4 may still be alive -- C-suite agent is still a teammate
+- Adding a second C-suite agent to the same team creates identity confusion
+- Standalone subagents are simpler: fire-and-forget, read recommendations, write pre-mortem file
+- The existing pre-mortem pattern works (standalone dispatch, file output) -- do not change what works
+
+**Risk:** LOW -- no change needed for pre-mortem dispatch. It already uses standalone subagents and file output, which is not affected by the nested session limitation (CEO is the one dispatching).
+
+---
+
+## New Components Summary
+
+| Component | Type | Location | Purpose |
+|-----------|------|----------|---------|
+| Sub-question directory | Directory convention | `{session}/sub-questions/{role}/` | File exchange between C-suite and CEO |
+| Sub-question files | File convention | `{session}/sub-questions/{role}/{team-lead}.md` | Carries domain-translated sub-questions |
+| CEO team creation | Protocol addition | `agents/ceo.md` + `config/orchestration-protocol.md` | TeamCreate for each activated role |
+| CEO team lead dispatch | Protocol addition | `agents/ceo.md` + `config/orchestration-protocol.md` | Dispatch team leads with sub-Qs from files |
+| CEO polling loop | Protocol addition | `agents/ceo.md` + `config/orchestration-protocol.md` | Monitor sub-question and report file directories |
+| CEO wave management | Protocol addition | `agents/ceo.md` + `config/orchestration-protocol.md` | Sequential CCO production wave dispatch |
+| Team lead mapping table | Reference table | `config/dispatch-protocol.md` | Maps C-suite roles to team lead agent names |
+
+## Modified Components Summary
+
+| Component | File | Change Type | Scope |
+|-----------|------|-------------|-------|
+| Dispatch protocol | `config/dispatch-protocol.md` | Complete rewrite | From C-suite dispatch to sub-question protocol |
+| CCO dispatch protocol | `config/cco-dispatch-protocol.md` | Complete rewrite | From CCO dispatch to CEO wave management |
+| Orchestration protocol | `config/orchestration-protocol.md` | Major rewrite | Phases 2/3/4 + Production Spawn Sequence |
+| CEO agent | `agents/ceo.md` | Major update | Add TeamCreate, polling, wave management |
+| 8 analytical C-suite agents | `agents/c-suite/{role}.md` | Moderate update | Replace dispatch with sub-Q file writing |
+| CCO agent | `agents/c-suite/cco.md` | Major update | Remove dispatch, become coordinator |
+| SKILL.md | `SKILL.md` | Minor update | Update orchestration overview text |
+
+## Unchanged Components
+
+| Component | Why Unchanged |
+|-----------|---------------|
+| 34 team lead agent definitions | Dispatch mechanism is transparent to them |
+| Routing table | Routing logic unchanged |
+| Decision modes | Mode application unchanged |
+| Production pipeline spec | Artifact specs unchanged |
+| Company profile | Profile system unchanged |
+| All Python scripts | No deliberation code; scripts handle infographics/PDFs |
+| Templates | Output formats unchanged |
+| Logging protocol | Canonical file unchanged (agents get inline summary) |
+
+---
+
+## Patterns to Follow
+
+### Pattern 1: File-Based State Exchange
+
+**What:** Agents communicate state transitions through files in the session directory.
+**When:** Any time agent A needs to signal agent B asynchronously.
+**Why:** Agent/TeamCreate tools are only available in the main session. SendMessage is only available within teams. Files are the universal communication channel.
+
+**Existing examples:**
+- `_RECOMMENDATION_{role}.md` -- C-suite -> CEO
+- `_REPORT_{agent}.md` -- production team lead -> CCO
+- `_PREMORTEM_{role}.md` -- C-suite (pre-mortem) -> CEO
+
+**New example:**
+- `sub-questions/{role}/{team-lead}.md` -- C-suite -> CEO (for team lead dispatch)
+
+**Convention:** Files use underscore prefix (`_RECOMMENDATION_`, `_REPORT_`, `_PREMORTEM_`) for agent output files that the CEO reads. Sub-question files live in a subdirectory because they serve a different purpose (dispatch input, not analysis output).
+
+### Pattern 2: CEO Polling for File Readiness
+
+**What:** CEO checks for the existence of files to determine when to proceed.
+**When:** After dispatching an agent, before dispatching a dependent agent.
+
+**Implementation guidance for CEO instructions:**
+```
+After dispatching C-suite agents, monitor for sub-question files:
+1. List {session}/sub-questions/{role}/ for each activated role
+2. For each new sub-question file found, read it and dispatch the corresponding team lead
+3. Continue polling until all expected sub-question files have been processed
+   OR all C-suite agents have completed (background task notifications)
+4. Do not block on any single role -- process sub-questions as they appear
+```
+
+**Risk mitigation:** The CEO should track which team leads have been dispatched to avoid double-dispatch. A simple checklist approach: "Dispatched team leads: [list]" maintained in the CEO's conversation context.
+
+### Pattern 3: Division Team as Collaboration Scope
+
+**What:** A TeamCreate call defines the collaboration boundary. All agents within a team can SendMessage to each other. Agents in different teams cannot communicate directly.
+**When:** Creating the working context for a C-suite division.
+**Why:** Preserves engineered dissent -- divisions cannot influence each other. The CEO bridges divisions by reading files, not by enabling cross-team messaging.
+
+```
+Team "cdp-cfo-{slug}":     CFO + Controller + FP&A + Treasury + AP/AR + Tax
+Team "cdp-cto-{slug}":     CTO + Engineering + Infrastructure + Data + Product
+Team "cdp-cco-{slug}":     CCO + Graphic Designer + Writer + Editor + Publisher
+```
+
+These are isolated collaboration zones. The CFO's Controller cannot SendMessage to the CTO's Engineering Lead. This is by design.
 
 ---
 
 ## Anti-Patterns to Avoid
 
-### Anti-Pattern 1: Duplicating Orchestration Protocol After Extraction
-**What:** Extracting the protocol from `ceo.md` but leaving a "summary" version in the CEO agent that drifts from the canonical spec.
-**Why bad:** Two sources of truth for the same protocol = guaranteed inconsistency.
-**Instead:** CEO agent references the extracted protocol by filepath. Zero duplication of procedural content.
+### Anti-Pattern 1: Double Dispatch
 
-### Anti-Pattern 2: Executive Summaries That Replace Domain Recommendations
-**What:** Making Executive Summaries the ONLY output the CEO sees, eliminating the full Domain Recommendation.
-**Why bad:** The CEO needs full Domain Recommendations for fault line analysis. Executive Summaries are for initial triage and token reduction, not for replacing the analytical substrate.
-**Instead:** Executive Summary is a structured PREFIX added to the Domain Recommendation. The CEO reads summaries first, then drills into full recommendations for synthesis.
+**What:** CEO dispatches a team lead twice because the polling loop re-reads a sub-question file.
+**Why bad:** Wastes tokens, creates duplicate agents in the team, confuses findings collection.
+**Prevention:** CEO must track dispatched team leads and skip files already processed. The CEO's instructions should include: "Maintain a list of dispatched team leads. Before dispatching, check if the team lead has already been dispatched."
 
-### Anti-Pattern 3: Overengineering Session Cleanup
-**What:** Building a complex archive system with compression, cloud backup, retention policies.
-**Why bad:** Sessions are local development artifacts. Users can manually delete old directories. The cleanup script should be simple and mechanical.
-**Instead:** List, filter by age, delete with confirmation. Nothing more.
+### Anti-Pattern 2: CEO Reading Team Lead Output
 
-### Anti-Pattern 4: Numeric Weights for Decision Modes
-**What:** Assigning specific numeric weights (e.g., "CISO gets 1.5x weight in Guardian mode") to mode weightings.
-**Why bad:** The CEO is an LLM following a prompt. Numeric weights create false precision. The LLM will not reliably apply "1.5x" weighting.
-**Instead:** Use directional indicators (HIGH/MODERATE/LOW priority) that guide the LLM's attention without pretending to be quantitative.
+**What:** CEO reads team lead findings directly instead of through C-suite synthesis.
+**Why bad:** Defeats the two-tier analytical hierarchy. CEO should see synthesized domain perspectives, not raw specialist output.
+**Prevention:** CEO instructions must explicitly state: "Do not read team lead findings. Wait for C-suite to synthesize into _RECOMMENDATION files."
 
-### Anti-Pattern 5: Test Scenarios as Pytest Tests
-**What:** Writing the routing, pre-mortem, and mode sensitivity test scenarios as automated pytest tests.
-**Why bad:** These test the behavior of LLM agents following markdown specifications. They cannot be deterministically tested with unit tests. The "test" is a structured prompt scenario with expected-behavior criteria, not an assertion.
-**Instead:** Test scenario documents with input, expected behavior, and validation criteria that can be manually or semi-automatically evaluated by running the CDP system.
+### Anti-Pattern 3: Sentinel File Over-Engineering
+
+**What:** Adding _READY.md, _COMPLETE.md, _STATUS.md sentinel files for every state transition.
+**Why bad:** Increases protocol complexity for agents that are already prompt-limited. More files = more conventions to remember = more failure modes.
+**Prevention:** Use file existence as the signal (sub-question file exists = ready to dispatch). Use background task completion notifications as the termination signal (agent completed = check for output files).
+
+### Anti-Pattern 4: CCO Attempting Dispatch
+
+**What:** CCO agent still contains TeamCreate/Agent instructions from old protocol.
+**Why bad:** CCO as a teammate cannot use these tools. Will waste turns attempting and failing.
+**Prevention:** Complete removal of all dispatch instructions from CCO agent definition. CCO's role is Creative Brief + editorial coordination via SendMessage.
+
+### Anti-Pattern 5: Sequential C-Suite Dispatch
+
+**What:** CEO dispatches C-suite agents one at a time, waiting for each to complete before dispatching the next.
+**Why bad:** Serializes the entire analytical cascade. A 7-role Tier 3 engagement would take 7x longer.
+**Prevention:** CEO must dispatch ALL C-suite agents in a single response with multiple Agent tool calls. All divisions run in parallel.
+
+---
+
+## Build Order (Suggested Phase Structure)
+
+The build order must respect two dependency chains: (1) the dispatch architecture depends on the protocol specifications being correct before agents reference them, and (2) the five supporting fixes are independent of the dispatch rewrite.
+
+### Build Order Rationale
+
+```
+INDEPENDENT FIXES (can be done first, in any order):
+  Fix 1: Slug aliases         -- scripts + graphic-designer agent
+  Fix 2: PDF module path      -- publisher agent
+  Fix 5: Validation leniency  -- scripts/validation.py + generate_infographic.py
+  Fix 3: Inline logging       -- 48 agent files (bulk update)
+  Fix 6: Large file guidance   -- orchestration-protocol.md + ceo.md
+
+CORE DISPATCH REWRITE (sequential dependencies):
+  Step A: config/dispatch-protocol.md     -- sets the sub-question file convention
+  Step B: config/cco-dispatch-protocol.md -- sets the CEO wave management convention
+  Step C: config/orchestration-protocol.md -- references A+B, rewrites Phases 2/3/4
+  Step D: agents/ceo.md                    -- implements A+B+C in CEO instructions
+  Step E: agents/c-suite/*.md (all 9)      -- transforms Mode B to use sub-Q files
+  Step F: SKILL.md                         -- update orchestration overview text
+  Step G: Verification pass                -- grep for stale patterns
+```
+
+**Why independent fixes first:** They are quick wins that improve production reliability immediately. The slug fix and PDF path fix prevent the same failures that occurred in the 2026-03-08 session. The logging fix eliminates 48 potential file-read failures. None of these conflict with the dispatch rewrite.
+
+**Why protocol specs before agent definitions:** The dispatch-protocol and cco-dispatch-protocol define the conventions that agents follow. Writing agent instructions that reference undefined conventions creates inconsistency. The orchestration protocol ties A+B together with the phase flow. The CEO agent implements the full flow. C-suite agents are last because they reference the dispatch protocol.
+
+**Why verification last:** Grep-based verification catches stale TeamCreate/Agent references in C-suite agents, ensuring the old dispatch pattern has been fully removed.
 
 ---
 
 ## Scalability Considerations
 
-| Concern | At current scale (8 C-suite, 34 team leads) | If roster grows (12+ C-suite) |
-|---------|----------------------------------------------|-------------------------------|
-| CEO Extraction (#1) | Clean separation enables independent updates | Essential -- a 682-line agent only gets worse with more roles |
-| Executive Summaries (#4) | Reduces Opus token cost by ~30-50% for Tier 3 | Critical -- token cost scales linearly with activated agents |
-| Routing Decision Trees (#5) | Clearer routing for 6 decision types | Must scale to new decision types without combinatorial explosion |
-| Mode Weightings (#6) | 5 modes x 8 roles = 40 directional weights | Must scale to new roles without redesigning weight tables |
-| Session Cleanup (#8) | Manageable with manual cleanup | Essential with high session volume |
+| Concern | Current State | After v1.4 |
+|---------|---------------|------------|
+| CEO prompt complexity | Moderate -- dispatch N standalone subagents | High -- create N teams, dispatch N C-suite + ~4N team leads, poll directories, manage waves |
+| CEO turn count | ~10-15 turns for Tier 3 | ~25-40 turns for Tier 3 (more dispatch, more polling) |
+| Parallel execution | C-suite parallel, team leads sequential within C-suite | C-suite parallel, team leads parallel per-division (improved) |
+| File count per session | ~10-15 files | ~30-50 files (sub-questions + existing files) |
+| Total agent count | 8-10 C-suite + 0 team leads (inline) | 8-10 C-suite + 20-30 team leads (dispatched) |
+| Context window pressure on CEO | Low -- dispatch and wait | Higher -- dispatch, poll, dispatch more, poll more |
+
+**CEO maxTurns concern:** The CEO currently operates without a maxTurns limit (main session). The added polling and dispatch work significantly increases the number of turns required. A Tier 3 with 7 C-suite agents x 4 team leads each = 28 team lead dispatches + 7 C-suite dispatches + production waves + polling turns. This could approach 50+ turns. The CEO being the main session means no maxTurns constraint, but context window exhaustion is possible for very large sessions.
+
+**Mitigation:** The CEO should be efficient in its polling -- batch-read all sub-question directories in a single pass rather than checking one at a time. Dispatch all team leads for a given role in a single response. Use terse acknowledgments ("Dispatched 4 team leads for CFO division") rather than verbose status updates.
+
+---
+
+## Open Questions
+
+### Question 1: CSO Phase 1.5 Dispatch
+
+The CSO is dispatched before other C-suite agents (Phase 1.5, conditional). Under the new architecture:
+- Does the CEO create the CSO division team separately in Phase 1.5?
+- Does the CEO dispatch CSO research team leads using the same sub-question file protocol?
+
+**Recommendation:** Yes to both. The CSO follows the same pattern as other C-suite agents: CEO creates `cdp-cso-{slug}`, dispatches CSO as teammate, CSO writes sub-Qs to `{session}/sub-questions/cso/`, CEO dispatches research team leads. The only difference is timing (Phase 1.5, before Phase 2).
+
+### Question 2: C-Suite Agent Lifetime in Division Team
+
+When a C-suite agent finishes writing sub-question files, does it:
+a) Block waiting for team lead SendMessage findings?
+b) Complete and exit, with findings going to a mailbox?
+
+**Recommendation:** (a) Block waiting. The C-suite agent must remain alive to receive SendMessage findings from team leads, synthesize them, and write the _RECOMMENDATION file. The CEO dispatches the C-suite agent with sufficient maxTurns for the full lifecycle: formulate sub-Qs + wait for findings + synthesize.
+
+### Question 3: How Does the CEO Know Which Team Leads to Expect?
+
+When polling sub-question directories, the CEO knows which team leads to dispatch (from the file names). But how does it know when a C-suite agent is done writing sub-questions? Options:
+
+a) **Poll until C-suite agent's background task completes** -- but C-suite agents don't complete until they've received findings and synthesized, which requires team leads to be dispatched first. This creates a chicken-and-egg problem.
+
+b) **C-suite agent writes all sub-Q files quickly, then waits for findings** -- the CEO polls after a brief delay, finds sub-Q files, dispatches team leads. This works because C-suite sub-question formulation is fast (one turn) while team lead analysis takes many turns.
+
+c) **Sentinel file** -- C-suite writes `_READY.md` after all sub-Q files are written. CEO polls for sentinel.
+
+**Recommendation:** (b) is sufficient. The CEO dispatches C-suite agents and polls after a reasonable interval. Sub-question formulation is a single turn (~30 seconds). Team lead analysis takes 5-10 turns. The timing gap is large enough that the CEO will almost always find all sub-Q files on first poll. If a sub-Q file appears later, the CEO dispatches that team lead on the next poll. No sentinel needed.
+
+### Question 4: Error Handling for Missing Sub-Questions
+
+What if a C-suite agent fails before writing any sub-question files?
+
+**Recommendation:** The CEO should set a timeout. If no sub-question files appear for a role after the C-suite agent's background task completes (or after a reasonable timeout), the CEO notes the gap and proceeds. This is consistent with existing failure handling: "a missing recommendation is not a blocker, it is an acknowledged gap."
+
+---
 
 ## Sources
 
-- `agents/ceo.md` -- 682-line CEO agent (direct reading, lines 1-682)
-- `agents/c-suite/*.md` -- All 8 C-suite agent specifications (direct reading)
-- `config/routing-table.md` -- Routing rules and threshold conditions (direct reading)
-- `config/decision-modes.md` -- 5 decision modes and multi-mode comparison (direct reading)
-- `config/company-profile.md` -- Archetype presets (direct reading)
-- `templates/decision-record.md` -- Tier 3 output template (direct reading)
-- `templates/production/infographics.md` -- Production pipeline spec (direct reading)
-- `scripts/session.py`, `scripts/preflight.py` -- Python infrastructure (direct reading)
-- `SKILL.md` -- Skill entry point and orchestration overview (direct reading)
-- `docs/ARCHITECTURE.md` -- Technical reference (direct reading)
-- `.planning/PROJECT.md` -- Project context and v1.1 scope (direct reading)
-- `.planning/milestones/v1.0-MILESTONE-AUDIT.md` -- v1.0 audit findings (direct reading)
+All analysis based on direct file reading:
+- `agents/ceo.md` (v1.5, 361 lines)
+- `agents/c-suite/cfo.md` (representative C-suite agent, 224 lines)
+- `agents/c-suite/cco.md` (CCO agent, 207 lines)
+- `agents/team-leads/cfo/controller.md` (representative team lead, 60+ lines)
+- `agents/team-leads/cco/graphic-designer.md` (production team lead, 80+ lines)
+- `config/orchestration-protocol.md` (436 lines)
+- `config/dispatch-protocol.md` (115 lines)
+- `config/cco-dispatch-protocol.md` (198 lines)
+- `config/production-pipeline.md` (60+ lines)
+- `config/logging-protocol.md` (124 lines)
+- `SKILL.md` (520 lines)
+- `ref/team-refactor-context-260308.md` (error analysis reference)
+- `ref/team-refactor-plan-260308.md` (implementation plan reference)
+- `.planning/PROJECT.md` (project context)

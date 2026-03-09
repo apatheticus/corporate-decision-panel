@@ -50,6 +50,8 @@ python3 ~/.claude/skills/corporate-decision-panel/install.py
     - [`/cdp:deliberate` -- Tier 3 Board Meeting](#cdpdeliberate----tier-3-board-meeting)
     - [`/cdp:evaluate` -- Auto-Triage](#cdpevaluate----auto-triage)
     - [`/cdp:production` -- Production Re-run](#cdpproduction----production-re-run)
+    - [`/cdp:resume` -- Session Resume](#cdpresume----session-resume)
+    - [`/cdp:cleanup` -- Session Cleanup](#cdpcleanup----session-cleanup)
     - [Multi-Mode Syntax](#multi-mode-syntax)
     - [Available Roles](#available-roles)
   - [Decision Modes](#decision-modes)
@@ -135,20 +137,19 @@ Quick, opinionated consult with one C-suite agent. No CEO, no routing, no team l
 CEO frames and routes to 2-4 C-suite members. Full domain analysis with team lead delegation. CEO produces lightweight synthesis. Produces a Panel Assessment (~1 page).
 
 ```
-/cdp:panel [--produce] [mode?] [roles]: [issue]
+/cdp:panel [mode?] [roles]: [issue]
 ```
 
 | Parameter | Required | Description |
 |-----------|----------|-------------|
 | `roles` | Yes | 2-4 C-suite roles or domain shorthands (e.g., `finance tech`) |
 | `mode` | No | Decision mode (defaults to Analyst) |
-| `--produce` | No | Triggers the production pipeline (HTML, PPTX, DOCX, PDFs) |
 
 **Examples:**
 ```
 /cdp:panel finance tech: Should we build this feature in-house?
 /cdp:panel pioneer finance tech sales: Should we acquire CompetitorX?
-/cdp:panel --produce operations delivery: Should we restructure the PMO?
+/cdp:panel operations delivery: Should we restructure the PMO?
 ```
 
 ### `/cdp:deliberate` -- Tier 3 Board Meeting
@@ -203,6 +204,45 @@ Re-run only the production pipeline for an existing session using the persisted 
 /cdp:production                                                  # Most recent session
 /cdp:production .cdp-output/2026-02-28_should-we-acquire-competitor-x/
 /cdp:production acquire-competitor                               # Fuzzy slug match
+```
+
+### `/cdp:resume` -- Session Resume
+
+Resumes an interrupted CDP session by detecting how far it progressed and continuing from that point. Uses the same session resolution rules as `/cdp:production`.
+
+```
+/cdp:resume [session-path?]
+```
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `session-path` | No | Path to session directory, slug substring, or omit for most recent |
+
+**Examples:**
+```
+/cdp:resume                                                  # Most recent session
+/cdp:resume .cdp-output/2026-03-01_should-we-pivot/
+/cdp:resume pivot                                            # Fuzzy slug match
+```
+
+Cannot resume with zero recommendation files (re-run the original command). Cannot change routing or mode after resume. See `config/orchestration-protocol.md` Session Resume Protocol for detection logic and resume points.
+
+### `/cdp:cleanup` -- Session Cleanup
+
+Deletes old CDP session directories from `.cdp-output/` with age-based filtering and a confirmation prompt before deletion.
+
+```
+/cdp:cleanup [--older-than days?]
+```
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `--older-than` | No | Age threshold in days (default: 30) |
+
+**Examples:**
+```
+/cdp:cleanup                                                 # Delete sessions older than 30 days
+/cdp:cleanup --older-than 7                                  # Delete sessions older than 7 days
 ```
 
 ### Multi-Mode Syntax
@@ -264,8 +304,8 @@ When unsure, start with Analyst (default). Use multi-mode comparison (`guardian 
 | **Command** | `/cdp:consult` | `/cdp:panel` | `/cdp:deliberate` |
 | **Who's involved** | 1 C-suite agent | CEO + 2-4 C-suite + their team leads | CEO + all relevant C-suite + all team leads |
 | **Output** | Advisory Note (3-5 sentences) | Panel Assessment (~1 page) | Decision Record (3-5 pages) |
-| **Production artifacts** | Advisory Document (DOCX) | Optional (`--produce`) | Always |
-| **Phases executed** | Direct consult only | Phase 1 → 2 → 3 → 4 → 5 | Phase 0 → 1 → 1.5? → 2 → 3 → 4 → 4.5 → 5 |
+| **Production artifacts** | Advisory Document (DOCX) | Always | Always |
+| **Phases executed** | Direct consult only | Phase 1 → 2 → 3 → 4 → 5 → Production | Phase 0 → 1 → 1.5? → 2 → 3 → 4 → 4.5 → 5 → Production |
 | **Pre-mortem** | No | No | Yes (Phase 4.5) |
 | **CSO research** | No | If CSO activated | If CEO directs (Phase 1.5) |
 | **When to use** | Quick gut-check, single-domain question | Focused multi-perspective analysis | High-stakes, irreversible, or cross-cutting decisions |
@@ -405,7 +445,7 @@ flowchart TD
     P45{"Phase 4.5\nPre-Mortem?\n(Tier 3 only)"}
     P45Y["Phase 4.5\nPre-Mortem Challenge\n(one round, all C-suite)"]
     P5["Phase 5\nCEO Deliberation\n& Decision Record"]
-    PROD{"Production?\n(Tier 3: always\nTier 2: --produce)"}
+    PROD{"Production?\n(Tier 3: always\nTier 2: always)"}
     PRODY["Production Pipeline\n(5 artifacts)"]
 
     P0 --> P1
@@ -642,7 +682,7 @@ See [`config/routing-table.md`](config/routing-table.md) for full specification.
 | Tier | Output Format | Length | Production |
 |------|--------------|--------|------------|
 | Tier 1 | Advisory Note | 3-5 sentences | Advisory Document (DOCX) |
-| Tier 2 | Panel Assessment | ~1 page | Optional (`--produce`) |
+| Tier 2 | Panel Assessment | ~1 page | Always |
 | Tier 3 | Decision Record | 3-5 pages | Always |
 | Multi-mode | Comparative Decision Record | Extended | Always |
 
@@ -665,7 +705,7 @@ See the [`templates/`](templates/) directory for full output format specificatio
 | Tier | Production | Notes |
 |------|-----------|-------|
 | Tier 1 | Advisory Document (DOCX) | Produces a formal Advisory Document from the Advisory Note |
-| Tier 2 | `--produce` flag | `/cdp:panel --produce ...` |
+| Tier 2 | Full pipeline | HTML, PPTX, DOCX, Results PDF, Capsule PDF |
 | Tier 3 | Always | Automatic after Decision Record |
 
 ### Session Output Directory
@@ -764,19 +804,26 @@ corporate-decision-panel/               # Clone to .claude/skills/corporate-deci
 │   └── cdp/
 │       ├── consult.md, panel.md
 │       ├── deliberate.md, evaluate.md
-│       └── production.md
+│       ├── production.md
+│       ├── resume.md
+│       └── cleanup.md
 ├── scripts/
 │   ├── apply_models.py                 # Agent model config applicator
 │   ├── build_results_pdf.py            # Native Results PDF generator
 │   ├── config.py                       # Config parser
 │   ├── generate_infographic.py         # Single infographic generation
-│   └── session.py                      # Infographic generation session
+│   ├── preflight.py                    # Pre-flight validation (API key, billing)
+│   ├── session.py                      # Infographic generation session
+│   └── validation.py                   # Session validation utilities
 ├── config/
-│   ├── cco-dispatch-protocol.md
+│   ├── cco-dispatch-protocol.md        # CEO-managed 4-wave production dispatch
 │   ├── company-profile.md
 │   ├── decision-modes.md
-│   ├── dispatch-protocol.md
-│   ├── orchestration-protocol.md
+│   ├── dispatch-protocol.md            # CEO-as-universal-dispatcher protocol
+│   ├── file-index.md                   # Complete file index
+│   ├── logging-protocol.md             # Agent logging protocol
+│   ├── orchestration-protocol.md       # Five-phase cascade + session resume
+│   ├── production-pipeline.md          # Production pipeline specification
 │   └── routing-table.md
 └── templates/
     ├── advisory-note.md

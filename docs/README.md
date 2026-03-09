@@ -14,7 +14,7 @@ Present any business issue and receive structured, multi-perspective analysis wi
 
 <br>
 
-*Version 1.0 · February 2026*
+*Version 1.7 · March 2026*
 
 </div>
 
@@ -37,6 +37,8 @@ Present any business issue and receive structured, multi-perspective analysis wi
 ### Part III: Commands & Usage
 - [Chapter 6 -- Command Reference](#chapter-6----command-reference)
   - [`/cdp:production` -- Production Re-run](#cdpproduction----production-re-run)
+  - [`/cdp:resume` -- Session Resume](#cdpresume----session-resume)
+  - [`/cdp:cleanup` -- Session Cleanup](#cdpcleanup----session-cleanup)
 - [Chapter 7 -- Decision Modes In Depth](#chapter-7----decision-modes-in-depth)
 
 ### Part IV: Architecture & Internals
@@ -544,7 +546,7 @@ CEO frames and routes to 2-4 C-suite members. Full domain analysis with team lea
 
 **Output:** Panel Assessment (~1 page) delivered in the conversation, plus production artifacts (HTML, PPTX, DOCX, Results PDF, Capsule PDF).
 
-**Behavior:** The CEO frames the issue, classifies the decision type, and routes to the specified roles. Each activated C-suite agent creates a division team, spawns team leads as teammates in parallel, collects findings via SendMessage, and synthesizes a domain recommendation. The CEO collects all domain recommendations and produces the Panel Assessment.
+**Behavior:** The CEO frames the issue, classifies the decision type, and routes to the specified roles. The CEO creates a division team per activated role and dispatches each C-suite agent as a teammate. C-suite agents write sub-question files; the CEO reads them and dispatches team leads as teammates. C-suite agents collect findings via SendMessage and synthesize domain recommendations. The CEO collects all domain recommendations and produces the Panel Assessment. See `config/dispatch-protocol.md`.
 
 ### `/cdp:deliberate` -- Tier 3 Board Meeting
 
@@ -645,6 +647,57 @@ Re-run only the production pipeline for an existing session using the persisted 
 - **No `RECORD.md`**: "This session predates the `/cdp:production` feature. Re-run the original deliberation command to generate production artifacts and a RECORD.md for future re-runs."
 - **No `.cdp-output/` directory**: "No CDP sessions found. Run a deliberation first."
 - **Multiple slug matches**: Lists matching sessions with metadata and asks for disambiguation.
+
+### `/cdp:resume` -- Session Resume
+
+Resumes an interrupted CDP session by detecting how far it progressed and continuing from that point. Uses the same session resolution rules as `/cdp:production`.
+
+**Syntax:**
+
+```
+/cdp:resume [session-path?]
+```
+
+**Parameters:**
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `session-path` | No | Path to session directory, slug substring, or omit for most recent |
+
+**Examples:**
+
+```
+/cdp:resume                                                  # Most recent session
+/cdp:resume .cdp-output/2026-03-01_should-we-pivot/
+/cdp:resume pivot                                            # Fuzzy slug match
+```
+
+**Behavior:** The orchestrator detects how far the session progressed by examining which files exist (recommendation files, RECORD.md, production artifacts) and resumes from the appropriate point. Cannot resume with zero recommendation files -- re-run the original command instead. Cannot change routing or mode after resume. See `config/orchestration-protocol.md` Session Resume Protocol for detection logic and resume points.
+
+### `/cdp:cleanup` -- Session Cleanup
+
+Deletes old CDP session directories from `.cdp-output/` with age-based filtering and a confirmation prompt before deletion.
+
+**Syntax:**
+
+```
+/cdp:cleanup [--older-than days?]
+```
+
+**Parameters:**
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `--older-than` | No | Age threshold in days (default: 30) |
+
+**Examples:**
+
+```
+/cdp:cleanup                                                 # Delete sessions older than 30 days
+/cdp:cleanup --older-than 7                                  # Delete sessions older than 7 days
+```
+
+**Behavior:** Scans `.cdp-output/` for session directories, identifies those older than the threshold based on the date prefix, lists them with metadata (issue title, tier, date), and prompts for confirmation before deletion.
 
 ### Multi-Mode Syntax
 
@@ -873,7 +926,7 @@ CDP's architecture mirrors a real organizational hierarchy: a CEO at the top mak
 
 ### 8.1 Three-Layer Hierarchy
 
-CDP uses a three-layer model hierarchy that maps organizational structure to model capability. Each layer uses a different model tier, balancing reasoning quality with cost efficiency. Agents are organized into **Agent Teams**: the CEO leads the executive team (Layer 1), each C-suite agent leads a division team of team leads (Layer 2). Team leads are spawned as teammates via Agent with `team_name`, running in separate tmux windows for true parallel execution.
+CDP uses a three-layer model hierarchy that maps organizational structure to model capability. Each layer uses a different model tier, balancing reasoning quality with cost efficiency. Agents are organized into **Agent Teams**: the CEO leads the executive team (Layer 1) and creates division teams per role, dispatching C-suite agents and team leads as teammates (Layer 2). Team leads run in separate tmux windows for true parallel execution.
 
 <div align="center">
 
@@ -884,7 +937,7 @@ CDP uses a three-layer model hierarchy that maps organizational structure to mod
 | Layer | Default Model | Agent Count | Rationale |
 |-------|---------------|-------------|-----------|
 | **CEO** | Opus | 1 | Cross-domain synthesis demands the highest reasoning quality. The CEO must weigh competing perspectives, identify fault lines, and produce nuanced judgment. This is the most cognitively demanding task in the cascade. |
-| **C-Suite** | Sonnet | 9 | Domain decomposition and synthesis. Each C-suite agent creates a division team, spawns team leads as teammates, collects findings via SendMessage, and synthesizes a domain recommendation. Sonnet balances capability with cost. |
+| **C-Suite** | Sonnet | 9 | Domain decomposition and synthesis. Each C-suite agent writes sub-question files for team leads; the CEO creates division teams and dispatches all agents. C-suite agents collect findings via SendMessage and synthesize domain recommendations. Sonnet balances capability with cost. |
 | **Team Leads** | Haiku | 34 | Narrow specialist analysis. Each team lead has a unique analytical framework and a focused lens. Team leads SendMessage findings back to their C-suite parent. Cost-efficient for high parallelism. Model diversity across the hierarchy improves system robustness. |
 
 Model assignments are configurable -- see [10.3 API & Agent Configuration](#103-api--agent-configuration) for tier defaults and per-agent overrides.
@@ -1084,9 +1137,9 @@ flowchart TD
 
 ### Phase 2 -- C-Suite Dispatches Downward
 
-**Who's involved:** All activated C-suite agents (each creating a division team) → Their team leads (spawned as teammates)
+**Who's involved:** CEO (creating division teams) → All activated C-suite agents (dispatched as teammates) → Their team leads (dispatched as teammates by CEO)
 
-**What's produced:** Domain-specific sub-questions for each team lead. This is analytical translation, not forwarding -- the CFO doesn't pass the CEO's question to the Controller; the CFO asks the Controller "what are the GAAP implications?" The VP Delivery doesn't forward the issue to the Resource Manager; the VP Delivery asks "what existing commitments would be impacted if we redirected 30% of engineering capacity?" Each C-suite agent creates a division team (TeamCreate) and spawns team leads as teammates (Agent with team_name), each running in a separate tmux window for true parallel execution.
+**What's produced:** Domain-specific sub-questions for each team lead. This is analytical translation, not forwarding -- the CFO doesn't pass the CEO's question to the Controller; the CFO asks the Controller "what are the GAAP implications?" The VP Delivery doesn't forward the issue to the Resource Manager; the VP Delivery asks "what existing commitments would be impacted if we redirected 30% of engineering capacity?" The CEO creates a division team per activated role (`cdp-{role}-{slug}`) and dispatches C-suite agents as teammates. C-suite agents write sub-question files; the CEO reads them and dispatches team leads as teammates, each running in a separate tmux window for true parallel execution. See `config/dispatch-protocol.md`.
 
 **How it feeds the next phase:** Each team lead receives a focused, domain-specific question that they can analyze through their narrow specialist lens. The quality of this translation directly affects the quality of team lead findings -- a well-framed sub-question produces sharper analysis than a generic forwarding.
 
@@ -1723,7 +1776,7 @@ The production pipeline uses external skills and packages for generating artifac
 
 ## Chapter 13 -- Repository Structure
 
-The repository is organized into four main areas: **agents** (the 43 agent definitions), **commands** (the 4 slash commands), **config** (configuration specifications), and **templates** (output format specifications). The installer copies agents and commands into your project's `.claude/` directory; config and templates are read directly from the skill directory at runtime.
+The repository is organized into four main areas: **agents** (the 48 agent definitions), **commands** (the 7 slash commands), **config** (configuration specifications), and **templates** (output format specifications). The installer copies agents and commands into your project's `.claude/` directory; config and templates are read directly from the skill directory at runtime.
 
 ```
 corporate-decision-panel/               # Clone to .claude/skills/corporate-decision-panel
@@ -1738,7 +1791,7 @@ corporate-decision-panel/               # Clone to .claude/skills/corporate-deci
 ├── agents/                             # Agent definitions
 │   │                                   # (copied to .claude/agents/ on setup)
 │   ├── ceo.md                          # CEO -- Synthesizer (Opus)
-│   ├── c-suite/                        # 8 C-suite agents (Sonnet)
+│   ├── c-suite/                        # 9 C-suite agents (8 analytical + CCO) (Sonnet)
 │   │   ├── coo.md                      #   COO -- Skeptic
 │   │   ├── cfo.md                      #   CFO -- Skeptic
 │   │   ├── cto.md                      #   CTO -- Advocate
@@ -1746,16 +1799,18 @@ corporate-decision-panel/               # Clone to .claude/skills/corporate-deci
 │   │   ├── cao.md                      #   CAO -- Systemic
 │   │   ├── vp-sales.md                 #   VP Sales -- Advocate
 │   │   ├── vp-delivery.md              #   VP Delivery -- Skeptic
-│   │   └── cso.md                      #   CSO -- Investigative
-│   └── team-leads/                     # 34 team lead agents (Haiku)
-│       ├── operations/                 #   COO domain (4 leads)
-│       ├── finance/                    #   CFO domain (5 leads)
-│       ├── technology/                 #   CTO domain (4 leads)
-│       ├── security/                   #   CISO domain (4 leads)
-│       ├── sales/                      #   VP Sales domain (4 leads)
-│       ├── delivery/                   #   VP Delivery domain (4 leads)
-│       ├── admin/                      #   CAO domain (4 leads)
-│       └── research/                   #   CSO domain (5 leads)
+│   │   ├── cso.md                      #   CSO -- Investigative
+│   │   └── cco.md                      #   CCO -- Production
+│   └── team-leads/                     # 38 team lead agents (34 analytical + 4 production) (Haiku)
+│       ├── coo/                        #   COO domain (4 leads)
+│       ├── cfo/                        #   CFO domain (5 leads)
+│       ├── cto/                        #   CTO domain (4 leads)
+│       ├── ciso/                       #   CISO domain (4 leads)
+│       ├── vp-sales/                   #   VP Sales domain (4 leads)
+│       ├── vp-delivery/                #   VP Delivery domain (4 leads)
+│       ├── cao/                        #   CAO domain (4 leads)
+│       ├── cso/                        #   CSO domain (5 leads)
+│       └── cco/                        #   CCO production team (4 leads)
 │
 ├── commands/                           # Slash commands
 │   │                                   # (copied to .claude/commands/ on setup)
@@ -1764,18 +1819,28 @@ corporate-decision-panel/               # Clone to .claude/skills/corporate-deci
 │       ├── panel.md                    # /cdp:panel -- Tier 2
 │       ├── deliberate.md               # /cdp:deliberate -- Tier 3
 │       ├── evaluate.md                 # /cdp:evaluate -- Auto-Triage
-│       └── production.md              # /cdp:production -- Production Re-run
+│       ├── production.md              # /cdp:production -- Production Re-run
+│       ├── resume.md                  # /cdp:resume -- Session Resume
+│       └── cleanup.md                 # /cdp:cleanup -- Session Cleanup
 │
 ├── scripts/                            # Python scripts
 │   ├── apply_models.py                 # Agent model config applicator
 │   ├── build_results_pdf.py            # Native Results PDF generator
 │   ├── config.py                       # Config parser
 │   ├── generate_infographic.py         # Single infographic generation
-│   └── session.py                      # Infographic generation session
+│   ├── preflight.py                    # Pre-flight validation (API key, billing)
+│   ├── session.py                      # Infographic generation session
+│   └── validation.py                   # Session validation utilities
 │
 ├── config/                             # Configuration specifications
+│   ├── cco-dispatch-protocol.md        # CEO-managed 4-wave production dispatch
 │   ├── company-profile.md              # Archetype presets + override mechanism
 │   ├── decision-modes.md               # Five mode definitions + CEO prompt modifiers
+│   ├── dispatch-protocol.md            # CEO-as-universal-dispatcher protocol
+│   ├── file-index.md                   # Complete file index
+│   ├── logging-protocol.md             # Agent logging protocol
+│   ├── orchestration-protocol.md       # Five-phase cascade + session resume
+│   ├── production-pipeline.md          # Production pipeline specification
 │   └── routing-table.md               # Routing defaults + threshold conditions
 │
 ├── templates/                          # Output format specifications
@@ -1795,8 +1860,10 @@ corporate-decision-panel/               # Clone to .claude/skills/corporate-deci
 │
 └── docs/                               # Documentation
     ├── README.md                       # This user manual
+    ├── ARCHITECTURE.md                 # Technical architecture reference
+    ├── DEVELOPMENT.md                  # Contributor guide
     └── media/                          # Documentation images
-        └── *.png                       # 14 images used throughout this manual
+        └── *.png                       # Documentation images
 ```
 
 ---

@@ -52,6 +52,12 @@ from scripts.validation import validate_infographic
 
 TEMPLATE_DIR = Path(__file__).resolve().parent.parent / "templates" / "infographic-prompts"
 
+SLUG_ALIASES: dict[str, str] = {
+    "fault-lines": "fault-line-map",
+    "risk-matrix": "risk-opportunity-matrix",
+    "action-plan": "action-plan-timeline",
+}
+
 PLACEHOLDER_RE = re.compile(r"\{\{(\w+)\}\}")
 
 ASPECT_RATIOS: dict[str, str] = {
@@ -61,6 +67,10 @@ ASPECT_RATIOS: dict[str, str] = {
     "fault-line-map":          "16:9",
     "mode-comparison":         "16:9",
     "action-plan-timeline":    "16:9",
+    # Shorthand aliases (same ratios as their canonical counterparts)
+    "fault-lines":             "16:9",
+    "risk-matrix":             "4:3",
+    "action-plan":             "16:9",
 }
 
 THINKING_TYPES: set[str] = {"fault-line-map", "mode-comparison"}
@@ -132,6 +142,7 @@ def load_template(
     """
     base = template_dir if template_dir is not None else TEMPLATE_DIR
     slug = infographic_type.lower().replace("_", "-").strip()
+    slug = SLUG_ALIASES.get(slug, slug)  # Resolve shorthand aliases
     path = base / f"{slug}.json"
 
     if not path.exists():
@@ -821,7 +832,7 @@ def generate_with_retry(
 
         # Success -- run vision validation
         validation = validate_infographic(
-            result.output_path, data_path, config_dir
+            result.output_path, data_path, config_dir, type_slug=type_slug
         )
 
         if validation.passed and not validation.warning_only:
