@@ -233,6 +233,10 @@ Each C-suite agent writes its domain recommendation to `{session}/_RECOMMENDATIO
 
 The CEO monitors for `_RECOMMENDATION_{role}.md` files. Division teams naturally dissolve after the C-suite agent writes their recommendation -- no explicit shutdown needed. The CSO Phase 2 standalone subagent is monitored via background task notification. After all expected recommendation files are present (or a reasonable wait has elapsed), the CEO reads all `{session}/_RECOMMENDATION_{role}.md` files. If a recommendation file is missing (agent failure or timeout), record the gap explicitly in the Decision Record -- a missing recommendation is not a blocker, it is an acknowledged gap.
 
+### Large Recommendation Files
+
+Recommendation files from complex deliberations may exceed the Read tool's 2000-line default. When reading `_RECOMMENDATION_{role}.md` files, if a file appears truncated, re-read with `offset` and `limit` parameters to retrieve remaining sections. Executive summaries are always in the first 50 lines -- the summary-first synthesis approach (Step 1 of CEO Deliberation) naturally handles most cases even if the file is truncated.
+
 ---
 
 ## Phase 4.5 -- Pre-Mortem Dispatch (Tier 3 Only)
