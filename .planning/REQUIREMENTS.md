@@ -21,15 +21,15 @@ Requirements for Team Refactor milestone. Each maps to roadmap phases.
 
 ### Dispatch Architecture
 
-- [ ] **DISP-01**: `config/dispatch-protocol.md` rewritten for CEO-as-universal-dispatcher with sub-question file convention (`{session}/sub-questions/{role}/{team-lead-name}.md`)
-- [ ] **DISP-02**: `config/cco-dispatch-protocol.md` rewritten for CEO-managed production wave sequencing with CCO as Creative Brief author + editorial coordinator
-- [ ] **DISP-03**: `config/orchestration-protocol.md` Phases 2/3/4 updated for CEO division team dispatch flow (TeamCreate per role, two-wave dispatch, sub-question file polling)
-- [ ] **DISP-04**: `config/orchestration-protocol.md` Production Spawn Sequence updated for CEO-managed CCO wave dispatch
+- [x] **DISP-01**: `config/dispatch-protocol.md` rewritten for CEO-as-universal-dispatcher with sub-question file convention (`{session}/sub-questions/{role}/{team-lead-name}.md`)
+- [x] **DISP-02**: `config/cco-dispatch-protocol.md` rewritten for CEO-managed production wave sequencing with CCO as Creative Brief author + editorial coordinator
+- [x] **DISP-03**: `config/orchestration-protocol.md` Phases 2/3/4 updated for CEO division team dispatch flow (TeamCreate per role, two-wave dispatch, sub-question file polling)
+- [x] **DISP-04**: `config/orchestration-protocol.md` Production Spawn Sequence updated for CEO-managed CCO wave dispatch
 - [x] **DISP-05**: CEO agent updated with TeamCreate instructions, team lead dispatch with sub-questions, sub-question file polling, and CCO wave management
 - [ ] **DISP-06**: 8 analytical C-suite agents transformed -- Mode B removes TeamCreate/Agent dispatch, adds sub-question file writing + teammate message receiving
 - [ ] **DISP-07**: CCO agent transformed to Creative Brief author + editorial coordinator within CEO-managed production team
 - [x] **DISP-08**: CSO Phase 1.5 dispatch integrated with division team pattern (special timing: dispatched before other C-suite)
-- [ ] **DISP-09**: Sub-question directory (`{session}/sub-questions/`) documented in Session Output Setup
+- [x] **DISP-09**: Sub-question directory (`{session}/sub-questions/`) documented in Session Output Setup
 - [ ] **DISP-10**: No stale `TeamCreate`, `Agent.*team_name`, or `SendMessage.*shutdown_request` references remain in C-suite agent definitions
 
 ### Documentation
@@ -77,15 +77,15 @@ Which phases cover which requirements. Updated during roadmap creation.
 | INFRA-04 | Phase 10 | Complete |
 | AGINF-01 | Phase 10 | Complete |
 | AGINF-02 | Phase 11 | Complete |
-| DISP-01 | Phase 12 | Pending |
-| DISP-02 | Phase 12 | Pending |
-| DISP-03 | Phase 12 | Pending |
-| DISP-04 | Phase 12 | Pending |
+| DISP-01 | Phase 12 | Complete |
+| DISP-02 | Phase 12 | Complete |
+| DISP-03 | Phase 12 | Complete |
+| DISP-04 | Phase 12 | Complete |
 | DISP-05 | Phase 12 | Complete |
 | DISP-06 | Phase 12 | Pending |
 | DISP-07 | Phase 12 | Pending |
 | DISP-08 | Phase 12 | Complete |
-| DISP-09 | Phase 12 | Pending |
+| DISP-09 | Phase 12 | Complete |
 | DISP-10 | Phase 12 | Pending |
 | DOCS-01 | Phase 13 | Pending |
 | DOCS-02 | Phase 13 | Pending |

@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: Team Refactor
-status: completed
-stopped_at: Phase 12 context gathered
-last_updated: "2026-03-09T00:02:33.753Z"
-last_activity: 2026-03-08 -- Completed Plan 11-02 (team lead inline logging protocol)
+status: executing
+stopped_at: Completed 12-01-PLAN.md (config protocol rewrites)
+last_updated: "2026-03-09T00:07:15.564Z"
+last_activity: 2026-03-09 -- Completed Plan 12-02 (CEO agent rewrite with universal dispatch mechanics)
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 7
-  completed_plans: 5
+  completed_plans: 6
   percent: 100
 ---
 
@@ -51,6 +51,7 @@ Progress: [██████████] 100%
 | Phase 11 P01 | 2min | 2 tasks | 10 files |
 | Phase 11 P02 | 2min | 2 tasks | 38 files |
 | Phase 12 P02 | 2min | 1 tasks | 1 files |
+| Phase 12 P01 | 5min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -72,6 +73,9 @@ Recent decisions affecting current work:
 - [Phase 12]: Phase ordering: Phase 1 -> Phase 1.5 (CSO) -> Phase 0 broadcast (with dossier) -> Phase 2 (divisions + CSO standalone) (12-02)
 - [Phase 12]: Context management guidance: discard sub-Q file content after dispatching team leads (12-02)
 - [Phase 12]: Production dispatch is PURELY MECHANICAL -- CEO never dispatches without CCO SendMessage authorization (12-02)
+- [Phase 12]: Sub-question file format: Context Brief + Sub-Question + Output Instruction + Reference Files (12-01)
+- [Phase 12]: Division teams dissolve naturally after recommendation written; no explicit shutdown needed (12-01)
+- [Phase 12]: Session resume rule 1b: sub-question files without recommendation triggers team lead dispatch, not C-suite re-dispatch (12-01)
 
 ### Pending Todos
 
@@ -85,6 +89,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-09T00:01:38Z
-Stopped at: Completed 12-02-PLAN.md (CEO agent rewrite)
-Resume file: .planning/phases/12-dispatch-architecture-rewrite/12-02-SUMMARY.md
+Last session: 2026-03-09T00:07:15.555Z
+Stopped at: Completed 12-01-PLAN.md (config protocol rewrites)
+Resume file: None
