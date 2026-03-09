@@ -34,8 +34,8 @@ Requirements for Team Refactor milestone. Each maps to roadmap phases.
 
 ### Documentation
 
-- [ ] **DOCS-01**: Large file read guidance added to `config/orchestration-protocol.md` Phase 4 synthesis section
-- [ ] **DOCS-02**: Large file read guidance added to `agents/ceo.md` recommendation synthesis section
+- [x] **DOCS-01**: Large file read guidance added to `config/orchestration-protocol.md` Phase 4 synthesis section
+- [x] **DOCS-02**: Large file read guidance added to `agents/ceo.md` recommendation synthesis section
 
 ## Future Requirements
 
@@ -87,8 +87,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DISP-08 | Phase 12 | Complete |
 | DISP-09 | Phase 12 | Complete |
 | DISP-10 | Phase 12 | Complete |
-| DOCS-01 | Phase 13 | Pending |
-| DOCS-02 | Phase 13 | Pending |
+| DOCS-01 | Phase 13 | Complete |
+| DOCS-02 | Phase 13 | Complete |
 
 **Coverage:**
 - v1.4 requirements: 18 total
