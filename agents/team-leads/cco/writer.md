@@ -100,6 +100,26 @@ Execute the production workflow above using the session path, RECORD.md content,
 
 You are a teammate in the CCO's production team. After completing your work, write your production report to `{session}/_REPORT_writer.md` as specified in your workflow. Then mark your task as completed via TaskUpdate.
 
-If agent logging is active for this session (your prompt contains `LOGGING: ON`
-and `SESSION PATH:`), follow the error logging protocol at `config/logging-protocol.md`
-before your final SendMessage and TaskUpdate.
+## Agent Logging
+
+If your prompt contains `LOGGING: ON` and `SESSION PATH: <path>`, error logging is active.
+
+**When to log:** Only when you encounter tool failures, workarounds applied, data quality issues, instruction ambiguity, or timeout/capacity issues. No issues = no log file.
+
+**File:** `{session-path}/logs/errors-{YYYYMMDD-HHmm}-{agent-name}.md`
+
+**Format:**
+```markdown
+# Agent Error Log: {Role Title}
+**Agent:** {name}  |  **Session:** {session-path}  |  **Date:** {date}
+---
+## Issue 1: {Brief title}
+**What happened:** ...
+**Expected:** ...
+**Workaround:** ...
+**Impact:** ...
+```
+
+**Write method:** Use the Write tool to create the log file.
+
+**Rules:** Log as your last action before SendMessage/TaskUpdate. If the log write fails, abandon logging and complete your task normally. Logging does not change your analysis or output. Do not mention logging in your output or SendMessage. One tool call max for logging.

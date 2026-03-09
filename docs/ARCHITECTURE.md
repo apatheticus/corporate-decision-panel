@@ -6,7 +6,7 @@
 
 *How CDP works under the hood.*
 
-*Version 1.0 · February 2026*
+*Version 1.7 · March 2026*
 
 </div>
 
@@ -50,7 +50,7 @@ The skill entry point ([`SKILL.md`](../SKILL.md)) defines the orchestration prot
 ```mermaid
 flowchart TD
     User["User"]
-    CMD["Slash Command\n(/cdp:consult, /cdp:panel,\n/cdp:deliberate, /cdp:evaluate,\n/cdp:production)"]
+    CMD["Slash Command\n(/cdp:consult, /cdp:panel,\n/cdp:deliberate, /cdp:evaluate,\n/cdp:production, /cdp:resume,\n/cdp:cleanup)"]
     CEO["CEO Agent\n(Opus)\nFrame → Route → Synthesize"]
     CS["C-Suite Agents\n(Sonnet × 9)\nDomain Decomposition"]
     TL["Team Lead Agents\n(Haiku × 34)\nSpecialist Analysis"]
@@ -89,7 +89,7 @@ The CEO is the sole orchestrator and synthesizer. It frames the issue, routes to
 
 ### Layer 2: C-Suite (Sonnet × 9)
 
-Nine domain executives, each spawned as a teammate in the CEO's executive team. Analytical C-suite agents translate the CEO's framing into domain-specific sub-questions, create division teams, spawn team leads as teammates, and synthesize domain recommendations upward. Each has a fixed perspective type (skeptic, advocate, systemic, investigative, or production) that governs how they interpret evidence.
+Nine domain executives, each dispatched as a teammate in a CEO-created division team. Analytical C-suite agents translate the CEO's framing into domain-specific sub-questions (written as sub-question files), and synthesize domain recommendations upward. The CEO creates all division teams and dispatches all agents. Each has a fixed perspective type (skeptic, advocate, systemic, investigative, or production) that governs how they interpret evidence.
 
 | Role | Disposition | Definition |
 |------|-------------|------------|
@@ -105,7 +105,7 @@ Nine domain executives, each spawned as a teammate in the CEO's executive team. 
 
 ### Layer 3: Team Leads (Haiku × 34)
 
-Narrow specialists spawned as teammates in their C-suite parent's division team. Each has a unique analytical framework, mandatory output template, and forcing questions. Team leads SendMessage findings to their C-suite parent only -- the CEO never sees raw team lead output.
+Narrow specialists spawned as teammates in CEO-created division teams. Each has a unique analytical framework, mandatory output template, and forcing questions. Team leads SendMessage findings to their C-suite parent only -- the CEO never sees raw team lead output.
 
 **Definitions:** [`agents/team-leads/{domain}/*.md`](../agents/team-leads/)
 
@@ -209,7 +209,7 @@ If the CEO activates the CSO, the CSO dispatches 5 research team leads (Market I
 
 ### Phase 2 -- C-Suite Dispatches Downward
 
-Each activated C-suite agent creates a division team (TeamCreate) and spawns team leads as teammates (Agent with team_name), each running in a separate tmux window. This is analytical translation -- the CFO does not forward the question; the CFO asks the Controller "What are the GAAP implications?" See [`config/dispatch-protocol.md`](../config/dispatch-protocol.md).
+CEO creates a division team per activated role (`cdp-{role}-{slug}`) and dispatches C-suite agents as teammates. Each C-suite agent writes sub-question files; CEO reads them and dispatches team leads as teammates. This is analytical translation -- the CFO does not forward the question; the CFO asks the Controller "What are the GAAP implications?" See [`config/dispatch-protocol.md`](../config/dispatch-protocol.md).
 
 ### Phase 3 -- Team Leads Produce Findings
 
@@ -217,7 +217,7 @@ Each team lead teammate performs narrow, focused analysis through their speciali
 
 ### Phase 4 -- C-Suite Synthesizes Upward
 
-Each C-suite agent collects team lead findings (arriving via SendMessage), produces a domain recommendation with confidence level, key risks, key opportunities, and flagged internal contradictions between team leads, then shuts down its division team.
+Each C-suite agent collects team lead findings (arriving via SendMessage), produces a domain recommendation with confidence level, key risks, key opportunities, and flagged internal contradictions between team leads. CEO manages division team lifecycle.
 
 ### Phase 4.5 -- Pre-Mortem Challenge (Tier 3 only)
 
@@ -246,11 +246,11 @@ Phase 1: CEO decomposes → classifies → routes → states reasoning
   ↓
 Phase 1.5 (if CSO activated): CSO → 5 research leads → Research Dossier → broadcast
   ↓
-Phase 2: Each C-suite agent creates division team → translates framing → dispatches team leads as teammates
+Phase 2: CEO creates division teams → dispatches C-suite agents → C-suite writes sub-questions → CEO dispatches team leads
   ↓
 Phase 3: Team leads produce specialist findings (parallel per domain, separate tmux windows) → SendMessage back
   ↓
-Phase 4: Each C-suite agent collects findings via SendMessage → synthesizes → domain recommendation → shuts down division team
+Phase 4: Each C-suite agent collects findings via SendMessage → synthesizes → domain recommendation
   ↓
 Phase 4.5 (Tier 3): All C-suite agents receive peer summaries → pre-mortem responses
   ↓
@@ -359,7 +359,7 @@ The system defaults to lightweight engagement. Tier 1 is the daily habit; Tier 3
 
 ## Production Pipeline
 
-After the deliberation cascade completes, the CCO (Chief Communications Officer) manages a production pipeline that generates distributable artifacts. The CCO creates a production team (TeamCreate) and spawns production team leads as teammates in four sequential waves. The `/cdp:production` command enables re-running this pipeline for an existing session using the persisted `RECORD.md`, without re-running the deliberation cascade.
+After the deliberation cascade completes, the CCO (Chief Communications Officer) manages a production pipeline that generates distributable artifacts. The CEO creates the production team (`cdp-cco-{slug}`), dispatches the CCO as a teammate. The CCO coordinates four sequential production waves via SendMessage; the CEO dispatches each wave agent as a teammate. The `/cdp:production` command enables re-running this pipeline for an existing session using the persisted `RECORD.md`, without re-running the deliberation cascade.
 
 ```mermaid
 flowchart LR

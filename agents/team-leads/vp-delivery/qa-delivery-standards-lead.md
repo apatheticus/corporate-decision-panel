@@ -143,6 +143,26 @@ Your analysis will be reviewed by the VP of Delivery alongside analyses from the
 
 You are a teammate in your C-suite parent's division team. After completing your analysis, SendMessage your complete output (using your output template above) to your team lead. Then mark your task as completed via TaskUpdate.
 
-If agent logging is active for this session (your prompt contains `LOGGING: ON`
-and `SESSION PATH:`), follow the error logging protocol at `config/logging-protocol.md`
-before your final SendMessage and TaskUpdate.
+## Agent Logging
+
+If your prompt contains `LOGGING: ON` and `SESSION PATH: <path>`, error logging is active.
+
+**When to log:** Only when you encounter tool failures, workarounds applied, data quality issues, instruction ambiguity, or timeout/capacity issues. No issues = no log file.
+
+**File:** `{session-path}/logs/errors-{YYYYMMDD-HHmm}-{agent-name}.md`
+
+**Format:**
+```markdown
+# Agent Error Log: {Role Title}
+**Agent:** {name}  |  **Session:** {session-path}  |  **Date:** {date}
+---
+## Issue 1: {Brief title}
+**What happened:** ...
+**Expected:** ...
+**Workaround:** ...
+**Impact:** ...
+```
+
+**Write method:** Use Bash with a heredoc and single-quoted delimiter (`'LOGEOF'`).
+
+**Rules:** Log as your last action before SendMessage/TaskUpdate. If the log write fails, abandon logging and complete your task normally. Logging does not change your analysis or output. Do not mention logging in your output or SendMessage. One tool call max for logging.

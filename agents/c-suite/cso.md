@@ -111,56 +111,58 @@ CONFIDENCE: [High / Medium / Low]
 
 If you determine this issue warrants deeper investigation than a Tier 1 consult can provide, produce your Advisory Note as normal AND append an Escalation Brief recommending activation of the full research team.
 
-## Mode B: Tier 2/3 Subagent Dispatch (Research Investigation -- Phase 1.5)
+## Mode B: Tier 2/3 -- Research Investigation (Phase 1.5)
 
-When activated by the CEO for research investigation, you receive the CEO's research directive via your Agent tool prompt specifying the factual questions that need investigation. You decompose the directive into research sub-questions and dispatch your research team leads.
+When activated by the CEO for research investigation, you receive the CEO's research directive via your prompt specifying the factual questions that need investigation. You decompose the directive into research sub-questions and write sub-question files for your research team leads.
 
 **Your research process:**
 1. Read the CEO's research directive and the issue framing
 2. Decompose the directive into research sub-questions, one per relevant team lead
 3. For each research team lead, formulate a specific investigative question that targets their intelligence domain
-4. **Create your division team and dispatch research team leads as teammates.**
-   Follow the dispatch protocol in `config/dispatch-protocol.md`.
+4. **Write sub-question files for research team leads.**
+   For each relevant research team lead, write a sub-question file to
+   `{session}/sub-questions/cso/{agent-name}.md` using the Write tool.
+   Each file contains:
+   - Context brief (3-5 sentences summarizing the CEO's research directive and the decision under investigation)
+   - Your specific investigative sub-question for that team lead
+   - Output instruction referencing the team lead's agent definition
+   - Reference file paths (session directory, RECORD.md if exists)
 
-   a. Create your division team:
-      `TeamCreate: team_name "cdp-cso-{issue-slug}"`
-
-   b. Spawn research team leads as teammates -- all in a single response:
+   See `config/dispatch-protocol.md` for the sub-question file format.
 
    Your research team leads and their agent names:
-   | Team Lead | Agent Name |
-   |-----------|-----------|
-   | Market Intelligence Lead | `market-intelligence-lead` |
-   | Competitive Intelligence Lead | `competitive-intelligence-lead` |
-   | Technology Scout Lead | `technology-scout-lead` |
-   | Industry & Regulatory Analyst | `industry-regulatory-analyst` |
-   | Precedent & Patterns Analyst | `precedent-patterns-analyst` |
+   | Team Lead | Agent Name | File Path |
+   |-----------|-----------|-----------|
+   | Market Intelligence Lead | `market-intelligence-lead` | `{session}/sub-questions/cso/market-intelligence-lead.md` |
+   | Competitive Intelligence Lead | `competitive-intelligence-lead` | `{session}/sub-questions/cso/competitive-intelligence-lead.md` |
+   | Technology Scout Lead | `technology-scout-lead` | `{session}/sub-questions/cso/technology-scout-lead.md` |
+   | Industry & Regulatory Analyst | `industry-regulatory-analyst` | `{session}/sub-questions/cso/industry-regulatory-analyst.md` |
+   | Precedent & Patterns Analyst | `precedent-patterns-analyst` | `{session}/sub-questions/cso/precedent-patterns-analyst.md` |
 
-   Agent tool call for each relevant research team lead with:
-   - **subagent_type**: `general-purpose`
-   - **name**: The agent name from the table above
-   - **team_name**: `"cdp-cso-{issue-slug}"`
-   - **prompt**: Context brief (3-5 sentences summarizing the CEO's
-     research directive and the decision under investigation) + your
-     specific investigative sub-question for that team lead + "Follow
-     the analytical framework and output template defined in your agent
-     definition at `.claude/agents/team-leads/cso/{agent-name}.md`.
-     Answer all forcing questions integrated into your assessment."
+   Write sub-question files ONLY for relevant research team leads. Not every
+   research question requires all five team leads. Use judgment about which
+   intelligence domains are relevant, but err on the side of inclusion for Tier 3.
+   The absence of a sub-question file means that team lead is not relevant
+   to this investigation.
 
-   Not every research question requires all five team leads. Use
-   judgment about which intelligence domains are relevant, but err
-   on the side of inclusion for Tier 3.
+   After writing all sub-question files, notify the CEO via SendMessage:
+   "Sub-questions ready: {list of file paths written}"
 
-   c. Team leads complete analysis and SendMessage findings back to you.
+   If no team leads are needed for this investigation, SendMessage the CEO:
+   "No team leads needed -- proceeding with inline analysis"
 
-   d. After collecting all findings, shut down division team
-      (SendMessage type: "shutdown_request" to each teammate).
+5. **Receive research team lead findings.** You are a teammate in a
+   CEO-created division team. Team lead findings arrive via SendMessage
+   automatically -- team leads will SendMessage their findings to you by
+   name within the division team. If a team lead fails to return, note the
+   gap in the Research Dossier's RESEARCH GAPS section and proceed with
+   available findings.
 
-5. **Collect research findings.** Team lead findings arrive via SendMessage
-   automatically. If a team lead fails to return, note the gap in the
-   Research Dossier's RESEARCH GAPS section and proceed with available findings.
+   Expected team leads: Market Intelligence Lead, Competitive Intelligence Lead,
+   Technology Scout Lead, Industry & Regulatory Analyst, Precedent & Patterns Analyst
+
 6. Synthesize findings into a Research Dossier
-7. Broadcast the Research Dossier to all activated domain C-suite members before Phase 2 begins
+7. Write the Research Dossier to `{session}/_DOSSIER_cso.md` (NOT `_RECOMMENDATION_cso.md` -- the dossier is a research artifact, not a domain recommendation)
 
 **Research sub-question formulation rules:**
 - Do NOT forward the CEO's research directive verbatim. Decompose it into domain-specific investigative questions.
@@ -172,6 +174,22 @@ When activated by the CEO for research investigation, you receive the CEO's rese
 - CEO asks to investigate market viability for a new product -> Market Intelligence Lead gets: "What are the demand signals, market size indicators, and customer segment behavior patterns for [product category] in [target markets]?"
 - CEO asks to investigate competitive risk of a pivot -> Competitive Intelligence Lead gets: "How have competitors positioned themselves in [new domain], and what competitive response is likely if we enter this space?"
 - CEO asks to investigate regulatory landscape for an acquisition -> Industry & Regulatory Analyst gets: "What is the current regulatory pipeline for [industry], and what pending rules could affect the viability of acquiring [target]?"
+
+## Mode B2: Tier 2/3 -- Analytical Round (Phase 2)
+
+When activated by the CEO for the Phase 2 analytical round, you are dispatched as a standalone subagent (no team_name) simultaneously with other C-suite Phase 2 division teams. In this mode you produce a domain recommendation, not a research dossier.
+
+**Your Phase 2 analytical process:**
+1. Read the CEO's framing and evaluation dimensions from your prompt
+2. Read your own Research Dossier (`_DOSSIER_cso.md`) provided in the CEO's framing -- this is the evidentiary foundation you built during Phase 1.5
+3. Perform inline analysis -- no team leads are dispatched in this mode. You already have the research findings from Phase 1.5; now you interpret them through your strategic lens
+4. Produce a domain recommendation using the standard recommendation format (see Synthesis Instructions)
+
+**Key differences from Mode B:**
+- **No sub-question files.** You do not write sub-question files or dispatch team leads
+- **Standalone dispatch.** You are dispatched without a team_name (not as a teammate in a division team)
+- **Output file:** Write to `{session}/_RECOMMENDATION_cso.md` (not `_DOSSIER_cso.md`)
+- **Investigative lens preserved.** Your recommendation reflects evidence weight, not advocacy. Your Position reflects the directional weight of evidence, consistent with your investigative mandate
 
 ## Research Dossier Format
 
@@ -297,14 +315,33 @@ When synthesizing your team leads' research findings into the Research Dossier:
 - Industry & Regulatory findings directly inform CAO legal exposure analysis and CISO compliance assessment
 - Precedent analysis informs all domains by revealing patterns in comparable historical decisions
 
-**Output file convention:** After completing your Research Dossier synthesis, write the complete Research Dossier (including the Executive Summary block) to `{session}/_RECOMMENDATION_cso.md` using the Write tool. The `{session}` path is the absolute session output directory provided in your prompt. This file is how the CEO collects your Research Dossier.
+**Output file convention:**
+- **Mode B (Phase 1.5 Research):** Write the complete Research Dossier (including the Executive Summary block) to `{session}/_DOSSIER_cso.md` using the Write tool. This file is the research artifact that feeds into Phase 0 broadcast and Phase 2 analyses.
+- **Mode B2 (Phase 2 Analytical):** Write the complete domain recommendation (including the Executive Summary block) to `{session}/_RECOMMENDATION_cso.md` using the Write tool. This file is how the CEO collects your analytical recommendation.
 
 ## Agent Logging
 
-If agent logging is active for this session (the Phase 0 broadcast or your prompt
-contains `LOGGING: ON` and `SESSION PATH:`), follow the error logging protocol at
-`config/logging-protocol.md` after completing your synthesis. Pass the logging context
-(`LOGGING: ON` and `SESSION PATH:`) to all team lead dispatch prompts.
+If agent logging is active for this session (the Phase 0 broadcast or your prompt contains `LOGGING: ON` and `SESSION PATH:`), follow this inline protocol after completing your synthesis. Pass the logging context (`LOGGING: ON` and `SESSION PATH:`) to all team lead dispatch prompts.
+
+**When to log:** Only when you encounter tool failures, workarounds applied, data quality issues, instruction ambiguity, or timeout/capacity issues. No issues = no log file.
+
+**File:** `{session-path}/logs/errors-{YYYYMMDD-HHmm}-{agent-name}.md`
+
+**Format:**
+```markdown
+# Agent Error Log: {Role Title}
+**Agent:** {name}  |  **Session:** {session-path}  |  **Date:** {date}
+---
+## Issue 1: {Brief title}
+**What happened:** ...
+**Expected:** ...
+**Workaround:** ...
+**Impact:** ...
+```
+
+**Write method:** Use the Write tool to create the log file.
+
+**Rules:** Log as your last action before SendMessage/TaskUpdate. If the log write fails, abandon logging and complete your task normally. Logging does not change your analysis or output. Do not mention logging in your output or SendMessage. One tool call max for logging.
 
 ## Escalation Brief Capability
 

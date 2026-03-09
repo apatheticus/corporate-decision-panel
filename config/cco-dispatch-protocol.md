@@ -1,39 +1,16 @@
-# CCO Production Team Dispatch Protocol
+# CCO Production Wave Dispatch Protocol
 
-This document defines the team-based dispatch pattern used by the CCO to invoke production team leads during Tier 2 and Tier 3 production.
+This document defines the CEO-managed production wave sequencing with the CCO as Creative Brief author and editorial coordinator.
 
 ---
 
-## Team Lifecycle
+> **Note:** The CEO creates the production team and dispatches all agents (CCO and wave team leads) as teammates. The CCO drives timing and editorial judgment via SendMessage. The CEO executes dispatch mechanically based on CCO direction.
 
-The CCO creates a **production team** for the duration of the production pipeline, spawns production team leads as **teammates**, coordinates four sequential waves, and shuts down the team after the Publisher completes.
+## Overview
 
-### 1. Create Production Team
+After the CEO writes the Decision Record (or Panel Assessment), the CEO creates a production team (`cdp-cco-{slug}`) and dispatches the CCO as a teammate. The CCO reads RECORD.md, writes the Creative Brief, and coordinates four sequential production waves by SendMessaging the CEO with dispatch instructions. The CEO dispatches each wave agent as a teammate in the production team based on CCO direction.
 
-Before dispatching any team leads, create your production team:
-
-```
-TeamCreate: team_name "cdp-cco-{issue-slug}"
-```
-
-### 2. Dispatch Team Leads as Teammates
-
-**Tool:** Use the **Agent tool** with `team_name` to invoke each production team lead as a **teammate** (separate tmux window).
-
-**Parameters for each Agent tool call:**
-- `subagent_type`: `"general-purpose"`
-- `name`: The agent name from the team lead table
-- `team_name`: `"cdp-cco-{issue-slug}"` (the team you just created)
-- `prompt`: See Prompt Structure below
-- `description`: Short description of the team lead's task (e.g., `"Graphic Designer infographic production"`)
-
-### 3. Shut Down Production Team
-
-After the Publisher completes and you have read the final production report, send a shutdown request to all teammates:
-
-```
-SendMessage type: "shutdown_request" to each teammate
-```
+The CCO retains full creative authority and editorial judgment. The CEO's role in production is purely mechanical -- it dispatches wave agents only when the CCO authorizes it.
 
 ## Team Lead Parameters
 
@@ -46,50 +23,77 @@ SendMessage type: "shutdown_request" to each teammate
 
 **Editor uses Sonnet** (specified in its agent definition frontmatter) because editorial judgment -- comparing drafts against source material for accuracy, consistency, and tone -- requires stronger reasoning than production execution. The Editor is read-only by design for production artifacts (DOCX/PPTX/PNG): it judges and inspects those files, but does not modify them. The Editor does use the Write tool to produce its own report file (`_REPORT_editor.md`).
 
-## Wave Dispatch Pattern
+## Wave Dispatch Pattern (CEO-Managed)
 
-Production proceeds in four sequential waves.
+Production proceeds in four sequential waves, coordinated by the CCO via SendMessage.
 
 ```
-Wave 1: Graphic Designer           (infographic generation)
-         |
-         v
-Wave 2: Writer                     (document production -- PNGs now available)
-         |
-         v
-Wave 3: Editor                     (reviews all output)
-         |
-         v
-Wave 4: Publisher                  (final artifacts)
+CEO dispatches CCO as teammate
+    |
+    v
+CCO reads RECORD.md, writes Creative Brief
+CCO SendMessages CEO: "Creative Brief complete, dispatch Graphic Designer"
+    |
+    v
+CEO dispatches Graphic Designer as teammate (Wave 1)
+Graphic Designer writes _REPORT, SendMessages CCO completion + summary
+CCO reads full _REPORT_graphic-designer.md, does assessment
+CCO SendMessages CEO: "Wave 1 complete, dispatch Writer"
+    |
+    v
+CEO dispatches Writer as teammate (Wave 2)
+Writer writes _REPORT, SendMessages CCO completion + summary
+CCO reads full _REPORT_writer.md, does assessment
+CCO SendMessages CEO: "Wave 2 complete, dispatch Editor"
+    |
+    v
+CEO dispatches Editor as teammate (Wave 3)
+Editor writes _REPORT, SendMessages CCO completion + summary
+CCO reads full _REPORT_editor.md, does editorial assessment
+CCO SendMessages CEO with editorial verdict (see Editorial Review Gate)
+    |
+    v
+CEO dispatches Publisher as teammate (Wave 4)
+Publisher writes _REPORT, SendMessages CCO completion + summary
+CCO reads full _REPORT_publisher.md
+CCO SendMessages CEO: "Production complete"
 ```
 
 ### Wave 1: Graphic Designer
 
-Dispatch the Graphic Designer. It receives the Creative Brief, complete RECORD.md content, and session context.
+CEO dispatches the Graphic Designer after CCO sends: "Creative Brief complete, dispatch Graphic Designer."
 
-**After Wave 1 completes:** Read `{session}/_REPORT_graphic-designer.md` to obtain the Infographic Production Report. Verify expected PNG files exist in `{session}/images/`. If any are missing, note the gaps. Proceed to Wave 2 regardless -- the Writer can produce documents without images, and the Editor will flag missing assets.
+The Graphic Designer receives the Creative Brief, complete RECORD.md content, and session context.
+
+**After Wave 1 completes:** Graphic Designer writes `{session}/_REPORT_graphic-designer.md` and SendMessages the CCO with a completion summary. CCO reads the full report file, verifies expected PNG files exist in `{session}/images/`. If any are missing, CCO notes the gaps. CCO proceeds to request Wave 2 regardless -- the Writer can produce documents without images, and the Editor will flag missing assets.
 
 ### Wave 2: Writer
 
-Dispatch the Writer **after reading the Graphic Designer's report and verifying PNGs**. The Writer receives the Creative Brief, complete RECORD.md content, and session context. Infographic PNGs are now available in `{session}/images/` for embedding in documents.
+CEO dispatches the Writer after CCO sends: "Wave 1 complete, dispatch Writer."
 
-**After Wave 2 completes:** Read `{session}/_REPORT_writer.md` to obtain the Writer Production Report.
+The Writer receives the Creative Brief, complete RECORD.md content, and session context. Infographic PNGs are now available in `{session}/images/` for embedding in documents.
+
+**After Wave 2 completes:** Writer writes `{session}/_REPORT_writer.md` and SendMessages the CCO with a completion summary. CCO reads the full report file.
 
 ### Wave 3: Editor
 
-Dispatch **after reading Wave 1 and Wave 2 report files**. The Editor receives everything from Waves 1 and 2 plus both production reports (read from the report files) for review.
+CEO dispatches the Editor after CCO sends: "Wave 2 complete, dispatch Editor."
 
-**After Wave 3 completes:** Read `{session}/_REPORT_editor.md` to obtain the Editorial Review.
+The Editor receives the Creative Brief, RECORD.md content, Wave 1 and Wave 2 report contents (which the CEO reads from the report files and includes in the prompt), and session context.
+
+**After Wave 3 completes:** Editor writes `{session}/_REPORT_editor.md` and SendMessages the CCO with a completion summary. CCO reads the full report file and applies the Editorial Review Gate.
 
 ### Wave 4: Publisher
 
-Dispatch **after reading the Editor's report file** and the editorial review gate is passed. The Publisher receives the Creative Brief, RECORD.md, the Editorial Review (read from `_REPORT_editor.md`, with any notes), and session context.
+CEO dispatches the Publisher after the CCO sends the editorial verdict and authorizes Wave 4 dispatch.
 
-**After Wave 4 completes:** Read `{session}/_REPORT_publisher.md` to obtain the final production report.
+The Publisher receives the Creative Brief, RECORD.md content, the Editorial Review (read from `_REPORT_editor.md`, with any notes), and session context.
+
+**After Wave 4 completes:** Publisher writes `{session}/_REPORT_publisher.md` and SendMessages the CCO with a completion summary. CCO reads the full report file and produces the CCO Production Report.
 
 ## Prompt Structure
 
-Each team lead prompt must contain these sections:
+Each wave prompt is constructed by the CEO using content that the CCO directs. The CCO's Creative Brief and editorial assessments shape the prompts, while the CEO handles the mechanical dispatch.
 
 ### Wave 1 Prompt (Graphic Designer)
 
@@ -125,57 +129,9 @@ Each team lead prompt must contain these sections:
 5. **Specification Pointer**: "Follow the production specification and output template defined in your agent definition at `.claude/agents/team-leads/cco/publisher.md`."
 6. **Logging Context (conditional)**: If agent logging is active, include `LOGGING: ON` and `SESSION PATH: <absolute-session-path>`. Omit if not active.
 
-## Example Invocation (Wave 1)
-
-```
-TeamCreate: team_name "cdp-cco-acquire-competitor-x"
-
-Agent tool call (Wave 1):
-  subagent_type: "general-purpose"
-  name: "graphic-designer"
-  team_name: "cdp-cco-acquire-competitor-x"
-  description: "Graphic Designer infographic production"
-  prompt: |
-    CREATIVE BRIEF:
-    [full creative brief text]
-
-    RECORD CONTENT:
-    [full RECORD.md body]
-
-    SESSION CONTEXT:
-    Session path: /absolute/path/to/.cdp-output/2026-03-06_issue-slug/
-    Issue slug: issue-slug
-
-    Follow the production specification and output template defined
-    in your agent definition at .claude/agents/team-leads/cco/graphic-designer.md.
-```
-
-After Wave 1 completes, read `_REPORT_graphic-designer.md` and verify PNGs, then dispatch the Writer in Wave 2:
-
-```
-Agent tool call (Wave 2):
-  subagent_type: "general-purpose"
-  name: "writer"
-  team_name: "cdp-cco-acquire-competitor-x"
-  description: "Writer document production"
-  prompt: |
-    CREATIVE BRIEF:
-    [full creative brief text]
-
-    RECORD CONTENT:
-    [full RECORD.md body]
-
-    SESSION CONTEXT:
-    Session path: /absolute/path/to/.cdp-output/2026-03-06_issue-slug/
-    Issue slug: issue-slug
-
-    Follow the production specification and output template defined
-    in your agent definition at .claude/agents/team-leads/cco/writer.md.
-```
-
 ## Report Files
 
-Each production team lead writes a report file to the session directory after completing their work. This convention exists because the Agent tool returns only metadata (agent ID, token count, tool uses, duration) -- it does **not** surface the agent's text output. The CCO must read these files to obtain production reports.
+Each production team lead writes a report file to the session directory after completing their work and SendMessages the CCO with a completion notification and summary. The CCO must read the full report files for detailed assessment.
 
 | Team Lead | Report File |
 |-----------|-------------|
@@ -185,13 +141,21 @@ Each production team lead writes a report file to the session directory after co
 | Publisher | `{session}/_REPORT_publisher.md` |
 
 The CCO reads the relevant report files after each wave completes:
-- **After Wave 1:** Read `_REPORT_graphic-designer.md`
+- **After Wave 1:** Read `_REPORT_graphic-designer.md`, verify PNG assets
 - **After Wave 2:** Read `_REPORT_writer.md`
-- **After Wave 3:** Read `_REPORT_editor.md`
-- **After Wave 4:** Read `_REPORT_publisher.md`
+- **After Wave 3:** Read `_REPORT_editor.md`, apply Editorial Review Gate
+- **After Wave 4:** Read `_REPORT_publisher.md`, produce CCO Production Report
+
+## Editorial Review Gate
+
+After reading the Editor's report, the CCO applies the editorial review gate:
+
+- **APPROVED:** CCO SendMessages CEO: "Editorial review passed. Dispatch Publisher."
+- **APPROVED WITH NOTES:** CCO SendMessages CEO: "Editorial review passed with notes. Dispatch Publisher." (Notes are included in the Publisher's prompt.)
+- **REVISION REQUIRED:** CCO SendMessages CEO with revision instructions for the responsible team lead: "REVISION REQUIRED for {agent-name}: {specific revision instructions}." CEO re-dispatches the responsible team lead with the CCO's revision instructions. **Maximum one revision cycle.** If the second attempt still has issues, CCO proceeds to Wave 4 with editorial notes forwarded to the Publisher.
 
 ## Failure Handling
 
-- **Team lead timeout or failure:** If the Graphic Designer fails, proceed to Wave 2 with partial results. If the Writer fails, proceed to Wave 3 with partial results. The Editor will flag missing artifacts. If the Editor fails, proceed to Wave 4 with no editorial notes. If the Publisher fails, report the failure in the CCO Production Report.
+- **Team lead timeout or failure:** If the Graphic Designer fails, CCO proceeds to request Wave 2 with partial results. If the Writer fails, CCO proceeds to request Wave 3 with partial results. The Editor will flag missing artifacts. If the Editor fails, CCO proceeds to request Wave 4 with no editorial notes. If the Publisher fails, CCO reports the failure in the CCO Production Report.
 - **Degrade gracefully:** Never block the entire pipeline on a single agent failure. Produce whatever artifacts are possible and report gaps explicitly.
-- **Revision cycle limit:** If the Editor returns REVISION REQUIRED, the CCO redispatches the responsible team lead with revision instructions. **Maximum one revision cycle.** If the second attempt still has issues, proceed to Wave 4 with editorial notes forwarded to the Publisher.
+- **Revision cycle limit:** Maximum one revision cycle. If the second attempt still has issues, proceed to Wave 4 with editorial notes forwarded to the Publisher.

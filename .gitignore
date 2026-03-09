@@ -50,5 +50,8 @@ tests/fixtures/*_SAMPLE.png
 # Temporary live test output
 .tmp-live-test-output/
 
-# GSD planning files
-.planning/
+# Claude Code
+.claude/
+
+# Pytest
+.pytest_cache/

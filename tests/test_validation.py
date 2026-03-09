@@ -11,6 +11,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from scripts.validation import (
+    LENIENT_TYPES,
     ValidationResult,
     _extract_expected_labels,
     _parse_validation_response,
@@ -312,3 +313,166 @@ class TestValidateInfographic:
         config_arg = call_kwargs.kwargs.get("config")
         assert config_arg is not None
         assert config_arg.response_modalities == ["TEXT"]
+
+
+class TestLenientValidation:
+    """Tests for LENIENT_TYPES leniency behavior in validate_infographic."""
+
+    def _setup_env(self, tmp_path, sample_data):
+        """Helper: create config dir, image file, and data file."""
+        config_dir = tmp_path / ".cdp-context"
+        config_dir.mkdir()
+        (config_dir / "config.md").write_text(
+            "- **Gemini API Key:** test-key-abc123\n"
+            "- **Image Model:** gemini-2.5-flash-image\n"
+            "- **Retry Limit:** 2\n"
+        )
+
+        from PIL import Image
+
+        img = Image.new("RGB", (100, 100), "white")
+        image_path = tmp_path / "test.png"
+        img.save(str(image_path))
+
+        data_path = tmp_path / "data.json"
+        data_path.write_text(json.dumps(sample_data))
+
+        return image_path, data_path, config_dir
+
+    def test_lenient_type_partial_passes_clean(self, tmp_path, sample_data):
+        """When type_slug='routing-diagram' and result has warning_only=True
+        with no garbled text, validate_infographic returns a clean pass."""
+        image_path, data_path, config_dir = self._setup_env(tmp_path, sample_data)
+
+        # Mock response: PASS with warnings (PARTIAL labels) and no garbled text
+        mock_response = MagicMock()
+        mock_response.text = (
+            "VERDICT: PASS\n"
+            "WARNINGS: Label X truncated\n"
+            "MISSING: none\n"
+            "GARBLED: none\n"
+            "FEEDBACK: none"
+        )
+
+        mock_client = MagicMock()
+        mock_client.models.generate_content.return_value = mock_response
+
+        with patch("scripts.validation.genai") as mock_genai:
+            mock_genai.Client.return_value = mock_client
+            result = validate_infographic(
+                image_path, data_path, config_dir, type_slug="routing-diagram"
+            )
+
+        assert result.passed is True
+        assert result.warning_only is False  # Leniency converts to clean pass
+
+    def test_lenient_type_garbled_still_fails(self, tmp_path, sample_data):
+        """When type_slug='routing-diagram' and result has garbled text,
+        leniency does NOT apply -- result keeps warning_only=True unchanged."""
+        image_path, data_path, config_dir = self._setup_env(tmp_path, sample_data)
+
+        # Mock response: PASS with warnings AND garbled text
+        mock_response = MagicMock()
+        mock_response.text = (
+            "VERDICT: PASS\n"
+            "WARNINGS: Label X truncated\n"
+            "MISSING: none\n"
+            "GARBLED: Emmerruation\n"
+            "FEEDBACK: none"
+        )
+
+        mock_client = MagicMock()
+        mock_client.models.generate_content.return_value = mock_response
+
+        with patch("scripts.validation.genai") as mock_genai:
+            mock_genai.Client.return_value = mock_client
+            result = validate_infographic(
+                image_path, data_path, config_dir, type_slug="routing-diagram"
+            )
+
+        # Garbled text present -- leniency should NOT apply
+        assert result.warning_only is True
+
+    def test_non_lenient_type_partial_still_warns(self, tmp_path, sample_data):
+        """When type_slug='domain-scorecard' (not in LENIENT_TYPES) and result
+        has warning_only=True, result is returned unchanged."""
+        image_path, data_path, config_dir = self._setup_env(tmp_path, sample_data)
+
+        mock_response = MagicMock()
+        mock_response.text = (
+            "VERDICT: PASS\n"
+            "WARNINGS: Label X truncated\n"
+            "MISSING: none\n"
+            "GARBLED: none\n"
+            "FEEDBACK: none"
+        )
+
+        mock_client = MagicMock()
+        mock_client.models.generate_content.return_value = mock_response
+
+        with patch("scripts.validation.genai") as mock_genai:
+            mock_genai.Client.return_value = mock_client
+            result = validate_infographic(
+                image_path, data_path, config_dir, type_slug="domain-scorecard"
+            )
+
+        # Not a lenient type -- warning_only stays True
+        assert result.passed is True
+        assert result.warning_only is True
+
+    def test_no_type_slug_backward_compatible(self, tmp_path, sample_data):
+        """When type_slug is not passed (None default), validate_infographic
+        behaves identically to current behavior -- no leniency applied."""
+        image_path, data_path, config_dir = self._setup_env(tmp_path, sample_data)
+
+        mock_response = MagicMock()
+        mock_response.text = (
+            "VERDICT: PASS\n"
+            "WARNINGS: Label X truncated\n"
+            "MISSING: none\n"
+            "GARBLED: none\n"
+            "FEEDBACK: none"
+        )
+
+        mock_client = MagicMock()
+        mock_client.models.generate_content.return_value = mock_response
+
+        with patch("scripts.validation.genai") as mock_genai:
+            mock_genai.Client.return_value = mock_client
+            # No type_slug argument -- uses default None
+            result = validate_infographic(image_path, data_path, config_dir)
+
+        # No leniency -- warning_only stays True
+        assert result.passed is True
+        assert result.warning_only is True
+
+    def test_lenient_type_clean_pass_unchanged(self, tmp_path, sample_data):
+        """When type_slug='routing-diagram' and result is already a clean pass
+        (passed=True, warning_only=False), no modification occurs."""
+        image_path, data_path, config_dir = self._setup_env(tmp_path, sample_data)
+
+        mock_response = MagicMock()
+        mock_response.text = (
+            "VERDICT: PASS\n"
+            "WARNINGS: none\n"
+            "MISSING: none\n"
+            "GARBLED: none\n"
+            "FEEDBACK: none"
+        )
+
+        mock_client = MagicMock()
+        mock_client.models.generate_content.return_value = mock_response
+
+        with patch("scripts.validation.genai") as mock_genai:
+            mock_genai.Client.return_value = mock_client
+            result = validate_infographic(
+                image_path, data_path, config_dir, type_slug="routing-diagram"
+            )
+
+        # Already clean pass -- should stay clean
+        assert result.passed is True
+        assert result.warning_only is False
+
+    def test_lenient_types_contains_routing_diagram(self):
+        """LENIENT_TYPES module constant contains 'routing-diagram'."""
+        assert "routing-diagram" in LENIENT_TYPES
