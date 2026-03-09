@@ -26,11 +26,11 @@ Requirements for Team Refactor milestone. Each maps to roadmap phases.
 - [x] **DISP-03**: `config/orchestration-protocol.md` Phases 2/3/4 updated for CEO division team dispatch flow (TeamCreate per role, two-wave dispatch, sub-question file polling)
 - [x] **DISP-04**: `config/orchestration-protocol.md` Production Spawn Sequence updated for CEO-managed CCO wave dispatch
 - [x] **DISP-05**: CEO agent updated with TeamCreate instructions, team lead dispatch with sub-questions, sub-question file polling, and CCO wave management
-- [ ] **DISP-06**: 8 analytical C-suite agents transformed -- Mode B removes TeamCreate/Agent dispatch, adds sub-question file writing + teammate message receiving
-- [ ] **DISP-07**: CCO agent transformed to Creative Brief author + editorial coordinator within CEO-managed production team
+- [x] **DISP-06**: 8 analytical C-suite agents transformed -- Mode B removes TeamCreate/Agent dispatch, adds sub-question file writing + teammate message receiving
+- [x] **DISP-07**: CCO agent transformed to Creative Brief author + editorial coordinator within CEO-managed production team
 - [x] **DISP-08**: CSO Phase 1.5 dispatch integrated with division team pattern (special timing: dispatched before other C-suite)
 - [x] **DISP-09**: Sub-question directory (`{session}/sub-questions/`) documented in Session Output Setup
-- [ ] **DISP-10**: No stale `TeamCreate`, `Agent.*team_name`, or `SendMessage.*shutdown_request` references remain in C-suite agent definitions
+- [x] **DISP-10**: No stale `TeamCreate`, `Agent.*team_name`, or `SendMessage.*shutdown_request` references remain in C-suite agent definitions
 
 ### Documentation
 
@@ -82,11 +82,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DISP-03 | Phase 12 | Complete |
 | DISP-04 | Phase 12 | Complete |
 | DISP-05 | Phase 12 | Complete |
-| DISP-06 | Phase 12 | Pending |
-| DISP-07 | Phase 12 | Pending |
+| DISP-06 | Phase 12 | Complete |
+| DISP-07 | Phase 12 | Complete |
 | DISP-08 | Phase 12 | Complete |
 | DISP-09 | Phase 12 | Complete |
-| DISP-10 | Phase 12 | Pending |
+| DISP-10 | Phase 12 | Complete |
 | DOCS-01 | Phase 13 | Pending |
 | DOCS-02 | Phase 13 | Pending |
 
