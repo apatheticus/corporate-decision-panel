@@ -89,7 +89,7 @@ CEO dispatches the Publisher after the CCO sends the editorial verdict and autho
 
 The Publisher receives the Creative Brief, RECORD.md content, the Editorial Review (read from `reports/_REPORT_editor.md`, with any notes), and session context.
 
-**After Wave 4 completes:** Publisher writes `{session}/reports/_REPORT_publisher.md` and SendMessages the CCO with a completion summary. CCO reads the full report file and produces the CCO Production Report.
+**After Wave 4 completes:** Publisher writes `{session}/reports/_REPORT_publisher.md` and SendMessages the CCO with a completion summary. The Publisher also creates `CDP_<slug>.zip` containing all production outputs for sharing. CCO reads the full report file and produces the CCO Production Report.
 
 ## Prompt Structure
 
