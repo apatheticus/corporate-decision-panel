@@ -114,13 +114,13 @@ SUMMARY: [N] of 3 artifacts produced successfully.
 
 Execute the production workflow above using the session path, RECORD.md content, Creative Brief, and Editorial Review provided in your prompt. The HTML page is the centerpiece -- it must be a self-contained, professional briefing that works offline. If reportlab is unavailable for the Results PDF or weasyprint for the Capsule PDF, note the skip and report it -- do not block on PDF failures. Incorporate all editorial notes faithfully. Report all results honestly.
 
-After completing production, **write your complete production report** to `{session}/_REPORT_publisher.md` using the Write tool. This file must contain the full report output (same content as your text output) so the CCO can read it after your agent completes.
+After completing production, **write your complete production report** to `{session}/reports/_REPORT_publisher.md` using the Write tool. This file must contain the full report output (same content as your text output) so the CCO can read it after your agent completes.
 
 **Turn budget guard:** If you have completed several rounds of work but have not yet written your output, stop immediately and write your output with whatever findings you have. Partial, honest findings delivered on time are more valuable than complete findings that never arrive. Reserve your final turns for writing output.
 
 ## Team Communication
 
-You are a teammate in the CCO's production team. After completing your work, write your production report to `{session}/_REPORT_publisher.md` as specified in your workflow. Then mark your task as completed via TaskUpdate.
+You are a teammate in the CCO's production team. After completing your work, write your production report to `{session}/reports/_REPORT_publisher.md` as specified in your workflow. Then mark your task as completed via TaskUpdate.
 
 ## Agent Logging
 

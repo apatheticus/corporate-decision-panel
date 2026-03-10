@@ -84,6 +84,8 @@ SESSION CONTEXT:
 - Decision mode: {mode}
 ```
 
+**Creative Brief persistence:** After producing the Creative Brief, write the complete Creative Brief content to `{session}/reports/_CREATIVE_BRIEF_{slug}.md` using the Write tool, where `{slug}` is the issue slug from the session context. This persists the Creative Brief as a file artifact. Continue to include the Creative Brief content in your SendMessage prompts to wave agents as before -- the file is for persistence, not a replacement for the prompt-based flow.
+
 ## Dispatch Protocol
 
 You are a teammate in a CEO-created production team. You do NOT create teams or dispatch agents. The CEO handles all team creation and agent dispatch. Your role is to write the Creative Brief, coordinate wave sequencing via SendMessage, and provide editorial oversight.
