@@ -37,25 +37,25 @@ CCO SendMessages CEO: "Creative Brief complete, dispatch Graphic Designer"
     v
 CEO dispatches Graphic Designer as teammate (Wave 1)
 Graphic Designer writes reports/_REPORT, SendMessages CCO completion + summary
-CCO reads full _REPORT_graphic-designer.md, does assessment
+CCO reads full reports/_REPORT_graphic-designer.md, does assessment
 CCO SendMessages CEO: "Wave 1 complete, dispatch Writer"
     |
     v
 CEO dispatches Writer as teammate (Wave 2)
 Writer writes reports/_REPORT, SendMessages CCO completion + summary
-CCO reads full _REPORT_writer.md, does assessment
+CCO reads full reports/_REPORT_writer.md, does assessment
 CCO SendMessages CEO: "Wave 2 complete, dispatch Editor"
     |
     v
 CEO dispatches Editor as teammate (Wave 3)
 Editor writes reports/_REPORT, SendMessages CCO completion + summary
-CCO reads full _REPORT_editor.md, does editorial assessment
+CCO reads full reports/_REPORT_editor.md, does editorial assessment
 CCO SendMessages CEO with editorial verdict (see Editorial Review Gate)
     |
     v
 CEO dispatches Publisher as teammate (Wave 4)
 Publisher writes reports/_REPORT, SendMessages CCO completion + summary
-CCO reads full _REPORT_publisher.md
+CCO reads full reports/_REPORT_publisher.md
 CCO SendMessages CEO: "Production complete"
 ```
 
@@ -87,7 +87,7 @@ The Editor receives the Creative Brief, RECORD.md content, Wave 1 and Wave 2 rep
 
 CEO dispatches the Publisher after the CCO sends the editorial verdict and authorizes Wave 4 dispatch.
 
-The Publisher receives the Creative Brief, RECORD.md content, the Editorial Review (read from `_REPORT_editor.md`, with any notes), and session context.
+The Publisher receives the Creative Brief, RECORD.md content, the Editorial Review (read from `reports/_REPORT_editor.md`, with any notes), and session context.
 
 **After Wave 4 completes:** Publisher writes `{session}/reports/_REPORT_publisher.md` and SendMessages the CCO with a completion summary. CCO reads the full report file and produces the CCO Production Report.
 
@@ -141,10 +141,10 @@ Each production team lead writes a report file to the session directory after co
 | Publisher | `{session}/reports/_REPORT_publisher.md` |
 
 The CCO reads the relevant report files after each wave completes:
-- **After Wave 1:** Read `_REPORT_graphic-designer.md`, verify PNG assets
-- **After Wave 2:** Read `_REPORT_writer.md`
-- **After Wave 3:** Read `_REPORT_editor.md`, apply Editorial Review Gate
-- **After Wave 4:** Read `_REPORT_publisher.md`, produce CCO Production Report
+- **After Wave 1:** Read `reports/_REPORT_graphic-designer.md`, verify PNG assets
+- **After Wave 2:** Read `reports/_REPORT_writer.md`
+- **After Wave 3:** Read `reports/_REPORT_editor.md`, apply Editorial Review Gate
+- **After Wave 4:** Read `reports/_REPORT_publisher.md`, produce CCO Production Report
 
 ## Editorial Review Gate
 
