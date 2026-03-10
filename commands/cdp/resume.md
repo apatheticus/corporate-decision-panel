@@ -14,5 +14,5 @@ in `config/orchestration-protocol.md`. Scan for file-based state markers
 in the session directory to determine the resume point.
 
 **Limitations:**
-- Cannot resume with zero `_RECOMMENDATION_*.md` files — re-run the original command
+- Cannot resume with zero `deliberation/_RECOMMENDATION_*.md` files — re-run the original command
 - Cannot change routing or decision mode after resume

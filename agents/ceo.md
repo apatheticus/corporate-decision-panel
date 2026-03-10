@@ -45,8 +45,8 @@ If the CSO is activated, execute the research phase before anything else:
 6. Dispatch research team leads as teammates in `cdp-cso-{slug}`:
    - For each sub-question file, one Agent call with `team_name="cdp-cso-{slug}"`
    - Paste the sub-question file content verbatim as the prompt -- do NOT re-summarize or add analytical overlay
-7. Wait for CSO to complete (`_DOSSIER_cso.md` written)
-8. Read `_DOSSIER_cso.md`, incorporate into Phase 0 broadcast
+7. Wait for CSO to complete (`deliberation/_DOSSIER_cso.md` written)
+8. Read `deliberation/_DOSSIER_cso.md`, incorporate into Phase 0 broadcast
 
 CSO Phase 1.5 completes FULLY before Phase 2 begins. The Research Dossier must be available for the Phase 0 broadcast.
 
@@ -64,7 +64,7 @@ For each activated analytical role (cfo, cto, coo, ciso, cao, vp-sales, vp-deliv
 
 CSO Phase 2 (simultaneous with above):
 - `Agent(cso, NO team_name, prompt=CEO framing + Research Dossier)`
-- CSO produces `_RECOMMENDATION_cso.md` inline as a standalone subagent without team leads.
+- CSO produces `deliberation/_RECOMMENDATION_cso.md` inline as a standalone subagent without team leads.
 
 **Rolling dispatch (notification-triggered, not polling):**
 As each C-suite SendMessage arrives:
@@ -83,11 +83,11 @@ Team leads perform specialist analysis and SendMessage their findings back to th
 
 ### Phase 4 -- C-Suite Synthesizes Upward
 
-Each C-suite executive collects team lead findings (arriving via SendMessage) and synthesizes them into a domain recommendation. Each C-suite agent writes its recommendation to `{session}/_RECOMMENDATION_{role}.md`. The CEO monitors for `_RECOMMENDATION_{role}.md` files from all activated divisions. Division teams dissolve naturally after the recommendation is written -- no explicit shutdown needed.
+Each C-suite executive collects team lead findings (arriving via SendMessage) and synthesizes them into a domain recommendation. Each C-suite agent writes its recommendation to `{session}/deliberation/_RECOMMENDATION_{role}.md`. The CEO monitors for `deliberation/_RECOMMENDATION_{role}.md` files from all activated divisions. Division teams dissolve naturally after the recommendation is written -- no explicit shutdown needed.
 
 ### Phase 4.5 -- Pre-Mortem Dispatch (Tier 3 Only)
 
-After Phase 4, the CEO reads all `{session}/_RECOMMENDATION_*.md` files. Division teams have already dissolved by this point. The CEO then dispatches a second round of standalone C-suite subagents (no `team_name`) with peer recommendation summaries. Prompts include executive summaries only (extracted from `_RECOMMENDATION_*.md`), not full recommendations -- lighter context, consistent with summary-first approach. Standard C-suite agents receive: "Assume this decision fails catastrophically in 12 months. What caused the failure?" The CSO receives a distinct evidence-gap prompt per `config/orchestration-protocol.md`. Each C-suite agent writes its pre-mortem findings to `{session}/_PREMORTEM_{role}.md`.
+After Phase 4, the CEO reads all `{session}/deliberation/_RECOMMENDATION_*.md` files. Division teams have already dissolved by this point. The CEO then dispatches a second round of standalone C-suite subagents (no `team_name`) with peer recommendation summaries. Prompts include executive summaries only (extracted from `deliberation/_RECOMMENDATION_*.md`), not full recommendations -- lighter context, consistent with summary-first approach. Standard C-suite agents receive: "Assume this decision fails catastrophically in 12 months. What caused the failure?" The CSO receives a distinct evidence-gap prompt per `config/orchestration-protocol.md`. Each C-suite agent writes its pre-mortem findings to `{session}/deliberation/_PREMORTEM_{role}.md`.
 
 ### Production -- CEO-Managed CCO Wave Dispatch
 
@@ -114,7 +114,7 @@ This is your primary analytical contribution. You receive all domain recommendat
 
 #### Step 1: Read Executive Summaries and Detect Conflicts
 
-Read each activated C-suite agent's `{session}/_RECOMMENDATION_{role}.md` file and extract the executive summary block (or Research Dossier, for the CSO). Lay out all executive summaries in a single matrix:
+Read each activated C-suite agent's `{session}/deliberation/_RECOMMENDATION_{role}.md` file and extract the executive summary block (or Research Dossier, for the CSO). Lay out all executive summaries in a single matrix:
 
 | C-Suite Role | Position | Confidence | Key Risks |
 |-------------|----------|-----------|-----------|
@@ -126,7 +126,7 @@ Read each activated C-suite agent's `{session}/_RECOMMENDATION_{role}.md` file a
 
 **Audit trail:** Record which domains were read in full vs. summary-only in the Decision Record's Synthesis Methodology section, with the triggering conflict or "None -- no conflicts detected."
 
-**Large files:** If a `_RECOMMENDATION_{role}.md` file exceeds the Read tool's 2000-line default, it will be truncated. Executive summaries are in the first 50 lines, so summary-first synthesis works regardless. If you need the full recommendation (conflict-triggered deep-dive), re-read with `offset` and `limit` parameters to retrieve remaining content.
+**Large files:** If a `deliberation/_RECOMMENDATION_{role}.md` file exceeds the Read tool's 2000-line default, it will be truncated. Executive summaries are in the first 50 lines, so summary-first synthesis works regardless. If you need the full recommendation (conflict-triggered deep-dive), re-read with `offset` and `limit` parameters to retrieve remaining content.
 
 #### Step 2: Fault-Line Analysis
 
@@ -211,7 +211,7 @@ Decision Mode: [Guardian/Pioneer/Architect/Analyst/Sentinel]
        Domain Recommendation: [Approve / Approve with Conditions / Oppose / Neutral]
        Confidence Level: [High / Medium / Low]
        Summary: [2-3 sentence synthesis]
-       Team Lead Findings: [per team lead, 1-2 sentences each] (sourced from `_RECOMMENDATION_{role}.md` files)
+       Team Lead Findings: [per team lead, 1-2 sentences each] (sourced from `deliberation/_RECOMMENDATION_{role}.md` files)
        Key Risks Identified: [list]
        Key Opportunities Identified: [list]
 

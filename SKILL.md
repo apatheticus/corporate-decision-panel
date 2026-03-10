@@ -224,7 +224,7 @@ Output spec: `templates/production/advisory-document.md`
    - Writes domain recommendation to `{session}/deliberation/_RECOMMENDATION_{role}.md`
    See `config/dispatch-protocol.md`.
 6. CEO runs **Phase 5** (abbreviated synthesis):
-   - Reads `_RECOMMENDATION_*.md` files after all agents complete
+   - Reads `deliberation/_RECOMMENDATION_*.md` files after all agents complete
    - Applies Decision Mode
    - Produces Panel Assessment
 7. CEO creates production team (`cdp-cco-{slug}`), dispatches CCO as teammate.
