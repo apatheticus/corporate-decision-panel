@@ -150,7 +150,7 @@ When the decision requires evidence-based investigation, dispatch the CSO via a 
 
 The CEO creates a CSO division team (`TeamCreate("cdp-cso-{slug}")`), dispatches the CSO as a teammate with the research directive. The CSO reads the CEO's framing, formulates sub-questions for its 5 research team leads, writes sub-question files to `{session}/sub-questions/cso/`, and SendMessages the CEO with file paths. The CEO reads sub-question files and dispatches research team leads as teammates into the same division team. Per `config/dispatch-protocol.md`.
 
-**Sequential timing:** CSO Phase 1.5 completes fully before Phase 2 begins. The CEO waits for `{session}/_DOSSIER_cso.md` to be written, reads the dossier, and incorporates it into the Phase 0 broadcast before dispatching Phase 2 C-suite agents.
+**Sequential timing:** CSO Phase 1.5 completes fully before Phase 2 begins. The CEO waits for `{session}/deliberation/_DOSSIER_cso.md` to be written, reads the dossier, and incorporates it into the Phase 0 broadcast before dispatching Phase 2 C-suite agents.
 
 ### Research Directive Structure
 
@@ -164,7 +164,7 @@ Your directive to the CSO must include:
 
 ### CSO Output: Research Dossier
 
-The CSO produces a Research Dossier (`{session}/_DOSSIER_cso.md`) containing:
+The CSO produces a Research Dossier (`{session}/deliberation/_DOSSIER_cso.md`) containing:
 - **Evidence Summary:** High-level synthesis of what the research found
 - **Team Lead Findings:** Per research team lead (Market Intelligence, Competitive Intelligence, Technology Scout, Industry & Regulatory Analyst, Precedent & Patterns Analyst) with confidence grades
 - **Assumption Registry:** Each assumption underlying the issue tagged as:
@@ -192,7 +192,7 @@ Each activated C-suite executive receives your framing (and the Research Dossier
 
 **Dispatch mechanism:** The CEO creates a division team per activated role (`TeamCreate("cdp-{role}-{slug}")`), dispatches the C-suite agent as a teammate (Agent with team_name). The C-suite agent reads CEO framing, formulates sub-questions, writes sub-question files to `{session}/sub-questions/{role}/`, and SendMessages the CEO with file paths (or "No team leads needed"). The CEO reads sub-question files and dispatches team leads as teammates into the same division team. Per `config/dispatch-protocol.md`.
 
-**CSO Phase 2:** The CSO is dispatched as a standalone subagent (no team_name) simultaneously with other division team dispatch. The CSO receives CEO framing + its own Research Dossier and produces `_RECOMMENDATION_cso.md` without team leads (inline analysis only).
+**CSO Phase 2:** The CSO is dispatched as a standalone subagent (no team_name) simultaneously with other division team dispatch. The CSO receives CEO framing + its own Research Dossier and produces `deliberation/_RECOMMENDATION_cso.md` without team leads (inline analysis only).
 
 **Your role in Phase 2:** Monitor, not micromanage. The value of the cascade is that each C-suite officer decomposes the issue through their domain lens. The CFO does not forward your question to the Controller -- the CFO asks the Controller "What are the GAAP implications of this change?" This translation is itself analytical.
 
@@ -217,7 +217,7 @@ Each team lead teammate performs narrow, focused analysis through their speciali
 
 Each C-suite executive collects their team lead findings and produces a domain recommendation containing:
 
-Each C-suite agent writes its domain recommendation to `{session}/_RECOMMENDATION_{role}.md` (e.g., `_RECOMMENDATION_coo.md`). The CEO reads these files after all C-suite agents complete, rather than receiving recommendations via SendMessage.
+Each C-suite agent writes its domain recommendation to `{session}/deliberation/_RECOMMENDATION_{role}.md` (e.g., `deliberation/_RECOMMENDATION_coo.md`). The CEO reads these files after all C-suite agents complete, rather than receiving recommendations via SendMessage.
 
 - **Domain Recommendation:** Approve / Approve with Conditions / Oppose / Neutral
 - **Confidence Level:** High / Medium / Low (with explanation of what would increase confidence)
@@ -247,7 +247,7 @@ After each C-suite officer has produced their own domain recommendation in Phase
 
 ### Pre-Mortem Protocol
 
-The CEO reads all `{session}/_RECOMMENDATION_*.md` files to collect peer recommendations, then dispatches a second round of standalone C-suite subagents with peer recommendation summaries. Each C-suite agent writes its pre-mortem findings to `{session}/_PREMORTEM_{role}.md` (e.g., `_PREMORTEM_coo.md`).
+The CEO reads all `{session}/_RECOMMENDATION_*.md` files to collect peer recommendations, then dispatches a second round of standalone C-suite subagents with peer recommendation summaries. Each C-suite agent writes its pre-mortem findings to `{session}/deliberation/_PREMORTEM_{role}.md` (e.g., `_PREMORTEM_coo.md`).
 
 1. **Distribute all recommendations:** Each C-suite agent (including the CSO) receives summaries of ALL other activated C-suite members' recommendations
 2. **Standard C-suite prompt:** *"Assume this decision fails catastrophically in 12 months. Based on what you see across all domain recommendations, what caused the failure?"*
@@ -294,6 +294,8 @@ Create the session output directory during Phase 1 (after slug derivation) so th
    mkdir -p .cdp-output/YYYY-MM-DD_<issue-slug>/build
    mkdir -p .cdp-output/YYYY-MM-DD_<issue-slug>/logs
    mkdir -p .cdp-output/YYYY-MM-DD_<issue-slug>/sub-questions
+   mkdir -p .cdp-output/YYYY-MM-DD_<issue-slug>/deliberation/
+   mkdir -p .cdp-output/YYYY-MM-DD_<issue-slug>/reports/
    ```
 4. **Resolve to absolute path** so all agents (including those in deliberation phases) receive an unambiguous location.
 
