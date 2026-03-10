@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.8
 milestone_name: File Organization
-status: in-progress
-stopped_at: Completed 15-01-PLAN.md
-last_updated: "2026-03-10T13:01:08.915Z"
-last_activity: 2026-03-10 -- Completed Plan 15-01 (Read-side path resolution for deliberation/ and reports/)
+status: complete
+stopped_at: Completed 15-02-PLAN.md
+last_updated: "2026-03-10T13:04:51Z"
+last_activity: 2026-03-10 -- Completed Plan 15-02 (Zip bundle step and cleanup preservation)
 progress:
   total_phases: 2
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 4
-  completed_plans: 3
-  percent: 75
+  completed_plans: 4
+  percent: 100
 ---
 
 # Project State
@@ -21,23 +21,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** C-suite agents must deliberate with independent perspectives, supported by expert team lead collaboration within their divisions.
-**Current focus:** Milestone v1.8 File Organization -- Phase 15 Plan 01 complete
+**Current focus:** Milestone v1.8 File Organization -- COMPLETE
 
 ## Current Position
 
 Phase: 15 of 15 (Path Resolution and Bundle)
-Plan: 1 of 2
-Status: Plan 01 complete
-Last activity: 2026-03-10 -- Completed Plan 15-01 (Read-side path resolution for deliberation/ and reports/)
+Plan: 2 of 2
+Status: Phase 15 complete -- all plans done
+Last activity: 2026-03-10 -- Completed Plan 15-02 (Zip bundle step and cleanup preservation)
 
-Progress: [███████░░░] 75%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3 (v1.8)
+- Total plans completed: 4 (v1.8)
 - Average duration: ~3min
-- Total execution time: ~9min
+- Total execution time: ~11min
 
 **By Phase:**
 
@@ -48,6 +48,7 @@ Progress: [███████░░░] 75%
 *Updated after each plan completion*
 | Phase 14 P01 | 5min | 2 tasks | 10 files |
 | Phase 15 P01 | 3min | 2 tasks | 6 files |
+| Phase 15 P02 | 2min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -62,6 +63,8 @@ Recent decisions for v1.8:
 - READ-side references left unchanged for Phase 15 scope (PATH-04)
 - [Phase 14]: All deliberation artifact write paths (recommendations, pre-mortems, dossier) moved to {session}/deliberation/ subdirectory
 - [Phase 15]: Fixed 2 additional stale path references not listed in plan during mechanical prefix updates
+- [Phase 15]: Zip bundle uses -r for Tier 2/3 (includes images/) but not for Tier 1 (single DOCX)
+- [Phase 15]: Publisher output template updated to 4 artifacts (adding Production Bundle)
 
 ### Pending Todos
 
@@ -73,6 +76,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-10T13:01:08.913Z
-Stopped at: Completed 15-01-PLAN.md
+Last session: 2026-03-10T13:04:51Z
+Stopped at: Completed 15-02-PLAN.md -- Milestone v1.8 complete
 Resume file: None

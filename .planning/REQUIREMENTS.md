@@ -20,7 +20,7 @@ Requirements for v1.8 File Organization milestone. Each maps to roadmap phases.
 
 ### Production Bundle
 
-- [ ] **BNDL-01**: A `.zip` file containing all production outputs (DOCX, PPTX, PDFs, HTML, images) is created in the session directory
+- [x] **BNDL-01**: A `.zip` file containing all production outputs (DOCX, PPTX, PDFs, HTML, images) is created in the session directory
 
 ### Path Updates
 
@@ -63,7 +63,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DLIB-03 | Phase 14 | Complete |
 | REPT-01 | Phase 14 | Complete |
 | REPT-02 | Phase 14 | Complete |
-| BNDL-01 | Phase 15 | Pending |
+| BNDL-01 | Phase 15 | Complete |
 | PATH-01 | Phase 14 | Complete |
 | PATH-02 | Phase 15 | Complete |
 | PATH-03 | Phase 15 | Complete |
