@@ -6,7 +6,7 @@
 
 *How CDP works under the hood.*
 
-*Version 1.7 · March 2026*
+*Version 1.8 · March 2026*
 
 </div>
 
@@ -427,6 +427,11 @@ All artifacts are written to a per-session directory:
 ├── REPORT_<issue-slug>.docx
 ├── RESULTS_<issue-slug>.pdf
 ├── CAPSULE_<issue-slug>.pdf
+├── CDP_<issue-slug>.zip
+├── deliberation/
+├── sub-questions/
+├── reports/
+├── logs/
 ├── images/
 │   └── INFOGRAPHIC_*.png
 └── build/

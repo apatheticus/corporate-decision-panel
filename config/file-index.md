@@ -4,8 +4,9 @@
 - `config/routing-table.md` -- Decision-type routing defaults and thresholds
 - `config/company-profile.md` -- Archetype presets and override mechanism
 - `config/decision-modes.md` -- Five mode definitions with prompt modifiers
-- `config/dispatch-protocol.md` -- Analytical team lead dispatch mechanism (Agent tool, parallel execution, prompt structure)
+- `config/dispatch-protocol.md` -- Sub-question file convention and CEO-as-universal-dispatcher protocol
 - `config/cco-dispatch-protocol.md` -- CCO production team dispatch mechanism (wave-based, 4 waves)
+- `config/logging-protocol.md` -- Agent logging protocol (structured log output, log directory convention)
 - `config/production-pipeline.md` -- Full production pipeline specification (trigger logic, dependencies, wave dispatch, record persistence)
 - `.cdp-context/company.md` -- Company facts for grounded reasoning (user-created, gitignored)
 - `.cdp-context/style.md` -- Infographic style overrides (user-created, gitignored)
@@ -38,6 +39,9 @@
 - `scripts/apply_models.py` -- Agent model config applicator (reads config.md, updates .claude/agents/ frontmatter)
 - `scripts/build_results_pdf.py` -- Native Results PDF generator (reportlab, from RECORD.md)
 - `scripts/session.py` -- Infographic generation session orchestrator
+- `scripts/config.py` -- Configuration parser (shared by other scripts)
+- `scripts/validation.py` -- Session validation utilities
+- `scripts/preflight.py` -- Pre-flight validation (API key, billing status)
 - `scripts/generate_infographic.py` -- Single infographic generation via Gemini API
 
 ### Session Records
