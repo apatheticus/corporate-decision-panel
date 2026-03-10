@@ -60,7 +60,12 @@ Before starting, load the `/pdf` skill via the Skill tool for PDF-related guidan
    - `{session}/index.html`
    - `{session}/RESULTS_<issue-slug>.pdf`
    - `{session}/CAPSULE_<issue-slug>.pdf`
-10. **Report results** using the output template below.
+10. **Create production bundle.** Package all production outputs into a zip for easy sharing:
+    ```bash
+    cd {session} && zip -r CDP_<slug>.zip index.html PRESENTATION_*.pptx REPORT_*.docx RESULTS_*.pdf CAPSULE_*.pdf images/
+    ```
+    The `<slug>` is the issue slug from the session directory name (after the date prefix). If some artifacts are missing (skipped tasks), the zip includes whatever is available -- `zip` silently skips non-matching globs.
+11. **Report results** using the output template below.
 
 ## Editorial Notes Incorporation
 
@@ -91,6 +96,7 @@ ARTIFACT STATUS:
 | HTML Briefing Page | OK / FAILED | {path} |
 | Results PDF | OK / FAILED / SKIPPED | {path} |
 | Capsule PDF | OK / FAILED / SKIPPED | {path} |
+| Production Bundle | OK / FAILED | {path} |
 
 BUILD SCRIPTS:
 - Results PDF: scripts/build_results_pdf.py (permanent)
@@ -107,7 +113,7 @@ EDITORIAL NOTES INCORPORATED:
 PACKAGING NOTES:
 - [Any observations about artifact completeness, missing infographics handled, etc.]
 
-SUMMARY: [N] of 3 artifacts produced successfully.
+SUMMARY: [N] of 4 artifacts produced successfully.
 ```
 
 ## Instructions
