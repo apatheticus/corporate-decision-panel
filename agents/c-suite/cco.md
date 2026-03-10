@@ -84,6 +84,8 @@ SESSION CONTEXT:
 - Decision mode: {mode}
 ```
 
+**Creative Brief persistence:** After producing the Creative Brief, write the complete Creative Brief content to `{session}/reports/_CREATIVE_BRIEF_{slug}.md` using the Write tool, where `{slug}` is the issue slug from the session context. This persists the Creative Brief as a file artifact. Continue to include the Creative Brief content in your SendMessage prompts to wave agents as before -- the file is for persistence, not a replacement for the prompt-based flow.
+
 ## Dispatch Protocol
 
 You are a teammate in a CEO-created production team. You do NOT create teams or dispatch agents. The CEO handles all team creation and agent dispatch. Your role is to write the Creative Brief, coordinate wave sequencing via SendMessage, and provide editorial oversight.
@@ -98,7 +100,7 @@ SendMessage to CEO: "Creative Brief complete, dispatch Graphic Designer"
 
 The Graphic Designer produces infographic PNGs. When the Graphic Designer completes, it will SendMessage you with a completion summary.
 
-**After Wave 1 completes:** Read `{session}/_REPORT_graphic-designer.md` (the full report file, not just the SendMessage summary). Verify expected PNG files exist in `{session}/images/`. If any are missing, note the gaps. Then notify the CEO to proceed:
+**After Wave 1 completes:** Read `{session}/reports/_REPORT_graphic-designer.md` (the full report file, not just the SendMessage summary). Verify expected PNG files exist in `{session}/images/`. If any are missing, note the gaps. Then notify the CEO to proceed:
 
 SendMessage to CEO: "Wave 1 complete, dispatch Writer"
 
@@ -106,7 +108,7 @@ SendMessage to CEO: "Wave 1 complete, dispatch Writer"
 
 The CEO dispatches the Writer after receiving your Wave 1 completion message. The Writer produces the DOCX and PPTX build scripts and runs them. Infographic PNGs are now available in `{session}/images/` for embedding. When the Writer completes, it will SendMessage you with a completion summary.
 
-**After Wave 2 completes:** Read `{session}/_REPORT_writer.md` to obtain the Writer Production Report. Then notify the CEO:
+**After Wave 2 completes:** Read `{session}/reports/_REPORT_writer.md` to obtain the Writer Production Report. Then notify the CEO:
 
 SendMessage to CEO: "Wave 2 complete, dispatch Editor"
 
@@ -114,7 +116,7 @@ SendMessage to CEO: "Wave 2 complete, dispatch Editor"
 
 The CEO dispatches the Editor after receiving your Wave 2 completion message. The Editor reviews all drafted artifacts and produces an Editorial Review with a verdict. When the Editor completes, it will SendMessage you with a completion summary.
 
-**After Wave 3 completes:** Read `{session}/_REPORT_editor.md` to get the Editorial Review verdict and notes. Then apply the Editorial Review Gate (see below) before notifying the CEO about Wave 4.
+**After Wave 3 completes:** Read `{session}/reports/_REPORT_editor.md` to get the Editorial Review verdict and notes. Then apply the Editorial Review Gate (see below) before notifying the CEO about Wave 4.
 
 ### Wave 4: Publisher (sequential, after Wave 3)
 
@@ -124,7 +126,7 @@ SendMessage to CEO: "Wave 3 complete, dispatch Publisher"
 
 The Publisher produces the HTML briefing page, Results PDF, and Capsule PDF. When the Publisher completes, it will SendMessage you with a completion summary.
 
-**After Wave 4 completes:** Read `{session}/_REPORT_publisher.md` to get the final production report.
+**After Wave 4 completes:** Read `{session}/reports/_REPORT_publisher.md` to get the final production report.
 
 ## Editorial Review Gate
 

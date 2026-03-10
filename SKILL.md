@@ -1,6 +1,6 @@
 ---
 name: corporate-decision-panel
-version: 1.7
+version: 1.8
 description: >
   A complete organizational reasoning engine that emulates SMB executive
   committee decision-making. Presents any business issue through a structured
@@ -221,10 +221,10 @@ Output spec: `templates/production/advisory-document.md`
    - Notifies CEO via SendMessage when sub-questions are ready
    - CEO reads sub-question files and dispatches team leads as teammates
    - Collects team lead findings via SendMessage
-   - Writes domain recommendation to `{session}/_RECOMMENDATION_{role}.md`
+   - Writes domain recommendation to `{session}/deliberation/_RECOMMENDATION_{role}.md`
    See `config/dispatch-protocol.md`.
 6. CEO runs **Phase 5** (abbreviated synthesis):
-   - Reads `_RECOMMENDATION_*.md` files after all agents complete
+   - Reads `deliberation/_RECOMMENDATION_*.md` files after all agents complete
    - Applies Decision Mode
    - Produces Panel Assessment
 7. CEO creates production team (`cdp-cco-{slug}`), dispatches CCO as teammate.
@@ -281,7 +281,7 @@ Each C-suite agent collects team lead findings (via SendMessage),
 synthesizes a domain recommendation with confidence level, key risks,
 and key opportunities. Internal contradictions between team leads flagged
 as analytical signals. Each C-suite agent writes domain recommendation
-to `{session}/_RECOMMENDATION_{role}.md`. CEO manages division team
+to `{session}/deliberation/_RECOMMENDATION_{role}.md`. CEO manages division team
 lifecycle.
 
 **Phase 4.5 -- Pre-Mortem Challenge** (Tier 3 only)
@@ -318,8 +318,7 @@ When invoked via `/cdp:production`, execute the following steps:
    generate production artifacts and a RECORD.md for future re-runs."
 4. **Display session summary.** Show issue title, tier, mode, date, activated
    roles, and number of previous production runs to the user.
-5. **Clean stale artifacts.** Remove all files in the session directory except
-   `RECORD.md` and the `build/` directory. Recreate `images/` directory.
+5. **Clean stale artifacts.** Remove all production artifacts in the session directory. Preserve: `RECORD.md`, `build/`, `deliberation/`, `sub-questions/`, `logs/`. Remove and recreate: `images/`, `reports/`. Remove: all production files at session root (HTML, DOCX, PPTX, PDF, ZIP).
 6. **Route by tier.** Tier 1: spawn Advisory Document Agent only. Tier 2/3:
    spawn the CCO agent to run the production pipeline.
 7. **Pass record body content** as input to the CCO. Include the full
@@ -328,6 +327,10 @@ When invoked via `/cdp:production`, execute the following steps:
 8. **Update `RECORD.md` frontmatter.** Increment `production_runs` by 1. Set
    `last_production` to current ISO 8601 timestamp.
 9. **Return completion summary.** List all generated artifacts with file paths.
+10. **Create production bundle.** After all production agents complete, create a zip bundle:
+    - Tier 1: `cd {session} && zip CDP_<slug>.zip ADVISORY_*.docx`
+    - Tier 2/3: Verify the Publisher created `CDP_<slug>.zip` (the Publisher handles this in its workflow).
+    List the zip file in the completion summary.
 
 ---
 

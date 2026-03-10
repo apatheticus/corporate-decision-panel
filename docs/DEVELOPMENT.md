@@ -57,7 +57,7 @@ Without the optional dependencies, the deliberation cascade works fully -- only 
 ```
 corporate-decision-panel/
 ├── SKILL.md                             # Skill entry point + orchestration protocol
-├── README.md                            # Project overview and reference
+├── README.md                            # User manual & reference guide
 ├── install.py                           # Copies agents + commands into .claude/
 ├── LICENSE
 ├── CONTRIBUTING.md                      # Contribution standards
@@ -142,7 +142,7 @@ corporate-decision-panel/
 │       └── infographics.md             # Graphic Designer spec
 │
 └── docs/                                # Documentation
-    ├── README.md                        # User manual
+    ├── README.md                        # Technical reference
     ├── ARCHITECTURE.md                  # Technical architecture
     ├── DEVELOPMENT.md                   # This file
     └── media/                           # Documentation images

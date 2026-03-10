@@ -150,7 +150,7 @@ When the decision requires evidence-based investigation, dispatch the CSO via a 
 
 The CEO creates a CSO division team (`TeamCreate("cdp-cso-{slug}")`), dispatches the CSO as a teammate with the research directive. The CSO reads the CEO's framing, formulates sub-questions for its 5 research team leads, writes sub-question files to `{session}/sub-questions/cso/`, and SendMessages the CEO with file paths. The CEO reads sub-question files and dispatches research team leads as teammates into the same division team. Per `config/dispatch-protocol.md`.
 
-**Sequential timing:** CSO Phase 1.5 completes fully before Phase 2 begins. The CEO waits for `{session}/_DOSSIER_cso.md` to be written, reads the dossier, and incorporates it into the Phase 0 broadcast before dispatching Phase 2 C-suite agents.
+**Sequential timing:** CSO Phase 1.5 completes fully before Phase 2 begins. The CEO waits for `{session}/deliberation/_DOSSIER_cso.md` to be written, reads the dossier, and incorporates it into the Phase 0 broadcast before dispatching Phase 2 C-suite agents.
 
 ### Research Directive Structure
 
@@ -164,7 +164,7 @@ Your directive to the CSO must include:
 
 ### CSO Output: Research Dossier
 
-The CSO produces a Research Dossier (`{session}/_DOSSIER_cso.md`) containing:
+The CSO produces a Research Dossier (`{session}/deliberation/_DOSSIER_cso.md`) containing:
 - **Evidence Summary:** High-level synthesis of what the research found
 - **Team Lead Findings:** Per research team lead (Market Intelligence, Competitive Intelligence, Technology Scout, Industry & Regulatory Analyst, Precedent & Patterns Analyst) with confidence grades
 - **Assumption Registry:** Each assumption underlying the issue tagged as:
@@ -192,7 +192,7 @@ Each activated C-suite executive receives your framing (and the Research Dossier
 
 **Dispatch mechanism:** The CEO creates a division team per activated role (`TeamCreate("cdp-{role}-{slug}")`), dispatches the C-suite agent as a teammate (Agent with team_name). The C-suite agent reads CEO framing, formulates sub-questions, writes sub-question files to `{session}/sub-questions/{role}/`, and SendMessages the CEO with file paths (or "No team leads needed"). The CEO reads sub-question files and dispatches team leads as teammates into the same division team. Per `config/dispatch-protocol.md`.
 
-**CSO Phase 2:** The CSO is dispatched as a standalone subagent (no team_name) simultaneously with other division team dispatch. The CSO receives CEO framing + its own Research Dossier and produces `_RECOMMENDATION_cso.md` without team leads (inline analysis only).
+**CSO Phase 2:** The CSO is dispatched as a standalone subagent (no team_name) simultaneously with other division team dispatch. The CSO receives CEO framing + its own Research Dossier and produces `deliberation/_RECOMMENDATION_cso.md` without team leads (inline analysis only).
 
 **Your role in Phase 2:** Monitor, not micromanage. The value of the cascade is that each C-suite officer decomposes the issue through their domain lens. The CFO does not forward your question to the Controller -- the CFO asks the Controller "What are the GAAP implications of this change?" This translation is itself analytical.
 
@@ -217,7 +217,7 @@ Each team lead teammate performs narrow, focused analysis through their speciali
 
 Each C-suite executive collects their team lead findings and produces a domain recommendation containing:
 
-Each C-suite agent writes its domain recommendation to `{session}/_RECOMMENDATION_{role}.md` (e.g., `_RECOMMENDATION_coo.md`). The CEO reads these files after all C-suite agents complete, rather than receiving recommendations via SendMessage.
+Each C-suite agent writes its domain recommendation to `{session}/deliberation/_RECOMMENDATION_{role}.md` (e.g., `deliberation/_RECOMMENDATION_coo.md`). The CEO reads these files after all C-suite agents complete, rather than receiving recommendations via SendMessage.
 
 - **Domain Recommendation:** Approve / Approve with Conditions / Oppose / Neutral
 - **Confidence Level:** High / Medium / Low (with explanation of what would increase confidence)
@@ -231,11 +231,11 @@ Each C-suite agent writes its domain recommendation to `{session}/_RECOMMENDATIO
 
 ### Synchronization
 
-The CEO monitors for `_RECOMMENDATION_{role}.md` files. Division teams naturally dissolve after the C-suite agent writes their recommendation -- no explicit shutdown needed. The CSO Phase 2 standalone subagent is monitored via background task notification. After all expected recommendation files are present (or a reasonable wait has elapsed), the CEO reads all `{session}/_RECOMMENDATION_{role}.md` files. If a recommendation file is missing (agent failure or timeout), record the gap explicitly in the Decision Record -- a missing recommendation is not a blocker, it is an acknowledged gap.
+The CEO monitors for `deliberation/_RECOMMENDATION_{role}.md` files. Division teams naturally dissolve after the C-suite agent writes their recommendation -- no explicit shutdown needed. The CSO Phase 2 standalone subagent is monitored via background task notification. After all expected recommendation files are present (or a reasonable wait has elapsed), the CEO reads all `{session}/deliberation/_RECOMMENDATION_{role}.md` files. If a recommendation file is missing (agent failure or timeout), record the gap explicitly in the Decision Record -- a missing recommendation is not a blocker, it is an acknowledged gap.
 
 ### Large Recommendation Files
 
-Recommendation files from complex deliberations may exceed the Read tool's 2000-line default. When reading `_RECOMMENDATION_{role}.md` files, if a file appears truncated, re-read with `offset` and `limit` parameters to retrieve remaining sections. Executive summaries are always in the first 50 lines -- the summary-first synthesis approach (Step 1 of CEO Deliberation) naturally handles most cases even if the file is truncated.
+Recommendation files from complex deliberations may exceed the Read tool's 2000-line default. When reading `deliberation/_RECOMMENDATION_{role}.md` files, if a file appears truncated, re-read with `offset` and `limit` parameters to retrieve remaining sections. Executive summaries are always in the first 50 lines -- the summary-first synthesis approach (Step 1 of CEO Deliberation) naturally handles most cases even if the file is truncated.
 
 ---
 
@@ -247,14 +247,14 @@ After each C-suite officer has produced their own domain recommendation in Phase
 
 ### Pre-Mortem Protocol
 
-The CEO reads all `{session}/_RECOMMENDATION_*.md` files to collect peer recommendations, then dispatches a second round of standalone C-suite subagents with peer recommendation summaries. Each C-suite agent writes its pre-mortem findings to `{session}/_PREMORTEM_{role}.md` (e.g., `_PREMORTEM_coo.md`).
+The CEO reads all `{session}/deliberation/_RECOMMENDATION_*.md` files to collect peer recommendations, then dispatches a second round of standalone C-suite subagents with peer recommendation summaries. Each C-suite agent writes its pre-mortem findings to `{session}/deliberation/_PREMORTEM_{role}.md` (e.g., `deliberation/_PREMORTEM_coo.md`).
 
 1. **Distribute all recommendations:** Each C-suite agent (including the CSO) receives summaries of ALL other activated C-suite members' recommendations
 2. **Standard C-suite prompt:** *"Assume this decision fails catastrophically in 12 months. Based on what you see across all domain recommendations, what caused the failure?"*
 3. **CSO-specific prompt:** *"Review the evidence base underlying all domain recommendations. Which evidence gaps, if filled differently than assumed, would most likely reverse the decision? Which cross-domain assumptions are unsupported by evidence?"*
 4. **One round only.** No back-and-forth debate. No rebuttals. Each agent produces one pre-mortem response.
 
-**Synchronization:** Dispatch all pre-mortem agents as standalone subagents (no team_name). The CEO monitors for `_PREMORTEM_{role}.md` files. After all expected pre-mortem files are present (or a reasonable wait has elapsed), the CEO reads them. Missing pre-mortem files are recorded as gaps, not blockers.
+**Synchronization:** Dispatch all pre-mortem agents as standalone subagents (no team_name). The CEO monitors for `deliberation/_PREMORTEM_{role}.md` files. After all expected pre-mortem files are present (or a reasonable wait has elapsed), the CEO reads them. Missing pre-mortem files are recorded as gaps, not blockers.
 
 ### Pre-Mortem Output Integration
 
@@ -294,6 +294,8 @@ Create the session output directory during Phase 1 (after slug derivation) so th
    mkdir -p .cdp-output/YYYY-MM-DD_<issue-slug>/build
    mkdir -p .cdp-output/YYYY-MM-DD_<issue-slug>/logs
    mkdir -p .cdp-output/YYYY-MM-DD_<issue-slug>/sub-questions
+   mkdir -p .cdp-output/YYYY-MM-DD_<issue-slug>/deliberation/
+   mkdir -p .cdp-output/YYYY-MM-DD_<issue-slug>/reports/
    ```
 4. **Resolve to absolute path** so all agents (including those in deliberation phases) receive an unambiguous location.
 
@@ -385,18 +387,18 @@ applicable rule:
 
 | # | Condition | Action |
 |---|-----------|--------|
-| 1 | No `_RECOMMENDATION_*.md` files and no `sub-questions/` contents | Cannot resume. Instruct user to re-run the original command. |
-| 1b | `{session}/sub-questions/{role}/` contains files but no `_RECOMMENDATION_{role}.md` exists | Resume by dispatching team leads using existing sub-question files -- do NOT re-dispatch the C-suite agent. The CEO reads sub-question files and dispatches team leads into the division team. |
-| 2 | Some `_RECOMMENDATION_*.md` missing vs. `RECORD.md` frontmatter `activated_roles` | Re-dispatch only the missing C-suite agents. After completion, resume at Phase 4.5 or Phase 5 depending on tier. |
-| 3 | All recommendations present, Tier 3, no `_PREMORTEM_*.md` files | Resume at Phase 4.5 (pre-mortem dispatch). |
+| 1 | No `deliberation/_RECOMMENDATION_*.md` files and no `sub-questions/` contents | Cannot resume. Instruct user to re-run the original command. |
+| 1b | `{session}/sub-questions/{role}/` contains files but no `deliberation/_RECOMMENDATION_{role}.md` exists | Resume by dispatching team leads using existing sub-question files -- do NOT re-dispatch the C-suite agent. The CEO reads sub-question files and dispatches team leads into the division team. |
+| 2 | Some `deliberation/_RECOMMENDATION_*.md` missing vs. `RECORD.md` frontmatter `activated_roles` | Re-dispatch only the missing C-suite agents. After completion, resume at Phase 4.5 or Phase 5 depending on tier. |
+| 3 | All recommendations present, Tier 3, no `deliberation/_PREMORTEM_*.md` files | Resume at Phase 4.5 (pre-mortem dispatch). |
 | 4 | All recommendations + pre-mortems present, no `RECORD.md` | Resume at Phase 5 (CEO synthesis). |
 | 5 | `RECORD.md` exists, no production artifacts | Resume at production (equivalent to `/cdp:production`). |
 | 6 | `RECORD.md` + production artifacts exist | Session complete. Inform user. |
 
 ### Context Recovery
 
-For rules 2-4, the CEO reads all available `_RECOMMENDATION_*.md` and
-`_PREMORTEM_*.md` files to reconstruct the deliberation state. The original
+For rules 2-4, the CEO reads all available `deliberation/_RECOMMENDATION_*.md` and
+`deliberation/_PREMORTEM_*.md` files to reconstruct the deliberation state. The original
 routing, mode, and tier are recovered from the RECORD.md frontmatter (if
 present) or from the recommendation file headers.
 

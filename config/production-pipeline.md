@@ -22,14 +22,19 @@ The **issue slug** is derived from the Issue Title produced in CEO Phase 1: lowe
 
 ```
 .cdp-output/2026-02-22_should-we-acquire-competitor-x/
-├── RECORD.md                              # Persisted session record
-├── index.html                          # Decision briefing page
+├── RECORD.md
+├── index.html
 ├── PRESENTATION_should-we-acquire-competitor-x.pptx
 ├── REPORT_should-we-acquire-competitor-x.docx
 ├── RESULTS_should-we-acquire-competitor-x.pdf
 ├── CAPSULE_should-we-acquire-competitor-x.pdf
-├── images/                             # Infographic PNGs
-└── build/                              # Rerunnable build scripts
+├── CDP_should-we-acquire-competitor-x.zip
+├── images/
+├── build/
+├── logs/
+├── sub-questions/
+├── deliberation/
+└── reports/
 ```
 
 **Directory structure (Tier 1):**
@@ -38,8 +43,12 @@ The **issue slug** is derived from the Issue Title produced in CEO Phase 1: lowe
 .cdp-output/2026-02-22_can-we-afford-to-hire-this-quarter/
 ├── RECORD.md
 ├── ADVISORY_can-we-afford-to-hire-this-quarter.docx
-└── build/
-    └── build_advisory.js
+├── CDP_can-we-afford-to-hire-this-quarter.zip
+├── build/
+├── logs/
+├── sub-questions/
+├── deliberation/
+└── reports/
 ```
 
 The placeholder `{session-output}` used throughout this section and in production templates refers to this resolved path.

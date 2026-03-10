@@ -20,7 +20,7 @@ Thank you for your interest in contributing. This project is a **Claude Code age
 | `agents/c-suite/` | C-suite executive agent definitions |
 | `agents/team-leads/` | Domain-specialist team lead agents |
 | `commands/cdp/` | Slash command definitions (`panel`, `consult`, `evaluate`, `deliberate`, `production`, `resume`, `cleanup`) |
-| `config/` | Routing table, decision modes, company profile template |
+| `config/` | Routing, modes, profiles, dispatch protocols, file index, logging, orchestration, production pipeline |
 | `scripts/` | Python scripts (config parser, model applicator, infographic generation, PDF builder) |
 | `templates/` | Output templates (decision records, assessments, board documents) |
 | `tests/` | Automated tests for Python scripts |

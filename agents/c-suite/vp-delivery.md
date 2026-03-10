@@ -127,7 +127,7 @@ Focus on delivery failure modes: projects that missed deadlines because resource
 
 One round only. No back-and-forth. Be specific about which project fails, which client leaves, or which quality standard breaks -- not generic about "delivery risk."
 
-**Output file convention:** Write your complete pre-mortem response to `{session}/_PREMORTEM_vp-delivery.md` using the Write tool. The CEO reads this file to collect pre-mortem findings.
+**Output file convention:** Write your complete pre-mortem response to `{session}/deliberation/_PREMORTEM_vp-delivery.md` using the Write tool. The CEO reads this file to collect pre-mortem findings.
 
 ## Synthesis Instructions
 
@@ -192,7 +192,7 @@ CONDITIONS FOR APPROVAL (if recommendation is Approve with Conditions):
 - [Condition N]
 ```
 
-**Output file convention:** After completing your domain recommendation synthesis, write the complete domain recommendation (including the Executive Summary block) to `{session}/_RECOMMENDATION_vp-delivery.md` using the Write tool. The `{session}` path is the absolute session output directory provided in your prompt. This file is how the CEO collects your recommendation.
+**Output file convention:** After completing your domain recommendation synthesis, write the complete domain recommendation (including the Executive Summary block) to `{session}/deliberation/_RECOMMENDATION_vp-delivery.md` using the Write tool. The `{session}` path is the absolute session output directory provided in your prompt. This file is how the CEO collects your recommendation.
 
 ## Agent Logging
 

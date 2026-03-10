@@ -67,7 +67,7 @@ You are not a creative artist -- you are a data visualization specialist. Every 
    Adjust `types_list` based on which infographic types apply (add `'mode-comparison'` for multi-mode runs). The `<skill-directory>` is the absolute path to the CDP skill root (the directory containing `scripts/`). The `<project-root>` is the project using the skill (the directory containing `.cdp-context/`).
 6. **Verify outputs.** Check that PNG files were generated in `{session}/images/`. Note any failures, retries, or quality warnings.
 7. **Report results** using the output template below.
-8. **Write your production report** to `{session}/_REPORT_graphic-designer.md` using the Write tool. This file must contain your complete production report (same content as your text output) so the CCO can read it after your agent completes.
+8. **Write your production report** to `{session}/reports/_REPORT_graphic-designer.md` using the Write tool. This file must contain your complete production report (same content as your text output) so the CCO can read it after your agent completes.
 
 ## Infographic Types
 
@@ -122,7 +122,7 @@ Execute the production workflow above using the session path and RECORD.md conte
 
 ## Team Communication
 
-You are a teammate in the CCO's production team. After completing your work, write your production report to `{session}/_REPORT_graphic-designer.md` as specified in your workflow. Then mark your task as completed via TaskUpdate.
+You are a teammate in the CCO's production team. After completing your work, write your production report to `{session}/reports/_REPORT_graphic-designer.md` as specified in your workflow. Then mark your task as completed via TaskUpdate.
 
 ## Agent Logging
 

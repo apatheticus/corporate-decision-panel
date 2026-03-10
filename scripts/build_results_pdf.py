@@ -166,11 +166,11 @@ def parse_body(text: str) -> dict:
     return {"executive_summary": exec_summary, "sections": sections}
 
 
-def parse_domain_analyses(content: str) -> list:
-    """Parse Section 5 (Domain Analyses) into individual domain entries."""
-    # Split on "5.N Role -- Description" pattern
+def parse_domain_analyses(content: str, section_num: int = 3) -> list:
+    """Parse Domain Analyses section into individual domain entries."""
+    # Split on "N.X Role -- Description" pattern
     pattern = re.compile(
-        r"^5\.(\d+)\s+(.+?)$",
+        rf"^{section_num}\.(\d+)\s+(.+?)$",
         re.MULTILINE,
     )
     matches = list(pattern.finditer(content))
@@ -206,13 +206,13 @@ def parse_domain_analyses(content: str) -> list:
 
         # Extract key risks
         risks = []
-        risk_match = re.search(r"Key Risks:\s*\n(.*?)(?=\n    Key Opportunities|\n    Internal|\n\n5\.|\Z)", block, re.DOTALL)
+        risk_match = re.search(rf"Key Risks:\s*\n(.*?)(?=\n    Key Opportunities|\n    Internal|\n\n{section_num}\.|\Z)", block, re.DOTALL)
         if risk_match:
             risks = [line.strip().lstrip("- ") for line in risk_match.group(1).splitlines() if line.strip().startswith("-")]
 
         # Extract key opportunities
         opps = []
-        opp_match = re.search(r"Key Opportunities:\s*\n(.*?)(?=\n    Internal|\n\n5\.|\Z)", block, re.DOTALL)
+        opp_match = re.search(rf"Key Opportunities:\s*\n(.*?)(?=\n    Internal|\n\n{section_num}\.|\Z)", block, re.DOTALL)
         if opp_match:
             opps = [line.strip().lstrip("- ") for line in opp_match.group(1).splitlines() if line.strip().startswith("-")]
 
@@ -230,7 +230,7 @@ def parse_domain_analyses(content: str) -> list:
 
 
 def parse_fault_lines(content: str) -> dict:
-    """Parse Section 6 (Fault Line Analysis) into structured data."""
+    """Parse Fault Line Analysis section into structured data."""
     result = {"agreements": [], "contentions": [], "premortems": [], "tensions": []}
 
     # Points of Agreement
@@ -322,9 +322,9 @@ def parse_decision(content: str) -> dict:
     return result
 
 
-def parse_dissenting_views(content: str) -> list:
-    """Parse Section 8 (Dissenting Views) into structured data."""
-    pattern = re.compile(r"^8\.(\d+)\s+(.+?)$", re.MULTILINE)
+def parse_dissenting_views(content: str, section_num: int = 6) -> list:
+    """Parse Dissenting Views section into structured data."""
+    pattern = re.compile(rf"^{section_num}\.(\d+)\s+(.+?)$", re.MULTILINE)
     matches = list(pattern.finditer(content))
     views = []
     for i, m in enumerate(matches):
@@ -349,7 +349,7 @@ def parse_dissenting_views(content: str) -> list:
 
 
 def parse_next_steps(content: str) -> dict:
-    """Parse Section 9 (Next Steps)."""
+    """Parse Next Steps section."""
     result = {"actions": [], "triggers": []}
 
     # Action table
@@ -363,7 +363,7 @@ def parse_next_steps(content: str) -> dict:
         })
 
     # Review triggers
-    trigger_match = re.search(r"Decision Review Trigger:\s*\n(.*?)$", content, re.DOTALL)
+    trigger_match = re.search(r"Decision Review Triggers?:\s*\n(.*?)$", content, re.DOTALL)
     if trigger_match:
         result["triggers"] = [
             line.strip().lstrip("- ")
@@ -375,7 +375,7 @@ def parse_next_steps(content: str) -> dict:
 
 
 def parse_metadata_section(content: str) -> dict:
-    """Parse Section 10 (Metadata)."""
+    """Parse Metadata section."""
     result = {}
     for line in content.splitlines():
         line = line.strip()
@@ -1395,29 +1395,29 @@ def build_results_pdf(session_dir: str) -> str:
         palette,
     ))
 
-    # 4. Domain Analysis (Section 5)
-    if 5 in sections:
-        domains = parse_domain_analyses(sections[5]["content"])
+    # 4. Domain Analysis (Section 3)
+    if 3 in sections:
+        domains = parse_domain_analyses(sections[3]["content"], section_num=3)
         story.extend(build_domain_analysis(domains, images_dir, styles, palette))
 
-    # 5. Fault Lines (Section 6)
-    if 6 in sections:
-        fault_data = parse_fault_lines(sections[6]["content"])
+    # 5. Fault Lines (Section 4)
+    if 4 in sections:
+        fault_data = parse_fault_lines(sections[4]["content"])
         story.extend(build_fault_lines(fault_data, images_dir, styles, palette))
 
-    # 6. The Decision (Section 7)
-    if 7 in sections:
-        decision_data = parse_decision(sections[7]["content"])
+    # 6. The Decision (Section 5)
+    if 5 in sections:
+        decision_data = parse_decision(sections[5]["content"])
         story.extend(build_the_decision(decision_data, images_dir, styles, palette))
 
-    # 7. Dissenting Views (Section 8)
-    if 8 in sections:
-        views = parse_dissenting_views(sections[8]["content"])
+    # 7. Dissenting Views (Section 6)
+    if 6 in sections:
+        views = parse_dissenting_views(sections[6]["content"], section_num=6)
         story.extend(build_dissenting_views(views, styles, palette))
 
-    # 8. Action Plan (Section 9)
-    if 9 in sections:
-        next_steps = parse_next_steps(sections[9]["content"])
+    # 8. Action Plan (Section 7)
+    if 7 in sections:
+        next_steps = parse_next_steps(sections[7]["content"])
         story.extend(build_action_plan(next_steps, images_dir, styles, palette))
 
     # 8.5. Multi-mode comparison (if comparative decision record)
@@ -1428,9 +1428,9 @@ def build_results_pdf(session_dir: str) -> str:
                 story.extend(build_mode_comparison(sec["content"], images_dir, styles, palette))
                 break
 
-    # 9. Metadata (Section 10)
-    if 10 in sections:
-        meta_section = parse_metadata_section(sections[10]["content"])
+    # 9. Metadata (Section 8)
+    if 8 in sections:
+        meta_section = parse_metadata_section(sections[8]["content"])
         story.extend(build_metadata_footer(meta_section, meta, styles, palette))
 
     # Build

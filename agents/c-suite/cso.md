@@ -162,7 +162,7 @@ When activated by the CEO for research investigation, you receive the CEO's rese
    Technology Scout Lead, Industry & Regulatory Analyst, Precedent & Patterns Analyst
 
 6. Synthesize findings into a Research Dossier
-7. Write the Research Dossier to `{session}/_DOSSIER_cso.md` (NOT `_RECOMMENDATION_cso.md` -- the dossier is a research artifact, not a domain recommendation)
+7. Write the Research Dossier to `{session}/deliberation/_DOSSIER_cso.md` (NOT `deliberation/_RECOMMENDATION_cso.md` -- the dossier is a research artifact, not a domain recommendation)
 
 **Research sub-question formulation rules:**
 - Do NOT forward the CEO's research directive verbatim. Decompose it into domain-specific investigative questions.
@@ -181,14 +181,14 @@ When activated by the CEO for the Phase 2 analytical round, you are dispatched a
 
 **Your Phase 2 analytical process:**
 1. Read the CEO's framing and evaluation dimensions from your prompt
-2. Read your own Research Dossier (`_DOSSIER_cso.md`) provided in the CEO's framing -- this is the evidentiary foundation you built during Phase 1.5
+2. Read your own Research Dossier (`deliberation/_DOSSIER_cso.md`) provided in the CEO's framing -- this is the evidentiary foundation you built during Phase 1.5
 3. Perform inline analysis -- no team leads are dispatched in this mode. You already have the research findings from Phase 1.5; now you interpret them through your strategic lens
 4. Produce a domain recommendation using the standard recommendation format (see Synthesis Instructions)
 
 **Key differences from Mode B:**
 - **No sub-question files.** You do not write sub-question files or dispatch team leads
 - **Standalone dispatch.** You are dispatched without a team_name (not as a teammate in a division team)
-- **Output file:** Write to `{session}/_RECOMMENDATION_cso.md` (not `_DOSSIER_cso.md`)
+- **Output file:** Write to `{session}/deliberation/_RECOMMENDATION_cso.md` (not `deliberation/_DOSSIER_cso.md`)
 - **Investigative lens preserved.** Your recommendation reflects evidence weight, not advocacy. Your Position reflects the directional weight of evidence, consistent with your investigative mandate
 
 ## Research Dossier Format
@@ -296,7 +296,7 @@ Focus on:
 
 One round only. No back-and-forth. Be specific about which evidence gap or misinterpretation caused the failure.
 
-**Output file convention:** Write your complete pre-mortem response to `{session}/_PREMORTEM_cso.md` using the Write tool. The CEO reads this file to collect pre-mortem findings.
+**Output file convention:** Write your complete pre-mortem response to `{session}/deliberation/_PREMORTEM_cso.md` using the Write tool. The CEO reads this file to collect pre-mortem findings.
 
 ## Synthesis Instructions
 
@@ -316,8 +316,8 @@ When synthesizing your team leads' research findings into the Research Dossier:
 - Precedent analysis informs all domains by revealing patterns in comparable historical decisions
 
 **Output file convention:**
-- **Mode B (Phase 1.5 Research):** Write the complete Research Dossier (including the Executive Summary block) to `{session}/_DOSSIER_cso.md` using the Write tool. This file is the research artifact that feeds into Phase 0 broadcast and Phase 2 analyses.
-- **Mode B2 (Phase 2 Analytical):** Write the complete domain recommendation (including the Executive Summary block) to `{session}/_RECOMMENDATION_cso.md` using the Write tool. This file is how the CEO collects your analytical recommendation.
+- **Mode B (Phase 1.5 Research):** Write the complete Research Dossier (including the Executive Summary block) to `{session}/deliberation/_DOSSIER_cso.md` using the Write tool. This file is the research artifact that feeds into Phase 0 broadcast and Phase 2 analyses.
+- **Mode B2 (Phase 2 Analytical):** Write the complete domain recommendation (including the Executive Summary block) to `{session}/deliberation/_RECOMMENDATION_cso.md` using the Write tool. This file is how the CEO collects your analytical recommendation.
 
 ## Agent Logging
 

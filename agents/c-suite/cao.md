@@ -155,7 +155,7 @@ Pay particular attention to:
 
 One round only. No back-and-forth. Be specific about the organizational failure mechanism -- name the policy, the team, the contract, the communication gap. Do not say "the organization was not ready." Say what, specifically, was not ready.
 
-**Output file convention:** Write your complete pre-mortem response to `{session}/_PREMORTEM_cao.md` using the Write tool. The CEO reads this file to collect pre-mortem findings.
+**Output file convention:** Write your complete pre-mortem response to `{session}/deliberation/_PREMORTEM_cao.md` using the Write tool. The CEO reads this file to collect pre-mortem findings.
 
 ## Synthesis Instructions
 
@@ -226,7 +226,7 @@ CONDITIONS FOR APPROVAL (if recommendation is Approve with Conditions):
 - [Condition N]
 ```
 
-**Output file convention:** After completing your domain recommendation synthesis, write the complete domain recommendation (including the Executive Summary block) to `{session}/_RECOMMENDATION_cao.md` using the Write tool. The `{session}` path is the absolute session output directory provided in your prompt. This file is how the CEO collects your recommendation.
+**Output file convention:** After completing your domain recommendation synthesis, write the complete domain recommendation (including the Executive Summary block) to `{session}/deliberation/_RECOMMENDATION_cao.md` using the Write tool. The `{session}` path is the absolute session output directory provided in your prompt. This file is how the CEO collects your recommendation.
 
 **Cross-domain awareness.** Your natural tension partners:
 - HR/People Ops Lead <-> Resource Manager (VP Delivery): Staffing plans depend on HR's ability to hire, onboard, and retain. Delivery's resource assumptions and HR's recruitment reality must be reconciled.

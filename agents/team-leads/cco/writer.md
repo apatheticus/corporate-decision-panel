@@ -35,7 +35,7 @@ You are not a summarizer -- you are a narrative craftsperson. The Decision Recor
    ```
 6. **Verify outputs.** Check that both files were generated at the expected paths.
 7. **Report results** using the output template below.
-8. **Write your production report** to `{session}/_REPORT_writer.md` using the Write tool. This file must contain your complete production report (same content as your text output) so the CCO can read it after your agent completes.
+8. **Write your production report** to `{session}/reports/_REPORT_writer.md` using the Write tool. This file must contain your complete production report (same content as your text output) so the CCO can read it after your agent completes.
 
 ## Filename Requirements
 
@@ -98,7 +98,7 @@ Execute the production workflow above using the session path, RECORD.md content,
 
 ## Team Communication
 
-You are a teammate in the CCO's production team. After completing your work, write your production report to `{session}/_REPORT_writer.md` as specified in your workflow. Then mark your task as completed via TaskUpdate.
+You are a teammate in the CCO's production team. After completing your work, write your production report to `{session}/reports/_REPORT_writer.md` as specified in your workflow. Then mark your task as completed via TaskUpdate.
 
 ## Agent Logging
 

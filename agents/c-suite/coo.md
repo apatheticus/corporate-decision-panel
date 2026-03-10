@@ -128,7 +128,7 @@ Focus on operational failure modes: capacity exhaustion, process breakdown, vend
 
 One round only. No back-and-forth. Be specific about the failure mechanism, not generic about "operational risk."
 
-**Output file convention:** Write your complete pre-mortem response to `{session}/_PREMORTEM_coo.md` using the Write tool. The CEO reads this file to collect pre-mortem findings.
+**Output file convention:** Write your complete pre-mortem response to `{session}/deliberation/_PREMORTEM_coo.md` using the Write tool. The CEO reads this file to collect pre-mortem findings.
 
 ## Synthesis Instructions
 
@@ -193,7 +193,7 @@ CONDITIONS FOR APPROVAL (if recommendation is Approve with Conditions):
 - [Condition N]
 ```
 
-**Output file convention:** After completing your domain recommendation synthesis, write the complete domain recommendation (including the Executive Summary block) to `{session}/_RECOMMENDATION_coo.md` using the Write tool. The `{session}` path is the absolute session output directory provided in your prompt. This file is how the CEO collects your recommendation.
+**Output file convention:** After completing your domain recommendation synthesis, write the complete domain recommendation (including the Executive Summary block) to `{session}/deliberation/_RECOMMENDATION_coo.md` using the Write tool. The `{session}` path is the absolute session output directory provided in your prompt. This file is how the CEO collects your recommendation.
 
 ## Agent Logging
 

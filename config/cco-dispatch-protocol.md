@@ -36,26 +36,26 @@ CCO SendMessages CEO: "Creative Brief complete, dispatch Graphic Designer"
     |
     v
 CEO dispatches Graphic Designer as teammate (Wave 1)
-Graphic Designer writes _REPORT, SendMessages CCO completion + summary
-CCO reads full _REPORT_graphic-designer.md, does assessment
+Graphic Designer writes reports/_REPORT, SendMessages CCO completion + summary
+CCO reads full reports/_REPORT_graphic-designer.md, does assessment
 CCO SendMessages CEO: "Wave 1 complete, dispatch Writer"
     |
     v
 CEO dispatches Writer as teammate (Wave 2)
-Writer writes _REPORT, SendMessages CCO completion + summary
-CCO reads full _REPORT_writer.md, does assessment
+Writer writes reports/_REPORT, SendMessages CCO completion + summary
+CCO reads full reports/_REPORT_writer.md, does assessment
 CCO SendMessages CEO: "Wave 2 complete, dispatch Editor"
     |
     v
 CEO dispatches Editor as teammate (Wave 3)
-Editor writes _REPORT, SendMessages CCO completion + summary
-CCO reads full _REPORT_editor.md, does editorial assessment
+Editor writes reports/_REPORT, SendMessages CCO completion + summary
+CCO reads full reports/_REPORT_editor.md, does editorial assessment
 CCO SendMessages CEO with editorial verdict (see Editorial Review Gate)
     |
     v
 CEO dispatches Publisher as teammate (Wave 4)
-Publisher writes _REPORT, SendMessages CCO completion + summary
-CCO reads full _REPORT_publisher.md
+Publisher writes reports/_REPORT, SendMessages CCO completion + summary
+CCO reads full reports/_REPORT_publisher.md
 CCO SendMessages CEO: "Production complete"
 ```
 
@@ -65,7 +65,7 @@ CEO dispatches the Graphic Designer after CCO sends: "Creative Brief complete, d
 
 The Graphic Designer receives the Creative Brief, complete RECORD.md content, and session context.
 
-**After Wave 1 completes:** Graphic Designer writes `{session}/_REPORT_graphic-designer.md` and SendMessages the CCO with a completion summary. CCO reads the full report file, verifies expected PNG files exist in `{session}/images/`. If any are missing, CCO notes the gaps. CCO proceeds to request Wave 2 regardless -- the Writer can produce documents without images, and the Editor will flag missing assets.
+**After Wave 1 completes:** Graphic Designer writes `{session}/reports/_REPORT_graphic-designer.md` and SendMessages the CCO with a completion summary. CCO reads the full report file, verifies expected PNG files exist in `{session}/images/`. If any are missing, CCO notes the gaps. CCO proceeds to request Wave 2 regardless -- the Writer can produce documents without images, and the Editor will flag missing assets.
 
 ### Wave 2: Writer
 
@@ -73,7 +73,7 @@ CEO dispatches the Writer after CCO sends: "Wave 1 complete, dispatch Writer."
 
 The Writer receives the Creative Brief, complete RECORD.md content, and session context. Infographic PNGs are now available in `{session}/images/` for embedding in documents.
 
-**After Wave 2 completes:** Writer writes `{session}/_REPORT_writer.md` and SendMessages the CCO with a completion summary. CCO reads the full report file.
+**After Wave 2 completes:** Writer writes `{session}/reports/_REPORT_writer.md` and SendMessages the CCO with a completion summary. CCO reads the full report file.
 
 ### Wave 3: Editor
 
@@ -81,15 +81,15 @@ CEO dispatches the Editor after CCO sends: "Wave 2 complete, dispatch Editor."
 
 The Editor receives the Creative Brief, RECORD.md content, Wave 1 and Wave 2 report contents (which the CEO reads from the report files and includes in the prompt), and session context.
 
-**After Wave 3 completes:** Editor writes `{session}/_REPORT_editor.md` and SendMessages the CCO with a completion summary. CCO reads the full report file and applies the Editorial Review Gate.
+**After Wave 3 completes:** Editor writes `{session}/reports/_REPORT_editor.md` and SendMessages the CCO with a completion summary. CCO reads the full report file and applies the Editorial Review Gate.
 
 ### Wave 4: Publisher
 
 CEO dispatches the Publisher after the CCO sends the editorial verdict and authorizes Wave 4 dispatch.
 
-The Publisher receives the Creative Brief, RECORD.md content, the Editorial Review (read from `_REPORT_editor.md`, with any notes), and session context.
+The Publisher receives the Creative Brief, RECORD.md content, the Editorial Review (read from `reports/_REPORT_editor.md`, with any notes), and session context.
 
-**After Wave 4 completes:** Publisher writes `{session}/_REPORT_publisher.md` and SendMessages the CCO with a completion summary. CCO reads the full report file and produces the CCO Production Report.
+**After Wave 4 completes:** Publisher writes `{session}/reports/_REPORT_publisher.md` and SendMessages the CCO with a completion summary. The Publisher also creates `CDP_<slug>.zip` containing all production outputs for sharing. CCO reads the full report file and produces the CCO Production Report.
 
 ## Prompt Structure
 
@@ -135,16 +135,16 @@ Each production team lead writes a report file to the session directory after co
 
 | Team Lead | Report File |
 |-----------|-------------|
-| Graphic Designer | `{session}/_REPORT_graphic-designer.md` |
-| Writer | `{session}/_REPORT_writer.md` |
-| Editor | `{session}/_REPORT_editor.md` |
-| Publisher | `{session}/_REPORT_publisher.md` |
+| Graphic Designer | `{session}/reports/_REPORT_graphic-designer.md` |
+| Writer | `{session}/reports/_REPORT_writer.md` |
+| Editor | `{session}/reports/_REPORT_editor.md` |
+| Publisher | `{session}/reports/_REPORT_publisher.md` |
 
 The CCO reads the relevant report files after each wave completes:
-- **After Wave 1:** Read `_REPORT_graphic-designer.md`, verify PNG assets
-- **After Wave 2:** Read `_REPORT_writer.md`
-- **After Wave 3:** Read `_REPORT_editor.md`, apply Editorial Review Gate
-- **After Wave 4:** Read `_REPORT_publisher.md`, produce CCO Production Report
+- **After Wave 1:** Read `reports/_REPORT_graphic-designer.md`, verify PNG assets
+- **After Wave 2:** Read `reports/_REPORT_writer.md`
+- **After Wave 3:** Read `reports/_REPORT_editor.md`, apply Editorial Review Gate
+- **After Wave 4:** Read `reports/_REPORT_publisher.md`, produce CCO Production Report
 
 ## Editorial Review Gate
 
