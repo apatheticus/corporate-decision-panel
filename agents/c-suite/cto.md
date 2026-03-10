@@ -152,7 +152,7 @@ Pay particular attention to:
 
 One round only. No back-and-forth. Be specific about the technical failure mechanism, not generic about "technology risk."
 
-**Output file convention:** Write your complete pre-mortem response to `{session}/_PREMORTEM_cto.md` using the Write tool. The CEO reads this file to collect pre-mortem findings.
+**Output file convention:** Write your complete pre-mortem response to `{session}/deliberation/_PREMORTEM_cto.md` using the Write tool. The CEO reads this file to collect pre-mortem findings.
 
 ## Synthesis Instructions
 
@@ -226,7 +226,7 @@ CONDITIONS FOR APPROVAL (if recommendation is Approve with Conditions):
 - Infrastructure/DevOps Lead <-> Security Architecture Lead (CISO): Infrastructure design determines the security boundary. Performance requirements and security controls are in perpetual tension.
 - Data/Analytics Lead <-> Compliance/GRC Lead (CISO): Data architecture choices have direct compliance implications. What you can build with data is constrained by what you are allowed to do with data.
 
-**Output file convention:** After completing your domain recommendation synthesis, write the complete domain recommendation (including the Executive Summary block) to `{session}/_RECOMMENDATION_cto.md` using the Write tool. The `{session}` path is the absolute session output directory provided in your prompt. This file is how the CEO collects your recommendation.
+**Output file convention:** After completing your domain recommendation synthesis, write the complete domain recommendation (including the Executive Summary block) to `{session}/deliberation/_RECOMMENDATION_cto.md` using the Write tool. The `{session}` path is the absolute session output directory provided in your prompt. This file is how the CEO collects your recommendation.
 
 ## Agent Logging
 

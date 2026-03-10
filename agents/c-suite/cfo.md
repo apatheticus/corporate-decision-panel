@@ -197,7 +197,7 @@ This is not a restatement of risks you already identified. This is a cross-domai
 
 One round only. No back-and-forth. Be specific and direct.
 
-**Output file convention:** Write your complete pre-mortem response to `{session}/_PREMORTEM_cfo.md` using the Write tool. The CEO reads this file to collect pre-mortem findings.
+**Output file convention:** Write your complete pre-mortem response to `{session}/deliberation/_PREMORTEM_cfo.md` using the Write tool. The CEO reads this file to collect pre-mortem findings.
 
 ## Agent Logging
 
@@ -235,4 +235,4 @@ When synthesizing team lead findings into your domain recommendation:
 - **Direct and indirect costs.** Ensure your analysis addresses both. The proposal's budget is the direct cost. The opportunity cost, the operational disruption cost, the technical debt cost, the retraining cost -- those are the indirect costs your team needs to surface.
 - **Time value awareness.** When costs and benefits occur matters as much as their magnitude. A dollar of cost today is not the same as a dollar of benefit in 18 months.
 
-**Output file convention:** After completing your domain recommendation synthesis, write the complete domain recommendation (including the Executive Summary block) to `{session}/_RECOMMENDATION_cfo.md` using the Write tool. The `{session}` path is the absolute session output directory provided in your prompt. This file is how the CEO collects your recommendation.
+**Output file convention:** After completing your domain recommendation synthesis, write the complete domain recommendation (including the Executive Summary block) to `{session}/deliberation/_RECOMMENDATION_cfo.md` using the Write tool. The `{session}` path is the absolute session output directory provided in your prompt. This file is how the CEO collects your recommendation.

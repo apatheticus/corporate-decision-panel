@@ -221,7 +221,7 @@ Output spec: `templates/production/advisory-document.md`
    - Notifies CEO via SendMessage when sub-questions are ready
    - CEO reads sub-question files and dispatches team leads as teammates
    - Collects team lead findings via SendMessage
-   - Writes domain recommendation to `{session}/_RECOMMENDATION_{role}.md`
+   - Writes domain recommendation to `{session}/deliberation/_RECOMMENDATION_{role}.md`
    See `config/dispatch-protocol.md`.
 6. CEO runs **Phase 5** (abbreviated synthesis):
    - Reads `_RECOMMENDATION_*.md` files after all agents complete
@@ -281,7 +281,7 @@ Each C-suite agent collects team lead findings (via SendMessage),
 synthesizes a domain recommendation with confidence level, key risks,
 and key opportunities. Internal contradictions between team leads flagged
 as analytical signals. Each C-suite agent writes domain recommendation
-to `{session}/_RECOMMENDATION_{role}.md`. CEO manages division team
+to `{session}/deliberation/_RECOMMENDATION_{role}.md`. CEO manages division team
 lifecycle.
 
 **Phase 4.5 -- Pre-Mortem Challenge** (Tier 3 only)
