@@ -23,7 +23,13 @@ import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from scripts.config import FIELD_PATTERN, _extract_value
+# Support both `python3 -m scripts.apply_models` (from repo root)
+# and direct invocation when installed as a skill
+try:
+    from scripts.config import FIELD_PATTERN, _extract_value
+except ModuleNotFoundError:
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from scripts.config import FIELD_PATTERN, _extract_value
 
 # Valid model shortnames
 VALID_MODELS = {"opus", "sonnet", "haiku"}
@@ -251,9 +257,28 @@ def apply_models(agents_dir: Path, config: ModelConfig) -> ApplyResult:
     return result
 
 
+def _detect_project_root() -> Path:
+    """Detect project root from script location.
+
+    When installed as a skill, the script lives at:
+        <project>/.claude/skills/corporate-decision-panel/scripts/apply_models.py
+    So project root is 4 levels up. Falls back to CWD.
+    """
+    script_dir = Path(__file__).resolve().parent  # scripts/
+    skill_dir = script_dir.parent  # corporate-decision-panel/
+    claude_dir = skill_dir.parent.parent  # .claude/ (if skills/ is parent)
+    if claude_dir.name == ".claude":
+        project_root = claude_dir.parent
+        if (project_root / ".cdp-context").is_dir() or (claude_dir / "agents").is_dir():
+            return project_root
+    return Path.cwd()
+
+
 def main() -> None:
     """CLI entry point."""
     import argparse
+
+    project_root = _detect_project_root()
 
     parser = argparse.ArgumentParser(
         description="Apply agent model configuration from config.md"
@@ -261,13 +286,13 @@ def main() -> None:
     parser.add_argument(
         "--config-dir",
         type=Path,
-        default=Path(".cdp-context"),
+        default=project_root / ".cdp-context",
         help="Directory containing config.md (default: .cdp-context)",
     )
     parser.add_argument(
         "--agents-dir",
         type=Path,
-        default=Path(".claude/agents"),
+        default=project_root / ".claude" / "agents",
         help="Directory containing agent definitions (default: .claude/agents)",
     )
     args = parser.parse_args()

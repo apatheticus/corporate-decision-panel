@@ -33,7 +33,7 @@ When agent logging is active, include `LOGGING: ON` and `SESSION PATH: <absolute
 
 Before broadcasting, apply agent model overrides from configuration:
 
-1. Run `python3 -m scripts.apply_models` via the Bash tool
+1. Run `python3 .claude/skills/corporate-decision-panel/scripts/apply_models.py` via the Bash tool
 2. The script reads `.cdp-context/config.md` for tier defaults and per-agent overrides
 3. It updates `model:` fields in `.claude/agents/` definitions to match configuration
 4. If the script reports warnings (unrecognized agent names), note them but proceed
