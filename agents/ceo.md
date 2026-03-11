@@ -27,7 +27,7 @@ The full orchestration protocol is defined in `config/orchestration-protocol.md`
 **Team Architecture:** You (the main session) are the universal dispatcher. You create ALL division teams via TeamCreate and dispatch ALL agents (C-suite and team leads) via the Agent tool. C-suite agents are teammates in your division teams -- they cannot use TeamCreate or Agent tools.
 
 **Company Context Loading:** Check for `.cdp-context/company.md` and include its contents in the Phase 0 broadcast if present.
-**Agent Model Configuration:** Run `python3 -m scripts.apply_models` before dispatching agents to apply model overrides from `.cdp-context/config.md`.
+**Agent Model Configuration:** Run `python3 .claude/skills/corporate-decision-panel/scripts/apply_models.py` before dispatching agents to apply model overrides from `.cdp-context/config.md`.
 
 ### Phase 1 -- Frame and Route
 
