@@ -40,10 +40,10 @@ Requirements for the Chief Legal Officer role addition. Each maps to roadmap pha
 
 ### Integration
 
-- [ ] **INTG-01**: Company profile archetypes updated with CLO-specific behavior (Technology/SaaS, Professional Services, Regulated Industry, Manufacturing)
-- [ ] **INTG-02**: CLO override mechanism documented in company-profile.md
-- [ ] **INTG-03**: Phase 0 Shared Consciousness Broadcast updated to include CLO
-- [ ] **INTG-04**: Engineered dissent balance updated to 5 skeptics / 2 advocates / 1 systemic / 1 investigative / 1 synthesizer
+- [x] **INTG-01**: Company profile archetypes updated with CLO-specific behavior (Technology/SaaS, Professional Services, Regulated Industry, Manufacturing)
+- [x] **INTG-02**: CLO override mechanism documented in company-profile.md
+- [x] **INTG-03**: Phase 0 Shared Consciousness Broadcast updated to include CLO
+- [x] **INTG-04**: Engineered dissent balance updated to 5 skeptics / 2 advocates / 1 systemic / 1 investigative / 1 synthesizer
 
 ### Documentation
 
@@ -88,10 +88,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ROUT-03 | Phase 17 | Pending |
 | MODE-01 | Phase 17 | Pending |
 | MODE-02 | Phase 18 | Pending |
-| INTG-01 | Phase 17 | Pending |
-| INTG-02 | Phase 17 | Pending |
-| INTG-03 | Phase 17 | Pending |
-| INTG-04 | Phase 17 | Pending |
+| INTG-01 | Phase 17 | Complete |
+| INTG-02 | Phase 17 | Complete |
+| INTG-03 | Phase 17 | Complete |
+| INTG-04 | Phase 17 | Complete |
 | CAO-01 | Phase 18 | Pending |
 | CAO-02 | Phase 18 | Pending |
 | CAO-03 | Phase 18 | Pending |
