@@ -273,7 +273,7 @@ The real payoff is **Mode Sensitivity**: if all five modes produce the same deci
 
 CDP deliberately uses three different model tiers (Opus, Sonnet, Haiku) across its hierarchy. This isn't just a cost optimization -- it's a robustness strategy. If a single model has systematic biases or blind spots, distributing reasoning across model families reduces the chance that one model's weakness becomes the system's weakness.
 
-Opus handles cross-domain synthesis where reasoning quality is paramount. Sonnet handles domain decomposition where capability and cost must balance. Haiku handles narrow specialist analysis where volume and parallelism matter most. Each model tier is matched to the cognitive demands of its role -- you wouldn't use Opus for 34 parallel team lead analyses (expensive and unnecessary), and you wouldn't use Haiku for the CEO's final synthesis (insufficient reasoning depth).
+Opus handles cross-domain synthesis where reasoning quality is paramount. Sonnet handles domain decomposition where capability and cost must balance. Haiku handles narrow specialist analysis where volume and parallelism matter most. Each model tier is matched to the cognitive demands of its role -- you wouldn't use Opus for 38 parallel team lead analyses (expensive and unnecessary), and you wouldn't use Haiku for the CEO's final synthesis (insufficient reasoning depth).
 
 ---
 
