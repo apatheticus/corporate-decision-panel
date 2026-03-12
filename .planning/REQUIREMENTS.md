@@ -32,10 +32,10 @@ Requirements for the Chief Legal Officer role addition. Each maps to roadmap pha
 
 ### Routing & Modes
 
-- [ ] **ROUT-01**: CLO added to default activation for Strategic, Personnel, and Compliance/Risk decision types
-- [ ] **ROUT-02**: CLO included in all 5 full-activation threshold scenarios
-- [ ] **ROUT-03**: CSO-CLO research interaction documented in routing table
-- [ ] **MODE-01**: CLO weighting added to all 5 decision modes in config/decision-modes.md (H/L/M/Confidence/H)
+- [x] **ROUT-01**: CLO added to default activation for Strategic, Personnel, and Compliance/Risk decision types
+- [x] **ROUT-02**: CLO included in all 5 full-activation threshold scenarios
+- [x] **ROUT-03**: CSO-CLO research interaction documented in routing table
+- [x] **MODE-01**: CLO weighting added to all 5 decision modes in config/decision-modes.md (H/L/M/Confidence/H)
 - [ ] **MODE-02**: CLO weighting added to all 5 decision mode sections in agents/ceo.md (skeptic group updates)
 
 ### Integration
@@ -83,10 +83,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TEAM-03 | Phase 16 | Complete |
 | TEAM-04 | Phase 16 | Complete |
 | TEAM-05 | Phase 16 | Complete |
-| ROUT-01 | Phase 17 | Pending |
-| ROUT-02 | Phase 17 | Pending |
-| ROUT-03 | Phase 17 | Pending |
-| MODE-01 | Phase 17 | Pending |
+| ROUT-01 | Phase 17 | Complete |
+| ROUT-02 | Phase 17 | Complete |
+| ROUT-03 | Phase 17 | Complete |
+| MODE-01 | Phase 17 | Complete |
 | MODE-02 | Phase 18 | Pending |
 | INTG-01 | Phase 17 | Complete |
 | INTG-02 | Phase 17 | Complete |
