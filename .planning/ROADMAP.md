@@ -147,7 +147,7 @@ Phases execute in numeric order: 16 -> 16.1 (if any) -> 17 -> 18 -> 19
 | 14. Directory Restructuring | v1.8 | 2/2 | Complete | 2026-03-10 |
 | 15. Path Resolution and Bundle | v1.8 | 2/2 | Complete | 2026-03-10 |
 | 16. CLO Foundation | v1.9 | 2/2 | Complete | 2026-03-12 |
-| 17. Configuration | v1.9 | 2/2 | Complete | 2026-03-12 |
+| 17. Configuration | v1.9 | Complete    | 2026-03-12 | 2026-03-12 |
 | 18. Agent Cross-Wiring | v1.9 | 0/? | Not started | - |
 | 19. Documentation | v1.9 | 0/? | Not started | - |
 
