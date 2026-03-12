@@ -47,9 +47,9 @@ Requirements for the Chief Legal Officer role addition. Each maps to roadmap pha
 
 ### Documentation
 
-- [ ] **DOCS-01**: SKILL.md updated — CLO in available roles, agent counts (10 C-suite, 38 team leads), engineered dissent description
-- [ ] **DOCS-02**: README.md updated — Available Roles, C-Suite Roster table, Team Lead Roster table, architecture diagrams, engineered dissent balance
-- [ ] **DOCS-03**: All documentation agent/team lead counts verified against actual directory listing
+- [x] **DOCS-01**: SKILL.md updated — CLO in available roles, agent counts (10 C-suite, 38 team leads), engineered dissent description
+- [x] **DOCS-02**: README.md updated — Available Roles, C-Suite Roster table, Team Lead Roster table, architecture diagrams, engineered dissent balance
+- [x] **DOCS-03**: All documentation agent/team lead counts verified against actual directory listing
 
 ## v2 Requirements
 
@@ -96,9 +96,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CAO-02 | Phase 18 | Complete |
 | CAO-03 | Phase 18 | Complete |
 | CAO-04 | Phase 18 | Complete |
-| DOCS-01 | Phase 19 | Pending |
-| DOCS-02 | Phase 19 | Pending |
-| DOCS-03 | Phase 19 | Pending |
+| DOCS-01 | Phase 19 | Complete |
+| DOCS-02 | Phase 19 | Complete |
+| DOCS-03 | Phase 19 | Complete |
 
 **Coverage:**
 - v1.9 requirements: 26 total
