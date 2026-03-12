@@ -259,7 +259,7 @@ Decision Mode: [Guardian | Pioneer | Architect | Analyst | Sentinel]
 
 8. METADATA
 
-   Total Roles Consulted: [N of 8 C-suite + N of 34 team leads activated]
+   Total Roles Consulted: [N of 9 C-suite + N of 38 team leads activated]
    Decision Complexity: [Low | Medium | High | Critical]
    Primary Domain: [most determinative C-suite area]
    Dissent Level: [Consensus | Mild Dissent | Strong Dissent | Split Decision]

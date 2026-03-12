@@ -55,6 +55,6 @@
 ### Agent Definitions (installed to `.claude/agents/` by auto-setup)
 - `agents/ceo.md` -- CEO identity, judgment criteria, and synthesis logic
 - `config/orchestration-protocol.md` -- Five-phase cascade protocol, production pipeline, organizational roster
-- `agents/c-suite/*.md` -- 9 C-suite agent definitions (COO, CFO, CTO, CISO, CAO, VP Sales, VP Delivery, CSO, CCO)
-- `agents/team-leads/{domain}/*.md` -- 38 team lead agent definitions across 9 domains (29 analytical + 5 research + 4 production)
+- `agents/c-suite/*.md` -- 10 C-suite agent definitions (COO, CFO, CTO, CLO, CISO, CAO, VP Sales, VP Delivery, CSO, CCO)
+- `agents/team-leads/{domain}/*.md` -- 42 team lead agent definitions across 10 domains (33 analytical + 5 research + 4 production)
 - `agents/team-leads/cco/*.md` -- 4 CCO production team leads (Graphic Designer, Writer, Editor, Publisher)

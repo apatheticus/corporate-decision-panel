@@ -27,6 +27,7 @@ Each mode maps to established decision theory (Rowe & Boulgarides Decision Style
 |-------------|-------------|-----------------|-----------|
 | CISO | Skeptic | HIGH | Primary risk identifier; must be satisfied |
 | CFO | Skeptic | HIGH | Financial exposure must be addressed |
+| CLO | Skeptic | HIGH | Legal exposure must be addressed |
 | COO | Skeptic | HIGH | Operational feasibility is gating |
 | VP Delivery | Skeptic | HIGH | Current obligation impact is non-negotiable |
 | CAO | Systemic | MODERATE | Organizational absorption matters but does not gate |
@@ -55,6 +56,7 @@ Each mode maps to established decision theory (Rowe & Boulgarides Decision Style
 | CAO | Systemic | MODERATE | Organizational readiness affects execution speed |
 | CISO | Skeptic | LOW | Security concerns are engineering problems to solve |
 | CFO | Skeptic | LOW | Financial caution is reframed as investment thesis |
+| CLO | Skeptic | LOW | Legal concerns are risk management problems to solve |
 | COO | Skeptic | LOW | Operational constraints are implementation challenges |
 | VP Delivery | Skeptic | LOW | Current obligations can be reprioritized |
 
@@ -75,6 +77,7 @@ Each mode maps to established decision theory (Rowe & Boulgarides Decision Style
 |-------------|-------------|-----------------|-----------|
 | COO | Skeptic | MODERATE | Weighted by cross-domain consensus support |
 | CFO | Skeptic | MODERATE | Weighted by cross-domain consensus support |
+| CLO | Skeptic | MODERATE | Weighted by cross-domain consensus support |
 | CTO | Advocate | MODERATE | Weighted by cross-domain consensus support |
 | CISO | Skeptic | MODERATE | Weighted by cross-domain consensus support |
 | VP Sales | Advocate | MODERATE | Weighted by cross-domain consensus support |
@@ -101,6 +104,7 @@ Each mode maps to established decision theory (Rowe & Boulgarides Decision Style
 |-------------|-------------|-----------------|-----------|
 | COO | Skeptic | MODERATE | Weighted by confidence level in domain recommendation |
 | CFO | Skeptic | MODERATE | Weighted by confidence level in domain recommendation |
+| CLO | Skeptic | MODERATE | Weighted by confidence level in domain recommendation |
 | CTO | Advocate | MODERATE | Weighted by confidence level in domain recommendation |
 | CISO | Skeptic | MODERATE | Weighted by confidence level in domain recommendation |
 | VP Sales | Advocate | MODERATE | Weighted by confidence level in domain recommendation |
@@ -127,6 +131,7 @@ Each mode maps to established decision theory (Rowe & Boulgarides Decision Style
 |-------------|-------------|-----------------|-----------|
 | COO | Skeptic | MODERATE | Weighted by severity of strongest objection |
 | CFO | Skeptic | MODERATE | Weighted by severity of strongest objection |
+| CLO | Skeptic | HIGH | Legal exposure warnings carry disproportionate weight; legal failures are typically catastrophic and irreversible |
 | CTO | Advocate | MODERATE | Weighted by severity of strongest objection |
 | CISO | Skeptic | MODERATE | Weighted by severity of strongest objection |
 | VP Sales | Advocate | MODERATE | Weighted by severity of strongest objection |
@@ -181,14 +186,14 @@ As K + L grows, the marginal cost of additional synthesis passes approaches zero
 ### Worked Examples
 
 **Example 1: Two-mode comparison (Guardian vs Pioneer), Tier 3, full activation**
-- Domain analysis (once): 1 CEO framing + 8 C-suite + 29 team leads = 38 agent invocations
+- Domain analysis (once): 1 CEO framing + 9 C-suite + 33 team leads = 43 agent invocations
 - CEO synthesis (2x): 2 invocations
-- Total: 40 invocations vs. 39 for single-mode = 1.03x cost
+- Total: 45 invocations vs. 44 for single-mode = 1.02x cost
 
 **Example 2: All-modes comparison (5 modes), Tier 3, full activation**
-- Domain analysis (once): 1 CEO framing + 8 C-suite + 29 team leads = 38 agent invocations
+- Domain analysis (once): 1 CEO framing + 9 C-suite + 33 team leads = 43 agent invocations
 - CEO synthesis (5x): 5 invocations
-- Total: 43 invocations vs. 39 for single-mode = 1.10x cost
+- Total: 48 invocations vs. 44 for single-mode = 1.09x cost
 
 **Example 3: Two-mode comparison, Tier 2, partial activation (3 C-suite, ~12 team leads)**
 - Domain analysis (once): 1 CEO framing + 3 C-suite + 12 team leads = 16 agent invocations

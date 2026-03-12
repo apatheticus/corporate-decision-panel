@@ -6,7 +6,7 @@
 
 *How to set up a development environment and contribute to CDP.*
 
-*Version 1.7 · March 2026*
+*Version 1.9 · March 2026*
 
 </div>
 
@@ -66,24 +66,26 @@ corporate-decision-panel/
 │
 ├── agents/                              # Agent definitions
 │   ├── ceo.md                           # CEO orchestrator (Opus)
-│   ├── c-suite/                         # C-suite executives (Sonnet × 9)
+│   ├── c-suite/                         # C-suite executives (Sonnet × 10)
 │   │   ├── coo.md
 │   │   ├── cfo.md
 │   │   ├── cto.md
+│   │   ├── clo.md
 │   │   ├── ciso.md
 │   │   ├── cao.md
 │   │   ├── vp-sales.md
 │   │   ├── vp-delivery.md
 │   │   ├── cso.md
 │   │   └── cco.md
-│   └── team-leads/                      # Specialist agents (Haiku × 38, 34 analytical + 4 production)
+│   └── team-leads/                      # Specialist agents (Haiku × 42, 38 domain + 4 production)
 │       ├── coo/                         # 4 team leads
 │       ├── cfo/                         # 5 team leads
 │       ├── cto/                         # 4 team leads
 │       ├── ciso/                        # 4 team leads
 │       ├── vp-sales/                    # 4 team leads
 │       ├── vp-delivery/                 # 4 team leads
-│       ├── cao/                         # 4 team leads
+│       ├── cao/                         # 3 team leads
+│       ├── clo/                         # 5 team leads
 │       ├── cso/                         # 5 team leads
 │       └── cco/                         # 4 production team leads
 │
@@ -349,7 +351,7 @@ CDP is primarily a prompt-and-configuration system defined in Markdown files wit
 
 ### Preserving Engineered Dissent
 
-The 4-2-1-1-1 composition (4 skeptics, 2 advocates, 1 systemic, 1 investigative, 1 synthesizer) is the system's most important design decision. Any change that shifts the balance must be documented and justified. Pull requests that move the system toward uncritical consensus will not be merged.
+The 5-2-1-1-1-1 composition (5 skeptics, 2 advocates, 1 systemic, 1 investigative, 1 production, 1 synthesizer) is the system's most important design decision. Any change that shifts the balance must be documented and justified. Pull requests that move the system toward uncritical consensus will not be merged.
 
 ### Agent Definition Standards
 

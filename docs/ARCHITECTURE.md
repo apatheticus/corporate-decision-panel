@@ -6,7 +6,7 @@
 
 *How CDP works under the hood.*
 
-*Version 1.8 · March 2026*
+*Version 1.9 · March 2026*
 
 </div>
 
@@ -32,7 +32,7 @@
 
 ## Overview
 
-The Corporate Decision Panel (CDP) is an agent-based organizational reasoning engine built on the [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skill framework. It emulates an SMB executive committee by routing a business question through a structured hierarchy of 43 agents with engineered dissent -- producing a decision record that preserves where expert perspectives collide rather than averaging them away.
+The Corporate Decision Panel (CDP) is an agent-based organizational reasoning engine built on the [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skill framework. It emulates an SMB executive committee by routing a business question through a structured hierarchy of 53 agents with engineered dissent -- producing a decision record that preserves where expert perspectives collide rather than averaging them away.
 
 At the technical level, CDP is a prompt-and-configuration system. There is no traditional application code. The entire system is defined through:
 
@@ -52,8 +52,8 @@ flowchart TD
     User["User"]
     CMD["Slash Command\n(/cdp:consult, /cdp:panel,\n/cdp:deliberate, /cdp:evaluate,\n/cdp:production, /cdp:resume,\n/cdp:cleanup)"]
     CEO["CEO Agent\n(Opus)\nFrame → Route → Synthesize"]
-    CS["C-Suite Agents\n(Sonnet × 9)\nDomain Decomposition"]
-    TL["Team Lead Agents\n(Haiku × 34)\nSpecialist Analysis"]
+    CS["C-Suite Agents\n(Sonnet × 10)\nDomain Decomposition"]
+    TL["Team Lead Agents\n(Haiku × 38)\nSpecialist Analysis"]
     DR["Decision Record\n/ Panel Assessment\n/ Advisory Note"]
     PROD["Production Pipeline\n(5 artifact agents)"]
 
@@ -87,14 +87,15 @@ The CEO is the sole orchestrator and synthesizer. It frames the issue, routes to
 
 **Definition:** [`agents/ceo.md`](../agents/ceo.md)
 
-### Layer 2: C-Suite (Sonnet × 9)
+### Layer 2: C-Suite (Sonnet × 10)
 
-Nine domain executives, each dispatched as a teammate in a CEO-created division team. Analytical C-suite agents translate the CEO's framing into domain-specific sub-questions (written as sub-question files), and synthesize domain recommendations upward. The CEO creates all division teams and dispatches all agents. Each has a fixed perspective type (skeptic, advocate, systemic, investigative, or production) that governs how they interpret evidence.
+Ten domain executives, each dispatched as a teammate in a CEO-created division team. Analytical C-suite agents translate the CEO's framing into domain-specific sub-questions (written as sub-question files), and synthesize domain recommendations upward. The CEO creates all division teams and dispatches all agents. Each has a fixed perspective type (skeptic, advocate, systemic, investigative, or production) that governs how they interpret evidence.
 
 | Role | Disposition | Definition |
 |------|-------------|------------|
 | COO | Skeptic | [`agents/c-suite/coo.md`](../agents/c-suite/coo.md) |
 | CFO | Skeptic | [`agents/c-suite/cfo.md`](../agents/c-suite/cfo.md) |
+| CLO | Skeptic | [`agents/c-suite/clo.md`](../agents/c-suite/clo.md) |
 | CTO | Advocate | [`agents/c-suite/cto.md`](../agents/c-suite/cto.md) |
 | CISO | Skeptic | [`agents/c-suite/ciso.md`](../agents/c-suite/ciso.md) |
 | CAO | Systemic | [`agents/c-suite/cao.md`](../agents/c-suite/cao.md) |
@@ -103,7 +104,7 @@ Nine domain executives, each dispatched as a teammate in a CEO-created division 
 | CSO | Investigative | [`agents/c-suite/cso.md`](../agents/c-suite/cso.md) |
 | CCO | Production | [`agents/c-suite/cco.md`](../agents/c-suite/cco.md) |
 
-### Layer 3: Team Leads (Haiku × 34)
+### Layer 3: Team Leads (Haiku × 38)
 
 Narrow specialists spawned as teammates in CEO-created division teams. Each has a unique analytical framework, mandatory output template, and forcing questions. Team leads SendMessage findings to their C-suite parent only -- the CEO never sees raw team lead output.
 
@@ -114,10 +115,10 @@ Narrow specialists spawned as teammates in CEO-created division teams. Each has 
 | Layer | Default Model | Count | Purpose | Why This Model |
 |-------|---------------|-------|---------|----------------|
 | CEO | Opus | 1 | Cross-domain synthesis, weighting competing perspectives | Highest reasoning quality for the hardest analytical task |
-| C-Suite | Sonnet | 9 | Domain decomposition, team lead coordination, domain synthesis | Balances analytical capability with cost |
-| Team Leads | Haiku | 34 | Narrow specialist analysis within a single domain | Cost-efficient for focused tasks; model diversity improves system robustness |
+| C-Suite | Sonnet | 10 | Domain decomposition, team lead coordination, domain synthesis | Balances analytical capability with cost |
+| Team Leads | Haiku | 38 | Narrow specialist analysis within a single domain | Cost-efficient for focused tasks; model diversity improves system robustness |
 
-The three-model design is intentional. Using Opus for all 43 agents would be prohibitively expensive. Using Haiku for synthesis would sacrifice quality where it matters most. The tiering matches model capability to task complexity.
+The three-model design is intentional. Using Opus for all 53 agents would be prohibitively expensive. Using Haiku for synthesis would sacrifice quality where it matters most. The tiering matches model capability to task complexity.
 
 **Configurable model assignments:** Tier defaults and per-agent overrides are configurable via `.cdp-context/config.md` (Agent Models section). The orchestration protocol runs `scripts/apply_models.py` at session start, which reads the config and updates `model:` fields in `.claude/agents/` frontmatter. Resolution order: per-agent override > tier default > built-in default. This enables scenarios like promoting the CFO to Opus for financial decisions or running all team leads on Sonnet for higher-quality analysis.
 
@@ -129,13 +130,13 @@ The C-suite roster is deliberately skeptic-heavy to counterbalance the optimism 
 
 | Perspective Type | Count | Agents | Role |
 |-----------------|-------|--------|------|
-| **Skeptic** | 4 | COO, CFO, CISO, VP Delivery | Surface risks, costs, and constraints |
+| **Skeptic** | 5 | COO, CFO, CLO, CISO, VP Delivery | Surface risks, costs, and constraints |
 | **Advocate** | 2 | CTO, VP Sales | Champion opportunity and growth |
 | **Systemic** | 1 | CAO | Assess organizational absorption capacity |
 | **Investigative** | 1 | CSO | Produce evidence, not opinions |
 | **Synthesizer** | 1 | CEO | Weigh, judge, decide |
 
-This 4-2-1-1-1 composition is the system's core design decision. In a typical boardroom, optimism dominates because proposals are brought by their advocates. CDP inverts this: every proposal faces structured opposition by default.
+This 5-2-1-1-1-1 composition is the system's core design decision. In a typical boardroom, optimism dominates because proposals are brought by their advocates. CDP inverts this: every proposal faces structured opposition by default.
 
 ### Advocate Mitigation
 
@@ -143,7 +144,7 @@ Advocates (CTO, VP Sales) carry a mandatory mitigation requirement: they must na
 
 ### Why Not Equal Balance?
 
-Equal skeptic-advocate balance (4-4) would reproduce the false balance problem that CDP exists to solve. LLMs already tend toward agreeableness. A system that gives equal voice to optimism and caution will drift toward optimism because the model's base tendency amplifies the advocates' position. The skeptic-heavy roster is a structural correction.
+Equal skeptic-advocate balance (5-5) would reproduce the false balance problem that CDP exists to solve. LLMs already tend toward agreeableness. A system that gives equal voice to optimism and caution will drift toward optimism because the model's base tendency amplifies the advocates' position. The skeptic-heavy roster is a structural correction.
 
 ---
 
@@ -288,12 +289,12 @@ Default C-suite activation by decision type, full-activation threshold condition
 
 | Decision Type | Default Activation |
 |--------------|-------------------|
-| Strategic | CEO, CFO, CTO, VP Sales |
+| Strategic | CEO, CFO, CTO, CLO, VP Sales |
 | Operational | CEO, COO, VP Delivery |
 | Financial | CEO, CFO, COO |
 | Technical | CEO, CTO, CISO |
-| Personnel | CEO, CAO, COO, VP Delivery |
-| Compliance/Risk | CEO, CISO, CAO, CFO |
+| Personnel | CEO, CAO, COO, CLO, VP Delivery |
+| Compliance/Risk | CEO, CISO, CLO, CAO, CFO |
 
 The CEO can override defaults. Five threshold conditions trigger full activation (all C-suite) regardless of decision type: irreversibility, headcount impact >30%, market position change, existential financial risk, and domain uncertainty.
 
@@ -490,7 +491,7 @@ Three mandatory questions that force the agent to stress-test its own analysis:
 2. **Adversarial Empathy** -- "If you were the opposing stakeholder, what would concern you?"
 3. **Domain Devil's Advocate** -- "What would a forensic specialist find concerning?"
 
-14 of 34 team leads also have a fourth **Cross-Domain Challenge** question targeting high-interaction pairs (e.g., the Controller is paired with the Engineering Lead to challenge assumptions about CapEx vs. OpEx classification of engineering work).
+18 of 38 team leads also have a fourth **Cross-Domain Challenge** question targeting high-interaction pairs (e.g., the Controller is paired with the Engineering Lead to challenge assumptions about CapEx vs. OpEx classification of engineering work).
 
 ### Blind Spots
 
@@ -517,7 +518,7 @@ Adding a C-suite role changes the dissent balance and requires careful considera
 
 1. Create the agent definition in `agents/c-suite/`
 2. Assign a perspective type (skeptic, advocate, systemic, investigative)
-3. Document how the new role preserves or improves the 4-2-1-1-1 balance
+3. Document how the new role preserves or improves the 5-2-1-1-1-1 balance
 4. Update the [routing table](../config/routing-table.md) with activation rules
 5. Create the team lead subdirectory in `agents/team-leads/`
 
@@ -547,7 +548,7 @@ These principles govern CDP's architecture and should guide all extensions:
 
 1. **SMB-first bias.** Defaults to lightweight engagement. Most SMB decisions are fast, informal, and made by one or two people. Tier 1 is the daily habit; Tier 3 is the deliberate escalation. Default cell: Tier 1 + Analyst.
 
-2. **Engineered dissent.** 4 skeptics, 2 advocates, 1 systemic, 1 investigative. Skeptic-heavy to counterbalance human optimism bias. Disagreement is signal, not noise.
+2. **Engineered dissent.** 5 skeptics, 2 advocates, 1 systemic, 1 investigative. Skeptic-heavy to counterbalance human optimism bias. Disagreement is signal, not noise.
 
 3. **Transparent routing.** Every activation and exclusion decision comes with explicit reasoning. The CEO states who is in, who is out, and why. Routing is an analytical act, not a mechanical lookup.
 

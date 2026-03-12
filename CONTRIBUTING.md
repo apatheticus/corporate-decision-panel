@@ -39,7 +39,7 @@ Thank you for your interest in contributing. This project is a **Claude Code age
 
 The panel's value comes from its balance of perspectives. The current composition is intentional:
 
-- **4 Skeptic** — CFO, CISO, COO, VP Delivery
+- **5 Skeptic** — CFO, CLO, CISO, COO, VP Delivery
 - **2 Advocate** — CTO, VP Sales
 - **1 Systemic** — CAO
 - **1 Investigative** — CSO

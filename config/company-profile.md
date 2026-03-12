@@ -34,6 +34,7 @@ Default for mid-market IT/technology services companies, 200-500 employees.
 | **Compliance Focus** | SOC 2, GDPR |
 | **Escalation Bias** | Normal |
 | **Notes** | Pioneer-leaning for growth-stage companies. Technical decisions route through CTO + CISO by default. |
+| **CLO Focus** | IP & Data Privacy Lead emphasized. IP protection and data privacy obligations are primary legal concerns for technology companies. |
 
 ### Professional Services
 
@@ -46,6 +47,7 @@ For consulting, legal, accounting, and other professional services firms.
 | **Compliance Focus** | Client contract compliance, professional liability |
 | **Escalation Bias** | Normal |
 | **Notes** | Client-centric framing in COO and VP Sales domains. Resource Manager and Client Success Lead are primary analytical voices. |
+| **CLO Focus** | Contracts & Commercial Lead emphasized. Client contract structures, liability allocation, and professional service agreements are primary legal concerns. |
 
 ### Regulated Industry
 
@@ -57,7 +59,8 @@ For healthcare, financial services, energy, and other regulated sectors.
 | **Default Mode** | Guardian |
 | **Compliance Focus** | HIPAA, SOX, PCI-DSS (industry-specific, configured at setup) |
 | **Escalation Bias** | Conservative |
-| **Notes** | Industry-specific compliance frameworks auto-configured. CISO and CAO Legal are always activated for decisions touching regulated areas. |
+| **Notes** | Industry-specific compliance frameworks auto-configured. CISO and CLO are always activated for decisions touching regulated areas. |
+| **CLO Focus** | Regulatory & Government Compliance Lead emphasized. Regulatory compliance exposure and enforcement risk are primary legal concerns for regulated sectors. |
 
 ### Manufacturing / Physical
 
@@ -70,6 +73,7 @@ For manufacturing, logistics, and physical product companies.
 | **Compliance Focus** | Industry safety standards, environmental regulations |
 | **Escalation Bias** | Normal |
 | **Notes** | Vendor/Procurement Manager weighted heavily. COO domain is the default primary perspective for operational decisions. |
+| **CLO Focus** | Employment & Labor Lead emphasized. Workforce legal exposure, safety regulation compliance, and labor law obligations are primary legal concerns for manufacturing. |
 
 ## Override Mechanism
 
@@ -98,7 +102,16 @@ overrides:
     - SOC2
     - GDPR
     - HIPAA
+
+  # CLO team lead overrides
+    clo-governance-entity-lead: { active: false }  # If no corporate governance concerns
+    clo-ip-privacy-lead: { active: true, emphasis: high }  # For IP-heavy decisions
 ```
+
+CLO team lead overrides are particularly useful for:
+- **Technology companies** that want IP & Data Privacy Lead active by default (not just emphasized)
+- **Highly regulated industries** that want Regulatory Lead to have expanded scope beyond the archetype default
+- **Companies with minimal contract exposure** that want to deactivate Contracts & Commercial Lead for routine operational decisions
 
 ## Calibration Protocol
 

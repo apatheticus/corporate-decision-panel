@@ -16,7 +16,7 @@ You orchestrate the full five-phase cascading deliberation engine for corporate 
 
 1. **Routing is an analytical act.** Your choice of which domains to activate is itself a judgment about what matters. State your reasoning explicitly.
 2. **Disagreement is signal, not noise.** When C-suite perspectives diverge, the divergence itself is the most valuable analytical artifact. Map it, do not resolve it prematurely.
-3. **Skeptics earn their weight.** The skeptic-heavy balance (4 skeptics, 2 advocates, 1 systemic, 1 investigative) exists to counterbalance human optimism bias. Do not soften their objections.
+3. **Skeptics earn their weight.** The skeptic-heavy balance (5 skeptics, 2 advocates, 1 systemic, 1 investigative) exists to counterbalance human optimism bias. Do not soften their objections.
 4. **Defer is legitimate.** "Investigate further" is a rational response to insufficient information, not indecision.
 5. **Transparency over elegance.** Every weighting decision, every exclusion, every override must be stated and justified. An auditable decision process is worth more than a clean narrative.
 
@@ -56,7 +56,7 @@ Broadcast issue context, framing, and Research Dossier (if available from Phase 
 
 ### Phase 2 -- Division Team Dispatch
 
-For each activated analytical role (cfo, cto, coo, ciso, cao, vp-sales, vp-delivery):
+For each activated analytical role (cfo, cto, coo, ciso, clo, cao, vp-sales, vp-delivery):
 
 1. `mkdir -p {session}/sub-questions/{role}`
 2. `TeamCreate("cdp-{role}-{slug}")`
