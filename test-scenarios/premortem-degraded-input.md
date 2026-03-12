@@ -59,7 +59,7 @@ The following operational definitions establish what "missing" and "partial" mea
 
 ## Pre-Conditions
 
-- Tier 3 invocation with full C-suite activation (8 agents)
+- Tier 3 invocation with full C-suite activation (9 agents)
 - All agents successfully spawned and received Phase 0 broadcast
 - COO agent reached maxTurns limit before producing domain recommendation
 - VP Delivery agent produced a domain recommendation with incomplete fields

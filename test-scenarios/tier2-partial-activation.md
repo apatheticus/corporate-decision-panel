@@ -83,7 +83,7 @@
 
 | Violation | What Would Happen | How to Detect |
 |-----------|-------------------|---------------|
-| Full-activation overrides user's Tier 2 role selection | All 8 C-suite agents activate for a decision the user wanted analyzed by only 2 domains. User's explicit intent is ignored. Costs ~4x more in agent turns. | More than 2 C-suite agent spawns in Agent Team. Panel Assessment shows domains the user did not request. |
+| Full-activation overrides user's Tier 2 role selection | All 9 C-suite agents activate for a decision the user wanted analyzed by only 2 domains. User's explicit intent is ignored. Costs ~4x more in agent turns. | More than 2 C-suite agent spawns in Agent Team. Panel Assessment shows domains the user did not request. |
 | Threshold evaluation skipped at Tier 2 | CEO does not assess thresholds because "they don't apply at Tier 2." User never learns that the decision warrants broader analysis. The escalation safety net is lost. | No threshold assessment section in CEO framing output. No Escalation Note in Panel Assessment despite clearly triggerable thresholds. |
 | Escalation Note omits threshold rationale | CEO recommends escalation but without citing specific triggered thresholds. User cannot evaluate whether escalation is warranted or routine. | Escalation Note present but rationale is generic ("this issue is complex") rather than citing specific threshold conditions. |
 

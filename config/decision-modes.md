@@ -186,14 +186,14 @@ As K + L grows, the marginal cost of additional synthesis passes approaches zero
 ### Worked Examples
 
 **Example 1: Two-mode comparison (Guardian vs Pioneer), Tier 3, full activation**
-- Domain analysis (once): 1 CEO framing + 8 C-suite + 29 team leads = 38 agent invocations
+- Domain analysis (once): 1 CEO framing + 9 C-suite + 33 team leads = 43 agent invocations
 - CEO synthesis (2x): 2 invocations
-- Total: 40 invocations vs. 39 for single-mode = 1.03x cost
+- Total: 45 invocations vs. 44 for single-mode = 1.02x cost
 
 **Example 2: All-modes comparison (5 modes), Tier 3, full activation**
-- Domain analysis (once): 1 CEO framing + 8 C-suite + 29 team leads = 38 agent invocations
+- Domain analysis (once): 1 CEO framing + 9 C-suite + 33 team leads = 43 agent invocations
 - CEO synthesis (5x): 5 invocations
-- Total: 43 invocations vs. 39 for single-mode = 1.10x cost
+- Total: 48 invocations vs. 44 for single-mode = 1.09x cost
 
 **Example 3: Two-mode comparison, Tier 2, partial activation (3 C-suite, ~12 team leads)**
 - Domain analysis (once): 1 CEO framing + 3 C-suite + 12 team leads = 16 agent invocations
