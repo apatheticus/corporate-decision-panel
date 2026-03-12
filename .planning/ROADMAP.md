@@ -57,7 +57,7 @@
 - Integer phases (16, 17, 18, 19): Planned milestone work
 - Decimal phases (16.1, 16.2): Urgent insertions (marked with INSERTED)
 
-- [ ] **Phase 16: CLO Foundation** - Create CLO C-suite agent and 5 specialist team lead definitions
+- [x] **Phase 16: CLO Foundation** - Create CLO C-suite agent and 5 specialist team lead definitions (completed 2026-03-12)
 - [ ] **Phase 17: Configuration** - Wire CLO into routing table, decision modes, company profiles, and orchestration protocol
 - [ ] **Phase 18: Agent Cross-Wiring** - CAO roster reduction, CEO dispatch updates, and 22-file reference sweep
 - [ ] **Phase 19: Documentation** - Update SKILL.md, README.md, and all documentation counts
@@ -77,8 +77,8 @@
 **Plans**: 2 plans
 
 Plans:
-- [ ] 16-01-PLAN.md -- CLO C-suite agent definition (Skeptic disposition, 3 modes, reverse-advocate, activation table)
-- [ ] 16-02-PLAN.md -- 5 CLO team lead definitions (governance, contracts, regulatory, employment, ip-privacy)
+- [x] 16-01-PLAN.md -- CLO C-suite agent definition (Skeptic disposition, 3 modes, reverse-advocate, activation table)
+- [x] 16-02-PLAN.md -- 5 CLO team lead definitions (governance, contracts, regulatory, employment, ip-privacy)
 
 ### Phase 17: Configuration
 **Goal**: The CEO's routing, mode weighting, and company profile logic activates and weights the CLO correctly for all decision types and modes
@@ -146,7 +146,7 @@ Phases execute in numeric order: 16 -> 16.1 (if any) -> 17 -> 18 -> 19
 | 13. Documentation | v1.4 | 1/1 | Complete | 2026-03-09 |
 | 14. Directory Restructuring | v1.8 | 2/2 | Complete | 2026-03-10 |
 | 15. Path Resolution and Bundle | v1.8 | 2/2 | Complete | 2026-03-10 |
-| 16. CLO Foundation | 1/2 | In Progress|  | - |
+| 16. CLO Foundation | v1.9 | 2/2 | Complete | 2026-03-12 |
 | 17. Configuration | v1.9 | 0/? | Not started | - |
 | 18. Agent Cross-Wiring | v1.9 | 0/? | Not started | - |
 | 19. Documentation | v1.9 | 0/? | Not started | - |
