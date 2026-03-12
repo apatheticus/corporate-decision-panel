@@ -90,11 +90,11 @@ Plans:
   3. CLO weighting row exists in all 5 decision mode tables in `config/decision-modes.md` with correct Skeptic pattern (HIGH/LOW/MODERATE/Confidence/HIGH)
   4. Company profile archetypes in `config/company-profile.md` include CLO-specific team lead activation (Tech/SaaS: IP/Privacy; Professional Services: Contracts; Regulated: Regulatory; Manufacturing: Employment) with override mechanism documented
   5. Engineered dissent balance updated to 5 skeptics / 2 advocates / 1 systemic / 1 investigative / 1 synthesizer in orchestration protocol, and Phase 0 Shared Consciousness Broadcast includes CLO
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 17-01: TBD
-- [ ] 17-02: TBD
+- [ ] 17-01-PLAN.md -- Routing table defaults, full-activation verification, CSO-CLO interaction, and 5 decision mode weighting tables
+- [ ] 17-02-PLAN.md -- Company profile archetype CLO activation, override mechanism, orchestration roster, and dissent balance
 
 ### Phase 18: Agent Cross-Wiring
 **Goal**: The CAO no longer references a Legal/Contracts Lead, the CEO dispatches the CLO, and every file in the codebase that referenced the old CAO Legal/Contracts Lead now references the correct CLO equivalent
@@ -146,11 +146,11 @@ Phases execute in numeric order: 16 -> 16.1 (if any) -> 17 -> 18 -> 19
 | 13. Documentation | v1.4 | 1/1 | Complete | 2026-03-09 |
 | 14. Directory Restructuring | v1.8 | 2/2 | Complete | 2026-03-10 |
 | 15. Path Resolution and Bundle | v1.8 | 2/2 | Complete | 2026-03-10 |
-| 16. CLO Foundation | v1.9 | 2/2 | Complete | 2026-03-12 |
-| 17. Configuration | v1.9 | 0/? | Not started | - |
+| 16. CLO Foundation | v1.9 | Complete    | 2026-03-12 | 2026-03-12 |
+| 17. Configuration | v1.9 | 0/2 | Not started | - |
 | 18. Agent Cross-Wiring | v1.9 | 0/? | Not started | - |
 | 19. Documentation | v1.9 | 0/? | Not started | - |
 
 ---
 *Roadmap created: 2026-02-22*
-*Last updated: 2026-03-12 -- Phase 16 plans created (2 plans)*
+*Last updated: 2026-03-12 -- Phase 17 plans created (2 plans)*
