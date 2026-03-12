@@ -105,11 +105,11 @@ Plans:
   2. `agents/ceo.md` enumerates CLO in Phase 2 dispatch and includes CLO in skeptic group lists for all 5 decision mode sections, matching the weighting in `config/decision-modes.md`
   3. A grep for "legal.contracts", "cao.*legal", and "legal/contracts" across all agent, config, test-scenario, and docs markdown files returns zero stale hits (the 22-file blast radius is fully resolved)
   4. VP Sales Business Development Lead cross-domain challenge is re-wired from CAO Legal/Contracts Lead to CLO Contracts & Commercial Lead
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 18-01: TBD
-- [ ] 18-02: TBD
+- [ ] 18-01-PLAN.md -- Delete CAO Legal/Contracts Lead, update CAO agent (7 refs + identity + count), update CEO dispatch and skeptic count
+- [ ] 18-02-PLAN.md -- Codebase-wide reference sweep: VP Sales re-wiring, orchestration protocol, config, test scenarios, CAO sibling peers
 
 ### Phase 19: Documentation
 **Goal**: All user-facing documentation accurately reflects the 10 C-suite / 38 team lead roster with CLO present and CAO Legal/Contracts absent
@@ -148,9 +148,9 @@ Phases execute in numeric order: 16 -> 16.1 (if any) -> 17 -> 18 -> 19
 | 15. Path Resolution and Bundle | v1.8 | 2/2 | Complete | 2026-03-10 |
 | 16. CLO Foundation | v1.9 | 2/2 | Complete | 2026-03-12 |
 | 17. Configuration | v1.9 | Complete    | 2026-03-12 | 2026-03-12 |
-| 18. Agent Cross-Wiring | v1.9 | 0/? | Not started | - |
+| 18. Agent Cross-Wiring | v1.9 | 0/2 | Not started | - |
 | 19. Documentation | v1.9 | 0/? | Not started | - |
 
 ---
 *Roadmap created: 2026-02-22*
-*Last updated: 2026-03-12 -- Phase 17 plans created (2 plans)*
+*Last updated: 2026-03-12 -- Phase 18 plans created (2 plans)*

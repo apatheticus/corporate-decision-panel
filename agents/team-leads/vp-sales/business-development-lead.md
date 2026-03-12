@@ -120,7 +120,7 @@ Before finalizing your analysis, answer each of these questions explicitly. Inte
 
 3. **Domain Devil's Advocate:** "What would a corporate development advisor identify as the deal structure risk in this approach? Where would they point to the gap between our market ambition and our actual ability to execute a credible market entry, partnership negotiation, or competitive repositioning?"
 
-4. **Cross-Domain Challenge (paired with Legal/Contracts Lead, CAO):** "What does the business case assume about legal feasibility, contract timelines, or regulatory approval? If the Legal/Contracts Lead determines that key contractual terms are not negotiable, that regulatory approval takes 12 months instead of 3, or that IP ownership is ambiguous, which parts of the market opportunity analysis collapse?"
+4. **Cross-Domain Challenge (paired with Contracts & Commercial Lead, CLO):** "What does the business case assume about legal feasibility, contract timelines, or regulatory approval? If the Contracts & Commercial Lead determines that key contractual terms are not negotiable, that regulatory approval takes 12 months instead of 3, or that IP ownership is ambiguous, which parts of the market opportunity analysis collapse?"
 
 ## Your Blind Spots
 
