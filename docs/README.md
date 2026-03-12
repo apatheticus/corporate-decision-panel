@@ -261,7 +261,7 @@ Multi-mode produces a **Comparative Decision Record** with shared analysis, per-
 
 ### Available Roles
 
-`ceo` `coo` `cfo` `cto` `ciso` `cao` `vp-sales` `vp-delivery` `cso`
+`ceo` `coo` `cfo` `clo` `cto` `ciso` `cao` `vp-sales` `vp-delivery` `cso`
 
 ---
 
@@ -338,6 +338,7 @@ flowchart TD
 
     COO["COO\nSkeptic"]
     CFO["CFO\nSkeptic"]
+    CLO["CLO\nSkeptic"]
     CTO["CTO\nAdvocate"]
     CISO["CISO\nSkeptic"]
     CAO["CAO\nSystemic"]
@@ -345,14 +346,15 @@ flowchart TD
     VPD["VP Delivery\nSkeptic"]
     CSO["CSO\nInvestigative"]
 
-    CEO --> COO & CFO & CTO & CISO
+    CEO --> COO & CFO & CLO & CTO & CISO
     CEO --> CAO & VPS & VPD & CSO
 
     COO --> COO_TL["Operations Mgr\nProcess/Quality\nVendor/Procurement\nFacilities*"]
     CFO --> CFO_TL["Controller\nFP&A\nTreasury/Cash\nAP/AR Mgr\nTax Lead"]
+    CLO --> CLO_TL["Corporate Governance & Entity\nContracts & Commercial\nRegulatory & Government Compliance\nEmployment & Labor Law\nIP & Data Privacy"]
     CTO --> CTO_TL["Engineering\nInfra/DevOps\nData/Analytics\nProduct/UX"]
     CISO --> CISO_TL["Security Ops\nCompliance/GRC\nIdentity & Access\nSecurity Architecture"]
-    CAO --> CAO_TL["HR/People Ops\nLegal/Contracts\nAdmin/Policy\nCorporate Comms"]
+    CAO --> CAO_TL["HR/People Ops\nAdmin/Policy\nCorporate Comms"]
     VPS --> VPS_TL["Sales Ops\nAccount Mgmt\nBusiness Dev\nSales Enablement"]
     VPD --> VPD_TL["Project/Program Mgr\nResource Mgr\nClient Success\nQA/Delivery Standards"]
     CSO --> CSO_TL["Market Intel\nCompetitive Intel\nTech Scout\nIndustry/Regulatory\nPrecedent/Patterns"]
@@ -360,6 +362,7 @@ flowchart TD
     style CEO fill:#6a1b9a,color:#fff
     style COO fill:#c62828,color:#fff
     style CFO fill:#c62828,color:#fff
+    style CLO fill:#c62828,color:#fff
     style CISO fill:#c62828,color:#fff
     style VPD fill:#c62828,color:#fff
     style CTO fill:#2e7d32,color:#fff
@@ -369,6 +372,7 @@ flowchart TD
 
     style COO_TL fill:#ffebee,stroke:#c62828,color:#1a1a1a
     style CFO_TL fill:#ffebee,stroke:#c62828,color:#1a1a1a
+    style CLO_TL fill:#ffebee,stroke:#c62828,color:#1a1a1a
     style CISO_TL fill:#ffebee,stroke:#c62828,color:#1a1a1a
     style VPD_TL fill:#ffebee,stroke:#c62828,color:#1a1a1a
     style CTO_TL fill:#e8f5e9,stroke:#2e7d32,color:#1a1a1a
@@ -384,8 +388,8 @@ flowchart TD
 | Layer | Default Model | Rationale |
 |-------|---------------|-----------|
 | CEO | Opus | Cross-domain synthesis. Highest reasoning quality for weighting competing perspectives. |
-| C-Suite (8 agents) | Sonnet | Domain decomposition and synthesis. Balances capability with cost. |
-| Team Leads (34 agents) | Haiku | Narrow specialist analysis. Cost-efficient. Model diversity improves system robustness. |
+| C-Suite (9 agents) | Sonnet | Domain decomposition and synthesis. Balances capability with cost. |
+| Team Leads (38 agents) | Haiku | Narrow specialist analysis. Cost-efficient. Model diversity improves system robustness. |
 
 Model assignments are configurable via `.cdp-context/config.md` (Agent Models section). Set tier-wide defaults or per-agent overrides -- e.g., promote the CFO to Opus or run team leads on Sonnet. Changes take effect at session start when `scripts/apply_models.py` updates `.claude/agents/` frontmatter.
 
@@ -393,7 +397,7 @@ Model assignments are configurable via `.cdp-context/config.md` (Agent Models se
 
 The roster is deliberately skeptic-heavy to counterbalance the optimism bias that both humans and LLMs exhibit:
 
-- **4 Skeptics** (COO, CFO, CISO, VP Delivery) -- surface risks, costs, and constraints
+- **5 Skeptics** (COO, CFO, CLO, CISO, VP Delivery) -- surface risks, costs, and constraints
 - **2 Advocates** (CTO, VP Sales) -- champion opportunity and growth
 - **1 Systemic** (CAO) -- assess organizational absorption capacity
 - **1 Investigative** (CSO) -- produce evidence, not opinions
@@ -408,6 +412,7 @@ Advocates carry a mandatory mitigation: they must name the strongest objection t
 | CEO | Synthesizer | Frame, listen, weigh, decide. Value is judgment. |
 | COO | Skeptic | "Can we actually do this with the people and processes we have?" |
 | CFO | Skeptic | "Find the costs that aren't in the proposal." |
+| CLO | Skeptic | "What is the legal exposure?" |
 | CTO | Advocate | "What does this make possible that wasn't possible before?" |
 | CISO | Skeptic | "Change introduces risk. You are the organization's immune system." |
 | CAO | Systemic | "Can the organization -- people, policies, culture -- absorb this?" |
@@ -417,19 +422,20 @@ Advocates carry a mandatory mitigation: they must name the strongest objection t
 
 ### Team Lead Roster
 
-Each team lead has a unique analytical framework, mandatory output template, three forcing questions, and restricted tool access (Read, Grep, Glob, WebSearch only). 14 of 34 have a fourth Cross-Domain Challenge question targeting high-interaction pairs.
+Each team lead has a unique analytical framework, mandatory output template, three forcing questions, and restricted tool access (Read, Grep, Glob, WebSearch only). 18 of 38 have a fourth Cross-Domain Challenge question targeting high-interaction pairs.
 
 | C-Suite Parent | Team Leads | Count |
 |----------------|------------|-------|
 | COO | Operations Mgr, Process/Quality Lead, Vendor/Procurement Mgr, Facilities/Office Mgr* | 4 |
 | CFO | Controller, Head of FP&A, Treasury/Cash Mgr, AP/AR Mgr, Tax Lead | 5 |
 | CTO | Engineering Lead, Infrastructure/DevOps Lead, Data/Analytics Lead, Product/UX Lead | 4 |
+| CLO | Corporate Governance & Entity Lead, Contracts & Commercial Lead, Regulatory & Government Compliance Lead, Employment & Labor Law Lead, IP & Data Privacy Lead | 5 |
 | CISO | Security Ops Lead, Compliance/GRC Lead, Identity & Access Lead, Security Architecture Lead | 4 |
 | VP Sales | Sales Ops Lead, Account Mgmt Lead, Business Dev Lead, Sales Enablement Lead | 4 |
 | VP Delivery | Project/Program Mgr, Resource Mgr, Client Success Lead, QA/Delivery Standards Lead | 4 |
-| CAO | HR/People Ops Lead, Legal/Contracts Lead, Admin/Policy Lead, Corporate Comms Lead | 4 |
+| CAO | HR/People Ops Lead, Admin/Policy Lead, Corporate Comms Lead | 3 |
 | CSO | Market Intel Lead, Competitive Intel Lead, Technology Scout Lead, Industry/Regulatory Analyst, Precedent/Patterns Analyst | 5 |
-| **Total** | | **34** |
+| **Total** | | **38** |
 
 ### Five-Phase Cascade
 
@@ -505,7 +511,7 @@ Archetype presets define roster modifications, default mode, compliance focus, a
 |-----------|-------------|------------------|-----------------|-------------------|
 | **Technology / SaaS** (default) | Analyst | SOC 2, GDPR | Normal | Facilities inactive, Product/UX active |
 | **Professional Services** | Architect | Client contracts, professional liability | Normal | All active, VP Delivery weighted heavily |
-| **Regulated Industry** | Guardian | HIPAA, SOX, PCI-DSS (auto-configured) | Conservative | Compliance/GRC expanded, CISO + CAO Legal always active |
+| **Regulated Industry** | Guardian | HIPAA, SOX, PCI-DSS (auto-configured) | Conservative | Compliance/GRC expanded, CISO + CLO always active |
 | **Manufacturing / Physical** | Analyst | Safety standards, environmental | Normal | Facilities active, Vendor/Procurement weighted |
 
 **Override mechanism:** Select an archetype during setup, then override individual settings:
@@ -645,12 +651,12 @@ Default C-suite activation by decision type:
 
 | Decision Type | Default Activation | Description |
 |--------------|-------------------|-------------|
-| Strategic | CEO, CFO, CTO, VP Sales | Acquisition, market strategy, competitive positioning |
+| Strategic | CEO, CFO, CTO, CLO, VP Sales | Acquisition, market strategy, competitive positioning |
 | Operational | CEO, COO, VP Delivery | Process change, workflow restructuring, org restructure |
 | Financial | CEO, CFO, COO | Funding, major investment, cost reduction |
 | Technical | CEO, CTO, CISO | Platform migration, architecture, technology adoption |
-| Personnel | CEO, CAO, COO, VP Delivery | Layoff, major hiring, reorganization |
-| Compliance/Risk | CEO, CISO, CAO, CFO | Regulatory change, breach response, audit |
+| Personnel | CEO, CAO, COO, CLO, VP Delivery | Layoff, major hiring, reorganization |
+| Compliance/Risk | CEO, CISO, CLO, CAO, CFO | Regulatory change, breach response, audit |
 
 The CEO can always override defaults by adding or removing C-suite members.
 
@@ -797,9 +803,9 @@ corporate-decision-panel/               # Clone to .claude/skills/corporate-deci
 ├── agents/                             # Agent definitions (copied to .claude/agents/ on setup)
 │   ├── ceo.md
 │   ├── c-suite/
-│   │   └── ... (9 agents, including CCO)
+│   │   └── ... (10 agents, including CCO)
 │   └── team-leads/
-│       └── ... (38 agents across 9 domains: 34 analytical + 4 production)
+│       └── ... (42 agents across 10 domains: 38 domain + 4 production)
 ├── commands/                           # Slash commands (copied to .claude/commands/ on setup)
 │   └── cdp/
 │       ├── consult.md, panel.md
@@ -855,7 +861,7 @@ corporate-decision-panel/               # Clone to .claude/skills/corporate-deci
 ## Design Principles
 
 - **SMB-first bias.** Defaults to lightweight engagement. Most SMB decisions are fast, informal, and made by one or two people. Tier 1 is the daily habit; Tier 3 is the deliberate escalation. Default cell: Tier 1 + Analyst.
-- **Engineered dissent.** 4 skeptics, 2 advocates, 1 systemic, 1 investigative. Skeptic-heavy to counterbalance human optimism bias. Disagreement is signal, not noise.
+- **Engineered dissent.** 5 skeptics, 2 advocates, 1 systemic, 1 investigative. Skeptic-heavy to counterbalance human optimism bias. Disagreement is signal, not noise.
 - **Transparent routing.** Every activation and exclusion decision comes with explicit reasoning. The CEO states who is in, who is out, and why.
 - **Fault lines as primary signal.** Where perspectives collide is the most valuable output. The Decision Record preserves disagreement at full strength rather than averaging it away.
 - **Mode-independent domain analysis.** Domain analysis runs once regardless of synthesis mode. Modes change how the CEO weighs evidence, not what evidence is gathered.
