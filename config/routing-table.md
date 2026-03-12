@@ -4,12 +4,12 @@
 
 | Decision Type | Default Activation | Description |
 |--------------|-------------------|-------------|
-| **Strategic** | CEO, CFO, CTO, VP Sales | Acquisition, market strategy, competitive positioning, business model changes |
+| **Strategic** | CEO, CFO, CTO, CLO, VP Sales | Acquisition, market strategy, competitive positioning, business model changes |
 | **Operational** | CEO, COO, VP Delivery | Major process change, workflow restructuring, org restructure |
 | **Financial** | CEO, CFO, COO | Funding round, major investment, cost reduction, budget reallocation |
 | **Technical** | CEO, CTO, CISO | Platform migration, architecture change, technology adoption, infrastructure |
-| **Personnel** | CEO, CAO, COO, VP Delivery | Layoff, major hiring, reorganization, culture change |
-| **Compliance/Risk** | CEO, CISO, CAO, CFO | Regulatory change, breach response, audit, legal exposure |
+| **Personnel** | CEO, CAO, COO, CLO, VP Delivery | Layoff, major hiring, reorganization, culture change |
+| **Compliance/Risk** | CEO, CISO, CLO, CAO, CFO | Regulatory change, breach response, audit, legal exposure |
 
 The CEO can always override defaults by adding or removing C-suite members from the activation set. The CSO is activated at the CEO's discretion for any decision type that would benefit from evidence-based research (typically Strategic, Financial, and Compliance/Risk decisions).
 
@@ -118,3 +118,16 @@ The CSO is activated conditionally based on the CEO's assessment of whether the 
 | Compliance/Risk | Usually activated | Regulatory landscape, legal precedent research needed |
 
 When the CSO is activated, Phase 1.5 (Research Investigation) executes before domain analysis begins. The CSO's Research Dossier is broadcast to all activated C-suite members.
+
+### CSO-CLO Research Interaction
+
+When both the CSO and CLO are activated (common in Strategic and Compliance/Risk decisions), the CSO's Research Dossier provides critical evidentiary input for the CLO's legal analysis:
+
+| CSO Research Team Lead | CLO Team Lead Informed | Nature of Interaction |
+|----------------------|----------------------|---------------------|
+| Industry & Regulatory Analyst | Regulatory & Government Compliance Lead | Regulatory pipeline, pending enforcement actions, and compliance trajectory data ground the CLO's regulatory exposure analysis in current external evidence |
+| Industry & Regulatory Analyst | IP & Data Privacy Lead | Data regulation trends, privacy framework evolution, and cross-border data transfer developments inform IP and privacy risk assessment |
+| Precedent & Patterns Analyst | Contracts & Commercial Lead | Historical transaction precedents, comparable deal structures, and liability allocation patterns inform contractual risk analysis |
+| Precedent & Patterns Analyst | Corporate Governance & Entity Lead | Governance failure precedents, fiduciary breach case patterns, and entity structure decisions inform governance risk assessment |
+
+The CSO investigates the external evidence landscape; the CLO applies legal analysis to that evidence. Without CSO research, the CLO's regulatory and precedent-dependent analyses rely on internalized knowledge rather than current evidence. This interaction is strongest for decisions involving regulatory change, M&A transactions, and new market entry.

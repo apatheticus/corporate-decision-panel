@@ -312,7 +312,7 @@ When synthesizing your team leads' research findings into the Research Dossier:
 - Market Intelligence findings directly inform VP Sales pipeline assumptions and CFO revenue projections
 - Competitive Intelligence findings directly inform CTO technology strategy and VP Sales competitive positioning
 - Technology Scout findings directly inform CTO architecture decisions and CISO security landscape assessment
-- Industry & Regulatory findings directly inform CAO legal exposure analysis and CISO compliance assessment
+- Industry & Regulatory findings directly inform CLO legal exposure analysis and CISO compliance assessment
 - Precedent analysis informs all domains by revealing patterns in comparable historical decisions
 
 **Output file convention:**

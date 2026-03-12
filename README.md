@@ -14,7 +14,7 @@ Present any business issue and receive structured, multi-perspective analysis wi
 
 <br>
 
-*Version 1.7 · March 2026*
+*Version 1.9 · March 2026*
 
 </div>
 
@@ -208,7 +208,7 @@ Both humans and large language models exhibit optimism bias. Left to its own dev
 
 The C-suite roster consists of:
 
-- **4 Skeptics** (COO, CFO, CISO, VP Delivery) -- surface risks, costs, and constraints
+- **5 Skeptics** (COO, CFO, CLO, CISO, VP Delivery) -- surface risks, costs, and constraints
 - **2 Advocates** (CTO, VP Sales) -- champion opportunity and growth
 - **1 Systemic** (CAO) -- assess organizational absorption capacity
 - **1 Investigative** (CSO) -- produce evidence, not opinions
@@ -273,7 +273,7 @@ The real payoff is **Mode Sensitivity**: if all five modes produce the same deci
 
 CDP deliberately uses three different model tiers (Opus, Sonnet, Haiku) across its hierarchy. This isn't just a cost optimization -- it's a robustness strategy. If a single model has systematic biases or blind spots, distributing reasoning across model families reduces the chance that one model's weakness becomes the system's weakness.
 
-Opus handles cross-domain synthesis where reasoning quality is paramount. Sonnet handles domain decomposition where capability and cost must balance. Haiku handles narrow specialist analysis where volume and parallelism matter most. Each model tier is matched to the cognitive demands of its role -- you wouldn't use Opus for 34 parallel team lead analyses (expensive and unnecessary), and you wouldn't use Haiku for the CEO's final synthesis (insufficient reasoning depth).
+Opus handles cross-domain synthesis where reasoning quality is paramount. Sonnet handles domain decomposition where capability and cost must balance. Haiku handles narrow specialist analysis where volume and parallelism matter most. Each model tier is matched to the cognitive demands of its role -- you wouldn't use Opus for 38 parallel team lead analyses (expensive and unnecessary), and you wouldn't use Haiku for the CEO's final synthesis (insufficient reasoning depth).
 
 ---
 
@@ -735,13 +735,14 @@ Multi-mode produces a **Comparative Decision Record** with shared analysis, per-
 
 ### Available Roles
 
-`ceo` `coo` `cfo` `cto` `ciso` `cao` `vp-sales` `vp-delivery` `cso`
+`ceo` `coo` `cfo` `clo` `cto` `ciso` `cao` `vp-sales` `vp-delivery` `cso`
 
 Domain shorthands for `/cdp:panel` (for convenience when specifying roles):
 
 | Shorthand | Maps To | Domain Coverage |
 |-----------|---------|-----------------|
 | `finance` | CFO | Budget, cash flow, TCO, tax, AP/AR |
+| `legal` | CLO | Governance, contracts, regulatory, employment, IP/privacy |
 | `tech` | CTO | Engineering, infrastructure, data, product/UX |
 | `operations` | COO | Process, quality, vendor/procurement, facilities |
 | `security` | CISO | Security ops, compliance/GRC, identity, architecture |
@@ -937,8 +938,8 @@ CDP uses a three-layer model hierarchy that maps organizational structure to mod
 | Layer | Default Model | Agent Count | Rationale |
 |-------|---------------|-------------|-----------|
 | **CEO** | Opus | 1 | Cross-domain synthesis demands the highest reasoning quality. The CEO must weigh competing perspectives, identify fault lines, and produce nuanced judgment. This is the most cognitively demanding task in the cascade. |
-| **C-Suite** | Sonnet | 9 | Domain decomposition and synthesis. Each C-suite agent writes sub-question files for team leads; the CEO creates division teams and dispatches all agents. C-suite agents collect findings via SendMessage and synthesize domain recommendations. Sonnet balances capability with cost. |
-| **Team Leads** | Haiku | 34 | Narrow specialist analysis. Each team lead has a unique analytical framework and a focused lens. Team leads SendMessage findings back to their C-suite parent. Cost-efficient for high parallelism. Model diversity across the hierarchy improves system robustness. |
+| **C-Suite** | Sonnet | 10 | Domain decomposition and synthesis. Each C-suite agent writes sub-question files for team leads; the CEO creates division teams and dispatches all agents. C-suite agents collect findings via SendMessage and synthesize domain recommendations. Sonnet balances capability with cost. |
+| **Team Leads** | Haiku | 38 | Narrow specialist analysis. Each team lead has a unique analytical framework and a focused lens. Team leads SendMessage findings back to their C-suite parent. Cost-efficient for high parallelism. Model diversity across the hierarchy improves system robustness. |
 
 Model assignments are configurable -- see [10.3 API & Agent Configuration](#103-api--agent-configuration) for tier defaults and per-agent overrides.
 
@@ -948,6 +949,7 @@ flowchart TD
 
     COO["COO\nSkeptic"]
     CFO["CFO\nSkeptic"]
+    CLO["CLO\nSkeptic"]
     CTO["CTO\nAdvocate"]
     CISO["CISO\nSkeptic"]
     CAO["CAO\nSystemic"]
@@ -955,14 +957,15 @@ flowchart TD
     VPD["VP Delivery\nSkeptic"]
     CSO["CSO\nInvestigative"]
 
-    CEO --> COO & CFO & CTO & CISO
+    CEO --> COO & CFO & CLO & CTO & CISO
     CEO --> CAO & VPS & VPD & CSO
 
     COO --> COO_TL["Operations Mgr\nProcess/Quality\nVendor/Procurement\nFacilities*"]
     CFO --> CFO_TL["Controller\nFP&A\nTreasury/Cash\nAP/AR Mgr\nTax Lead"]
+    CLO --> CLO_TL["Corporate Governance & Entity\nContracts & Commercial\nRegulatory & Government Compliance\nEmployment & Labor Law\nIP & Data Privacy"]
     CTO --> CTO_TL["Engineering\nInfra/DevOps\nData/Analytics\nProduct/UX"]
     CISO --> CISO_TL["Security Ops\nCompliance/GRC\nIdentity & Access\nSecurity Architecture"]
-    CAO --> CAO_TL["HR/People Ops\nLegal/Contracts\nAdmin/Policy\nCorporate Comms"]
+    CAO --> CAO_TL["HR/People Ops\nAdmin/Policy\nCorporate Comms"]
     VPS --> VPS_TL["Sales Ops\nAccount Mgmt\nBusiness Dev\nSales Enablement"]
     VPD --> VPD_TL["Project/Program Mgr\nResource Mgr\nClient Success\nQA/Delivery Standards"]
     CSO --> CSO_TL["Market Intel\nCompetitive Intel\nTech Scout\nIndustry/Regulatory\nPrecedent/Patterns"]
@@ -970,6 +973,7 @@ flowchart TD
     style CEO fill:#1A5276,color:#fff
     style COO fill:#2C3E50,color:#fff
     style CFO fill:#2C3E50,color:#fff
+    style CLO fill:#2C3E50,color:#fff
     style CISO fill:#2C3E50,color:#fff
     style VPD fill:#2C3E50,color:#fff
     style CTO fill:#A04000,color:#fff
@@ -979,6 +983,7 @@ flowchart TD
 
     style COO_TL fill:#EAECEE,stroke:#2C3E50,color:#2C3E50
     style CFO_TL fill:#EAECEE,stroke:#2C3E50,color:#2C3E50
+    style CLO_TL fill:#EAECEE,stroke:#2C3E50,color:#2C3E50
     style CISO_TL fill:#EAECEE,stroke:#2C3E50,color:#2C3E50
     style VPD_TL fill:#EAECEE,stroke:#2C3E50,color:#2C3E50
     style CTO_TL fill:#FDEBD0,stroke:#A04000,color:#2C3E50
@@ -1014,6 +1019,7 @@ The one exception is Phase 4.5 (Pre-Mortem Challenge, Tier 3 only), where all C-
 | **CEO** | Synthesizer | Frame, listen, weigh, decide. Value is judgment. |
 | **COO** | Skeptic | "Can we actually do this with the people and processes we have?" |
 | **CFO** | Skeptic | "Find the costs that aren't in the proposal." |
+| **CLO** | Skeptic | "What is the legal exposure?" |
 | **CTO** | Advocate | "What does this make possible that wasn't possible before?" |
 | **CISO** | Skeptic | "Change introduces risk. You are the organization's immune system." |
 | **CAO** | Systemic | "Can the organization -- people, policies, culture -- absorb this?" |
@@ -1021,7 +1027,7 @@ The one exception is Phase 4.5 (Pre-Mortem Challenge, Tier 3 only), where all C-
 | **VP Delivery** | Skeptic | "What do we sacrifice from existing commitments to do this?" |
 | **CSO** | Investigative | "What does the evidence say? Bring facts where others bring assumptions." |
 
-**Disposition balance:** 4 Skeptics + 2 Advocates + 1 Systemic + 1 Investigative + 1 Synthesizer. Skeptic-heavy to counterbalance human and LLM optimism bias.
+**Disposition balance:** 5 Skeptics + 2 Advocates + 1 Systemic + 1 Investigative + 1 Production + 1 Synthesizer. Skeptic-heavy to counterbalance human and LLM optimism bias.
 
 ### 8.4 Team Lead Roster
 
@@ -1032,16 +1038,17 @@ Each team lead has a unique analytical framework, mandatory output template, thr
 | **COO** | Operations Mgr, Process/Quality Lead, Vendor/Procurement Mgr, Facilities/Office Mgr* | 4 |
 | **CFO** | Controller, Head of FP&A, Treasury/Cash Mgr, AP/AR Mgr, Tax Lead | 5 |
 | **CTO** | Engineering Lead, Infrastructure/DevOps Lead, Data/Analytics Lead, Product/UX Lead | 4 |
+| **CLO** | Corporate Governance & Entity Lead, Contracts & Commercial Lead, Regulatory & Government Compliance Lead, Employment & Labor Law Lead, IP & Data Privacy Lead | 5 |
 | **CISO** | Security Ops Lead, Compliance/GRC Lead, Identity & Access Lead, Security Architecture Lead | 4 |
 | **VP Sales** | Sales Ops Lead, Account Mgmt Lead, Business Dev Lead, Sales Enablement Lead | 4 |
 | **VP Delivery** | Project/Program Mgr, Resource Mgr, Client Success Lead, QA/Delivery Standards Lead | 4 |
-| **CAO** | HR/People Ops Lead, Legal/Contracts Lead, Admin/Policy Lead, Corporate Comms Lead | 4 |
+| **CAO** | HR/People Ops Lead, Admin/Policy Lead, Corporate Comms Lead | 3 |
 | **CSO** | Market Intel Lead, Competitive Intel Lead, Technology Scout Lead, Industry/Regulatory Analyst, Precedent/Patterns Analyst | 5 |
-| **Total** | | **34** |
+| **Total** | | **38** |
 
 <sub>*Facilities/Office Manager conditionally active based on company archetype.</sub>
 
-> **Note:** 14 of 34 team leads have a fourth forcing question -- the **Cross-Domain Challenge** -- targeting high-interaction pairs where cross-domain assumptions create blind spots. For example, the Engineering Lead is asked to consider implications for Security Architecture, and the Sales Ops Lead is asked to consider implications for Client Success. These cross-domain challenges surface assumptions that might otherwise go unexamined.
+> **Note:** 18 of 38 team leads have a fourth forcing question -- the **Cross-Domain Challenge** -- targeting high-interaction pairs where cross-domain assumptions create blind spots. For example, the Engineering Lead is asked to consider implications for Security Architecture, and the Sales Ops Lead is asked to consider implications for Client Success. These cross-domain challenges surface assumptions that might otherwise go unexamined.
 
 ---
 
@@ -1280,7 +1287,7 @@ For healthcare, financial services, energy, and other regulated sectors.
 | **Default Mode** | Guardian |
 | **Compliance Focus** | HIPAA, SOX, PCI-DSS (industry-specific, configured at setup) |
 | **Escalation Bias** | Conservative |
-| **Notes** | Industry-specific compliance frameworks auto-configured. CISO and CAO Legal are always activated for decisions touching regulated areas. |
+| **Notes** | Industry-specific compliance frameworks auto-configured. CISO and CLO are always activated for decisions touching regulated areas. |
 
 #### Manufacturing / Physical
 
@@ -1300,7 +1307,7 @@ For manufacturing, logistics, and physical product companies.
 |-----------|-------------|------------------|-----------------|-------------------|
 | **Technology / SaaS** (default) | Analyst | SOC 2, GDPR | Normal | Facilities inactive, Product/UX active |
 | **Professional Services** | Architect | Client contracts, professional liability | Normal | All active, VP Delivery weighted heavily |
-| **Regulated Industry** | Guardian | HIPAA, SOX, PCI-DSS (auto-configured) | Conservative | Compliance/GRC expanded, CISO + CAO Legal always active |
+| **Regulated Industry** | Guardian | HIPAA, SOX, PCI-DSS (auto-configured) | Conservative | Compliance/GRC expanded, CISO + CLO always active |
 | **Manufacturing / Physical** | Analyst | Safety standards, environmental | Normal | Facilities active, Vendor/Procurement weighted |
 
 #### Override Mechanism
@@ -1776,7 +1783,7 @@ The production pipeline uses external skills and packages for generating artifac
 
 ## Chapter 13 -- Repository Structure
 
-The repository is organized into four main areas: **agents** (the 48 agent definitions), **commands** (the 7 slash commands), **config** (configuration specifications), and **templates** (output format specifications). The installer copies agents and commands into your project's `.claude/` directory; config and templates are read directly from the skill directory at runtime.
+The repository is organized into four main areas: **agents** (the 53 agent definitions), **commands** (the 7 slash commands), **config** (configuration specifications), and **templates** (output format specifications). The installer copies agents and commands into your project's `.claude/` directory; config and templates are read directly from the skill directory at runtime.
 
 ```
 corporate-decision-panel/               # Clone to .claude/skills/corporate-decision-panel
@@ -1791,9 +1798,10 @@ corporate-decision-panel/               # Clone to .claude/skills/corporate-deci
 ├── agents/                             # Agent definitions
 │   │                                   # (copied to .claude/agents/ on setup)
 │   ├── ceo.md                          # CEO -- Synthesizer (Opus)
-│   ├── c-suite/                        # 9 C-suite agents (8 analytical + CCO) (Sonnet)
+│   ├── c-suite/                        # 10 C-suite agents (9 analytical + CCO) (Sonnet)
 │   │   ├── coo.md                      #   COO -- Skeptic
 │   │   ├── cfo.md                      #   CFO -- Skeptic
+│   │   ├── clo.md                      #   CLO -- Skeptic
 │   │   ├── cto.md                      #   CTO -- Advocate
 │   │   ├── ciso.md                     #   CISO -- Skeptic
 │   │   ├── cao.md                      #   CAO -- Systemic
@@ -1801,14 +1809,15 @@ corporate-decision-panel/               # Clone to .claude/skills/corporate-deci
 │   │   ├── vp-delivery.md              #   VP Delivery -- Skeptic
 │   │   ├── cso.md                      #   CSO -- Investigative
 │   │   └── cco.md                      #   CCO -- Production
-│   └── team-leads/                     # 38 team lead agents (34 analytical + 4 production) (Haiku)
+│   └── team-leads/                     # 42 team lead agents (38 domain + 4 production) (Haiku)
 │       ├── coo/                        #   COO domain (4 leads)
 │       ├── cfo/                        #   CFO domain (5 leads)
+│       ├── clo/                        #   CLO domain (5 leads)
 │       ├── cto/                        #   CTO domain (4 leads)
 │       ├── ciso/                       #   CISO domain (4 leads)
 │       ├── vp-sales/                   #   VP Sales domain (4 leads)
 │       ├── vp-delivery/                #   VP Delivery domain (4 leads)
-│       ├── cao/                        #   CAO domain (4 leads)
+│       ├── cao/                        #   CAO domain (3 leads)
 │       ├── cso/                        #   CSO domain (5 leads)
 │       └── cco/                        #   CCO production team (4 leads)
 │
@@ -1882,7 +1891,7 @@ The skill defaults to lightweight engagement. Most SMB decisions are fast, infor
 
 **Problem observed:** Both humans and LLMs exhibit optimism bias. A single AI voice asked to analyze a business proposal will tend to find reasons it could work. Even when asked to "consider risks," the risk analysis often reads as a formality rather than a genuine adversarial challenge.
 
-The roster is deliberately skeptic-heavy: 4 skeptics, 2 advocates, 1 systemic, 1 investigative. This counterbalances optimism bias structurally, not through prompting. In a real boardroom, the people responsible for operations, money, security, and delivery tend to be more cautious than the people responsible for technology and sales. The skeptic-heavy ratio reflects organizational reality. Disagreement is signal, not noise -- it reveals where the real tradeoffs are. The CEO doesn't average perspectives into a bland middle ground; the CEO identifies fault lines, determines which perspective is most determinative, and makes a decision that addresses the strongest objections.
+The roster is deliberately skeptic-heavy: 5 skeptics, 2 advocates, 1 systemic, 1 investigative. This counterbalances optimism bias structurally, not through prompting. In a real boardroom, the people responsible for operations, money, security, and delivery tend to be more cautious than the people responsible for technology and sales. The skeptic-heavy ratio reflects organizational reality. Disagreement is signal, not noise -- it reveals where the real tradeoffs are. The CEO doesn't average perspectives into a bland middle ground; the CEO identifies fault lines, determines which perspective is most determinative, and makes a decision that addresses the strongest objections.
 
 ### 3. Transparent Routing
 
