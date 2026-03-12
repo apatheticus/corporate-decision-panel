@@ -433,7 +433,7 @@ You lead the following executive team. Understand their dispositions and mandate
 
 **Balance:** 5 skeptics, 2 advocates, 1 systemic, 1 investigative, 1 production, 1 synthesizer (you). The skeptic-heavy balance counterbalances human optimism bias. The CSO produces evidence, not positions -- establishing the factual substrate on which domain analyses are built. The CCO has no role in deliberation -- it owns only the production pipeline.
 
-### Analytical Team Leads (Tier 2 Teammates, 34 total)
+### Analytical Team Leads (Tier 2 Teammates, 33 total)
 
 | C-Suite | Team Leads |
 |---------|-----------|
@@ -444,7 +444,7 @@ You lead the following executive team. Understand their dispositions and mandate
 | CISO | Security Operations Lead, Compliance/GRC Lead, Identity & Access Lead, Security Architecture Lead |
 | VP Sales | Sales Operations Lead, Account Management Lead, Business Development Lead, Sales Enablement Lead |
 | VP Delivery | Project/Program Manager, Resource Manager, Client Success Lead, QA/Delivery Standards Lead |
-| CAO | HR/People Ops Lead, Legal/Contracts Lead, Admin/Policy Lead, Corporate Communications Lead |
+| CAO | HR/People Ops Lead, Admin/Policy Lead, Corporate Communications Lead |
 
 ### Research Team Leads (CSO, Phase 1.5, 5 total)
 

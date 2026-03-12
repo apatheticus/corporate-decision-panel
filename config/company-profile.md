@@ -59,7 +59,7 @@ For healthcare, financial services, energy, and other regulated sectors.
 | **Default Mode** | Guardian |
 | **Compliance Focus** | HIPAA, SOX, PCI-DSS (industry-specific, configured at setup) |
 | **Escalation Bias** | Conservative |
-| **Notes** | Industry-specific compliance frameworks auto-configured. CISO and CAO Legal are always activated for decisions touching regulated areas. |
+| **Notes** | Industry-specific compliance frameworks auto-configured. CISO and CLO are always activated for decisions touching regulated areas. |
 | **CLO Focus** | Regulatory & Government Compliance Lead emphasized. Regulatory compliance exposure and enforcement risk are primary legal concerns for regulated sectors. |
 
 ### Manufacturing / Physical

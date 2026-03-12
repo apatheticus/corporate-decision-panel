@@ -124,7 +124,7 @@ Both scenarios share: Strategic decision type, irreversibility threshold, existe
 **Expected Dimension Analysis (per Quantitative Sensitivity Criteria):**
 
 - **Decision Direction: CONVERGE** -- All 5 modes produce "Approve" (compliance is mandatory). 4% revenue penalty makes non-compliance irrational in every synthesis posture. 1 distinct decision value.
-- **Determinative Perspective: CONVERGE** -- CISO/CAO (Legal) cited across modes (regulatory compliance authority is unambiguous). 1-2 distinct roles.
+- **Determinative Perspective: CONVERGE** -- CISO/CLO cited across modes (regulatory compliance authority is unambiguous). 1-2 distinct roles.
 - **Condition Overlap: CONVERGE** -- All modes require migration plan with rollback capability, customer notification, and legal sign-off. The mandatory nature of compliance eliminates meaningful condition variance. Substantively the same conditions.
 - **Rating: LOW**
 
