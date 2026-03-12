@@ -59,7 +59,7 @@
 
 - [x] **Phase 16: CLO Foundation** - Create CLO C-suite agent and 5 specialist team lead definitions (completed 2026-03-12)
 - [x] **Phase 17: Configuration** - Wire CLO into routing table, decision modes, company profiles, and orchestration protocol (completed 2026-03-12)
-- [ ] **Phase 18: Agent Cross-Wiring** - CAO roster reduction, CEO dispatch updates, and 22-file reference sweep
+- [x] **Phase 18: Agent Cross-Wiring** - CAO roster reduction, CEO dispatch updates, and 22-file reference sweep (completed 2026-03-12)
 - [ ] **Phase 19: Documentation** - Update SKILL.md, README.md, and all documentation counts
 
 ## Phase Details
@@ -148,7 +148,7 @@ Phases execute in numeric order: 16 -> 16.1 (if any) -> 17 -> 18 -> 19
 | 15. Path Resolution and Bundle | v1.8 | 2/2 | Complete | 2026-03-10 |
 | 16. CLO Foundation | v1.9 | 2/2 | Complete | 2026-03-12 |
 | 17. Configuration | v1.9 | Complete    | 2026-03-12 | 2026-03-12 |
-| 18. Agent Cross-Wiring | v1.9 | 0/2 | Not started | - |
+| 18. Agent Cross-Wiring | 2/2 | Complete   | 2026-03-12 | - |
 | 19. Documentation | v1.9 | 0/? | Not started | - |
 
 ---
