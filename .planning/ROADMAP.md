@@ -108,21 +108,22 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 18-01-PLAN.md -- Delete CAO Legal/Contracts Lead, update CAO agent (7 refs + identity + count), update CEO dispatch and skeptic count
-- [ ] 18-02-PLAN.md -- Codebase-wide reference sweep: VP Sales re-wiring, orchestration protocol, config, test scenarios, CAO sibling peers
+- [x] 18-01-PLAN.md -- Delete CAO Legal/Contracts Lead, update CAO agent (7 refs + identity + count), update CEO dispatch and skeptic count
+- [x] 18-02-PLAN.md -- Codebase-wide reference sweep: VP Sales re-wiring, orchestration protocol, config, test scenarios, CAO sibling peers
 
 ### Phase 19: Documentation
-**Goal**: All user-facing documentation accurately reflects the 10 C-suite / 38 team lead roster with CLO present and CAO Legal/Contracts absent
+**Goal**: All user-facing documentation accurately reflects the 10 C-suite / 42 team lead roster with CLO present and CAO Legal/Contracts absent
 **Depends on**: Phase 18 (all functional changes must be finalized before counts can be verified)
 **Requirements**: DOCS-01, DOCS-02, DOCS-03
 **Success Criteria** (what must be TRUE):
-  1. SKILL.md lists CLO in available roles, shows correct agent counts (10 C-suite, 38 team leads), and describes updated engineered dissent balance
+  1. SKILL.md lists CLO in available roles, shows correct agent counts (10 C-suite, 42 team leads, 38 domain specialists), and describes updated engineered dissent balance
   2. README.md (and docs/README.md) shows CLO in Available Roles, C-Suite Roster table, Team Lead Roster table, architecture mermaid diagrams (CLO node added, CAO team lead count updated), and engineered dissent balance
   3. Every documentation file that mentions agent or team lead counts matches the actual directory listing -- verified by comparing stated numbers against `ls agents/c-suite/ | wc -l` and `find agents/team-leads/ -name "*.md" | wc -l`
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 19-01: TBD
+- [ ] 19-01-PLAN.md -- SKILL.md, docs/ARCHITECTURE.md, docs/DEVELOPMENT.md, config/file-index.md, config/decision-modes.md, templates/decision-record.md, CONTRIBUTING.md, test-scenarios
+- [ ] 19-02-PLAN.md -- README.md and docs/README.md (mermaid diagrams, roster tables, archetypes, counts)
 
 ## Progress
 
@@ -148,9 +149,9 @@ Phases execute in numeric order: 16 -> 16.1 (if any) -> 17 -> 18 -> 19
 | 15. Path Resolution and Bundle | v1.8 | 2/2 | Complete | 2026-03-10 |
 | 16. CLO Foundation | v1.9 | 2/2 | Complete | 2026-03-12 |
 | 17. Configuration | v1.9 | Complete    | 2026-03-12 | 2026-03-12 |
-| 18. Agent Cross-Wiring | 2/2 | Complete   | 2026-03-12 | - |
-| 19. Documentation | v1.9 | 0/? | Not started | - |
+| 18. Agent Cross-Wiring | 2/2 | Complete    | 2026-03-12 | - |
+| 19. Documentation | v1.9 | 0/2 | Not started | - |
 
 ---
 *Roadmap created: 2026-02-22*
-*Last updated: 2026-03-12 -- Phase 18 plans created (2 plans)*
+*Last updated: 2026-03-12 -- Phase 19 plans created (2 plans)*

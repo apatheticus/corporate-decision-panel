@@ -1,6 +1,6 @@
 ---
 name: corporate-decision-panel
-version: 1.8
+version: 1.9
 description: >
   A complete organizational reasoning engine that emulates SMB executive
   committee decision-making. Presents any business issue through a structured
@@ -55,7 +55,7 @@ no team leads. Produces an **Advisory Note** (3-5 sentences) and an
 - `/cdp:consult ciso guardian: What are the risks of this vendor integration?`
 - `/cdp:consult vp-sales pioneer: How does this feature help us sell more?`
 
-**Roles:** `ceo`, `coo`, `cfo`, `cto`, `ciso`, `cao`, `vp-sales`,
+**Roles:** `ceo`, `coo`, `cfo`, `cto`, `clo`, `ciso`, `cao`, `vp-sales`,
 `vp-delivery`, `cso`
 
 ### Tier 2 -- Working Session
@@ -343,6 +343,7 @@ When invoked via `/cdp:production`, execute the following steps:
 | CEO | Synthesizer | Frame, listen, weigh, decide. Value is judgment. |
 | COO | Skeptic | "Can we do this with what we have?" |
 | CFO | Skeptic | "Find the costs not in the proposal." |
+| CLO | Skeptic | "What is the legal exposure?" |
 | CTO | Advocate | "What does this make possible?" |
 | CISO | Skeptic | "Change introduces risk. You are the immune system." |
 | VP Sales | Advocate | "How does this help us sell more?" |
@@ -351,15 +352,15 @@ When invoked via `/cdp:production`, execute the following steps:
 | CSO | Investigative | "What does the evidence say?" |
 | CCO | Production | "Transform decisions into professional deliverables." |
 
-**Engineered Dissent Balance:** 4 skeptics + 2 advocates + 1 systemic +
+**Engineered Dissent Balance:** 5 skeptics + 2 advocates + 1 systemic +
 1 investigative + 1 production + 1 synthesizer. Skeptic-heavy to
 counterbalance human optimism bias. The CCO has no role in deliberation --
 it owns only the production pipeline.
 
 ### Layer 2: Division Team Agents — Analytical Team Leads (Haiku)
 
-34 domain specialists spawned as teammates in CEO-created division
-teams: 29 analytical team leads (Phase 2-4) and 5 research
+38 domain specialists spawned as teammates in CEO-created division
+teams: 33 analytical team leads (Phase 2-4) and 5 research
 team leads (CSO, Phase 1.5). Each has a unique analytical framework, mandatory output
 template, three forcing questions (Pre-Mortem, Adversarial Empathy,
 Domain Devil's Advocate), and restricted tool access (Read, Grep, Glob,
@@ -373,10 +374,11 @@ WebSearch, SendMessage, TaskUpdate).
 | CISO | Security Ops, Compliance/GRC, Identity & Access, Security Architecture |
 | VP Sales | Sales Ops, Account Mgmt, Business Development, Sales Enablement |
 | VP Delivery | Project/Program Mgr, Resource Mgr, Client Success, QA/Delivery Standards |
-| CAO | HR/People Ops, Legal/Contracts, Admin/Policy, Corporate Communications |
+| CAO | HR/People Ops, Admin/Policy, Corporate Communications |
+| CLO | Corporate Governance & Entity, Contracts & Commercial, Regulatory & Government Compliance, Employment & Labor Law, IP & Data Privacy |
 | CSO | Market Intel, Competitive Intel, Technology Scout, Industry/Regulatory, Precedent/Patterns |
 
-14 of 34 team leads have a fourth forcing question (Cross-Domain Challenge)
+18 of 38 team leads have a fourth forcing question (Cross-Domain Challenge)
 targeting high-interaction pairs where cross-domain assumptions create
 blind spots.
 
@@ -445,12 +447,12 @@ See `config/routing-table.md` for full table.
 
 | Type | Default Activation |
 |------|-------------------|
-| Strategic | CEO, CFO, CTO, VP Sales |
+| Strategic | CEO, CFO, CTO, CLO, VP Sales |
 | Operational | CEO, COO, VP Delivery |
 | Financial | CEO, CFO, COO |
 | Technical | CEO, CTO, CISO |
-| Personnel | CEO, CAO, COO, VP Delivery |
-| Compliance/Risk | CEO, CISO, CAO, CFO |
+| Personnel | CEO, CAO, COO, CLO, VP Delivery |
+| Compliance/Risk | CEO, CISO, CLO, CAO, CFO |
 
 ### Full-Activation Thresholds
 All C-suite activate if ANY condition applies:
