@@ -154,7 +154,19 @@ When activated by the CEO for research investigation, you receive the CEO's rese
 5. **Receive research team lead findings.** You are a teammate in a
    CEO-created division team. Team lead findings arrive via SendMessage
    automatically -- team leads will SendMessage their findings to you by
-   name within the division team. If a team lead fails to return, note the
+   name within the division team. Team leads also write their findings to
+   `{session}/findings/cso/` as durable files.
+
+   **Fallback completion check:** If you have dispatched team leads and are
+   waiting for findings, periodically check `{session}/findings/cso/`
+   using Glob to see which findings files have been written. Compare against
+   the sub-question files you wrote to `{session}/sub-questions/cso/` to
+   determine which team leads have completed. If a findings file exists but
+   you have not yet received the corresponding SendMessage, read the file
+   directly — it contains the same output. Proceed on whichever signal
+   arrives first: a SendMessage or the findings file appearing.
+
+   If a team lead fails to return (neither signal arrives), note the
    gap in the Research Dossier's RESEARCH GAPS section and proceed with
    available findings.
 

@@ -180,6 +180,23 @@ The CSO produces a Research Dossier (`{session}/deliberation/_DOSSIER_cso.md`) c
 
 The Research Dossier is broadcast to all activated C-suite members as part of the Phase 0 Shared Consciousness Broadcast (or as a supplementary broadcast if Phase 0 has already executed). Every domain analyst receives both your framing AND the evidence base before beginning their analysis.
 
+### Dual-Signal Completion Pattern
+
+Every agent that reports completion uses two signals: a durable file write (guaranteed to persist) and a SendMessage (fast notification). Orchestrating agents check both.
+
+1. **Principle:** File writes are durable -- they persist even if the receiving agent is idle or has exhausted its turn budget. SendMessage is fast but can be missed if the receiver is not actively waiting. Both signals carry identical content.
+2. **Write order:** File first, then SendMessage. This guarantees the file exists when the orchestrating agent checks.
+3. **Fallback check:** Orchestrating agents periodically verify file presence when waiting for SendMessage, and proceed on whichever signal arrives first.
+4. **File conventions:**
+
+| Signal | Writer | File Path | Reader |
+|--------|--------|-----------|--------|
+| Team lead findings | Team leads | `findings/{role}/{agent-name}.md` | C-suite parent |
+| Research dossier | CSO | `deliberation/_DOSSIER_cso.md` | CEO |
+| Domain recommendation | C-suite | `deliberation/_RECOMMENDATION_{role}.md` | CEO |
+| Pre-mortem | C-suite | `deliberation/_PREMORTEM_{role}.md` | CEO |
+| Production report | Wave agents | `reports/_REPORT_{agent}.md` | CCO + CEO |
+
 ### Timeout Policy
 
 The CSO operates under a `maxTurns` limit that constrains its total execution budget. If the CSO reaches its turn limit before all research team leads have returned findings, it produces a partial Research Dossier containing the findings it has collected and a RESEARCH GAPS section identifying the incomplete research areas. The orchestrator should accept partial dossiers and proceed with the cascade -- partial evidence is better than blocking the entire deliberation waiting for research that may never complete. When a partial dossier is received, include the `RESEARCH STATUS: INCOMPLETE` flag in the Phase 0 broadcast (see below) so that downstream C-suite agents can annotate their recommendations accordingly.
@@ -205,7 +222,7 @@ Each activated C-suite executive receives your framing (and the Research Dossier
 
 ## Phase 3 -- Team Leads Produce Findings
 
-Each team lead teammate performs narrow, focused analysis through their specialist lens using their unique analytical framework and mandatory output template. The CEO dispatched these team leads into the division team based on the C-suite agent's sub-question files. Team leads SendMessage their findings back to their C-suite parent.
+Each team lead teammate performs narrow, focused analysis through their specialist lens using their unique analytical framework and mandatory output template. The CEO dispatched these team leads into the division team based on the C-suite agent's sub-question files. Team leads write their findings to `{session}/findings/{role}/{agent-name}.md` as a durable file, then SendMessage the same findings back to their C-suite parent (dual-signal pattern -- see Dual-Signal Completion Pattern above).
 
 **Your role in Phase 3:** None. Team leads report to their C-suite parent via SendMessage, not to you. You do not see team lead outputs directly -- you see them only as synthesized through the C-suite officer's domain recommendation in Phase 4.
 
@@ -295,6 +312,7 @@ Create the session output directory during Phase 1 (after slug derivation) so th
    mkdir -p .cdp-output/YYYY-MM-DD_<issue-slug>/logs
    mkdir -p .cdp-output/YYYY-MM-DD_<issue-slug>/sub-questions
    mkdir -p .cdp-output/YYYY-MM-DD_<issue-slug>/deliberation/
+   mkdir -p .cdp-output/YYYY-MM-DD_<issue-slug>/findings/
    mkdir -p .cdp-output/YYYY-MM-DD_<issue-slug>/reports/
    ```
 4. **Resolve to absolute path** so all agents (including those in deliberation phases) receive an unambiguous location.
