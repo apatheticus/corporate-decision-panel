@@ -65,7 +65,7 @@ Before spawning the CCO, the orchestrator validates external dependencies using 
 | Writer (PPTX) | node, pptxgenjs | `node -e "require('pptxgenjs')"` | `npm install pptxgenjs` |
 | Writer (DOCX) | node, docx | `node -e "require('docx')"` | `npm install docx` |
 | Publisher (HTML) | none | -- | -- |
-| Publisher (Results PDF) | python3, reportlab, Pillow | `python3 -c "from reportlab.platypus import SimpleDocTemplate; from PIL import Image"` | `pip install reportlab Pillow` |
+| Publisher (Results PDF) | python3, reportlab, Pillow, pdf2image | `python3 -c "from reportlab.platypus import SimpleDocTemplate; from PIL import Image; from pdf2image import convert_from_path"` | `pip install reportlab Pillow pdf2image` |
 | Publisher (Capsule PDF) | python3, weasyprint | `python3 -c "import weasyprint"` | `pip install weasyprint` |
 
 **Execution protocol:**

@@ -1764,6 +1764,7 @@ The production pipeline uses external skills and packages for generating artifac
 | `reportlab` (Python) | Results PDF generation (native from RECORD.md) | `pip install reportlab` |
 | `Pillow` (Python) | Image processing for PDF and infographics | `pip install Pillow` |
 | `weasyprint` (Python) | Capsule PDF generation | `pip install weasyprint` |
+| `pdf2image` (Python) | PDF-to-image conversion for Publisher QA | `pip install pdf2image` |
 | [frontend-design](https://github.com/anthropics/skills) | Decision briefing page (HTML) | `/find-skills frontend-design` |
 | [web-design-guidelines](https://github.com/vercel-labs/agent-skills) | UI review for briefing page | `/find-skills web-design-guidelines` |
 

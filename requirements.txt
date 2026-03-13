@@ -1,2 +1,3 @@
 google-genai>=1.65.0
 Pillow>=10.0.0
+pdf2image
