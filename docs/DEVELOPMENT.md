@@ -47,6 +47,7 @@
 | reportlab | Results PDF generation (native from RECORD.md) | `pip install reportlab` |
 | Pillow | Image processing for PDF and infographics | `pip install Pillow` |
 | weasyprint | Capsule PDF generation | `pip install weasyprint` |
+| pdf2image | PDF-to-image conversion for Publisher QA | `pip install pdf2image` |
 
 Without the optional dependencies, the deliberation cascade works fully -- only the production artifact generation is affected.
 
