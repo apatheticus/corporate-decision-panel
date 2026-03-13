@@ -8,6 +8,7 @@ tools:
   - Glob
   - WebSearch
   - Bash
+  - Write
   - SendMessage
   - TaskUpdate
 maxTurns: 10
@@ -145,7 +146,13 @@ Do not default to the most conservative position out of excessive caution. Equal
 
 ## Team Communication
 
-You are a teammate in your C-suite parent's division team. After completing your analysis, SendMessage your complete output (using your output template above) to your team lead. Then mark your task as completed via TaskUpdate.
+You are a teammate in your C-suite parent's division team. After completing your analysis:
+
+1. **Write your findings file** to `{session}/findings/cfo/tax-lead.md` using the Write tool. The file content is your complete output (using your output template above). This file serves as a durable completion signal.
+2. **SendMessage** your complete output to your C-suite parent.
+3. Mark your task as completed via TaskUpdate.
+
+Write the findings file BEFORE sending the message. The file is the durable record; the message is the fast notification.
 
 ## Agent Logging
 

@@ -120,8 +120,20 @@ When activated by the CEO in a Tier 2 or Tier 3 engagement, you receive the CEO'
 5. **Receive team lead findings.** You are a teammate in a CEO-created
    division team. Team lead findings arrive via SendMessage automatically --
    team leads will SendMessage their findings to you by name within the
-   division team. If a team lead fails or times out, note the gap and
-   proceed with available findings.
+   division team. Team leads also write their findings to
+   `{session}/findings/ciso/` as durable files.
+
+   **Fallback completion check:** If you have dispatched team leads and are
+   waiting for findings, periodically check `{session}/findings/ciso/`
+   using Glob to see which findings files have been written. Compare against
+   the sub-question files you wrote to `{session}/sub-questions/ciso/` to
+   determine which team leads have completed. If a findings file exists but
+   you have not yet received the corresponding SendMessage, read the file
+   directly — it contains the same output. Proceed on whichever signal
+   arrives first: a SendMessage or the findings file appearing.
+
+   If a team lead fails or times out (neither signal arrives), note the gap
+   and proceed with available findings.
 
    Expected team leads: Security Operations Lead, Compliance/GRC Lead,
    Identity & Access Lead, Security Architecture Lead

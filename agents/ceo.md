@@ -37,7 +37,7 @@ Decompose the issue into evaluation dimensions, classify decision type, route to
 
 If the CSO is activated, execute the research phase before anything else:
 
-1. `mkdir -p {session}/sub-questions/cso`
+1. `mkdir -p {session}/sub-questions/cso {session}/findings/cso`
 2. `TeamCreate("cdp-cso-{slug}")`
 3. `Agent(cso, team_name="cdp-cso-{slug}", prompt=research directive)`
 4. Wait for CSO SendMessage with sub-question file paths: "Sub-questions ready: {paths}"
@@ -45,7 +45,8 @@ If the CSO is activated, execute the research phase before anything else:
 6. Dispatch research team leads as teammates in `cdp-cso-{slug}`:
    - For each sub-question file, one Agent call with `team_name="cdp-cso-{slug}"`
    - Paste the sub-question file content verbatim as the prompt -- do NOT re-summarize or add analytical overlay
-7. Wait for CSO to complete (`deliberation/_DOSSIER_cso.md` written)
+7. Wait for CSO to complete (`deliberation/_DOSSIER_cso.md` written).
+   **Fallback:** Periodically check for `{session}/deliberation/_DOSSIER_cso.md` using Glob. If the file exists, read it and proceed to Phase 0 broadcast regardless of whether the CSO sent a completion message.
 8. Read `deliberation/_DOSSIER_cso.md`, incorporate into Phase 0 broadcast
 
 CSO Phase 1.5 completes FULLY before Phase 2 begins. The Research Dossier must be available for the Phase 0 broadcast.
@@ -58,7 +59,7 @@ Broadcast issue context, framing, and Research Dossier (if available from Phase 
 
 For each activated analytical role (cfo, cto, coo, ciso, clo, cao, vp-sales, vp-delivery):
 
-1. `mkdir -p {session}/sub-questions/{role}`
+1. `mkdir -p {session}/sub-questions/{role} {session}/findings/{role}`
 2. `TeamCreate("cdp-{role}-{slug}")`
 3. `Agent({role}, team_name="cdp-{role}-{slug}", prompt=CEO framing + Research Dossier if available)`
 
@@ -85,9 +86,23 @@ Team leads perform specialist analysis and SendMessage their findings back to th
 
 Each C-suite executive collects team lead findings (arriving via SendMessage) and synthesizes them into a domain recommendation. Each C-suite agent writes its recommendation to `{session}/deliberation/_RECOMMENDATION_{role}.md`. The CEO monitors for `deliberation/_RECOMMENDATION_{role}.md` files from all activated divisions. Division teams dissolve naturally after the recommendation is written -- no explicit shutdown needed.
 
+**Fallback completion check:** After dispatching all C-suite agents, periodically
+check `{session}/deliberation/` using Glob for `_RECOMMENDATION_*.md` files.
+Compare found files against the list of activated roles. If all expected
+recommendation files are present, proceed to synthesis regardless of pending
+SendMessage notifications. If some files are present but others are not after
+a reasonable wait, proceed with available recommendations and record gaps.
+
 ### Phase 4.5 -- Pre-Mortem Dispatch (Tier 3 Only)
 
 After Phase 4, the CEO reads all `{session}/deliberation/_RECOMMENDATION_*.md` files. Division teams have already dissolved by this point. The CEO then dispatches a second round of standalone C-suite subagents (no `team_name`) with peer recommendation summaries. Prompts include executive summaries only (extracted from `deliberation/_RECOMMENDATION_*.md`), not full recommendations -- lighter context, consistent with summary-first approach. Standard C-suite agents receive: "Assume this decision fails catastrophically in 12 months. What caused the failure?" The CSO receives a distinct evidence-gap prompt per `config/orchestration-protocol.md`. Each C-suite agent writes its pre-mortem findings to `{session}/deliberation/_PREMORTEM_{role}.md`.
+
+**Fallback completion check:** After dispatching all pre-mortem agents, periodically
+check `{session}/deliberation/` using Glob for `_PREMORTEM_*.md` files.
+Compare found files against the list of activated roles. If all expected
+pre-mortem files are present, proceed to CEO synthesis regardless of pending
+SendMessage notifications. If some files are present but others are not after
+a reasonable wait, proceed with available pre-mortems and record gaps.
 
 ### Production -- CEO-Managed CCO Wave Dispatch
 
@@ -103,6 +118,8 @@ After the Decision Record is complete and production is triggered:
 7. Repeat for each wave as CCO directs
 8. Revision cycle: If CCO SendMessages revision instructions ("REVISION REQUIRED for {agent}: {instructions}"), re-dispatch the responsible team lead with those instructions. Maximum one revision cycle.
 9. Production complete when CCO reports completion.
+
+**Production fallback:** If a wave agent's report file appears in `{session}/reports/` (e.g., `_REPORT_graphic-designer.md`) but the CCO does not SendMessage a wave completion notice, check for the report file directly using Glob. If present, prompt the CCO to assess it and proceed with the next wave.
 
 **CEO's role in production is PURELY MECHANICAL.** Never dispatch a production wave agent without CCO SendMessage authorization. The CCO drives timing and editorial judgment; the CEO executes dispatch.
 

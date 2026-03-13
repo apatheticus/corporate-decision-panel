@@ -87,9 +87,47 @@ Not every question requires all team leads. Write sub-question files ONLY for te
 
 Err on the side of inclusion for Tier 3 engagements.
 
+## Findings File Convention
+
+### Directory Structure
+
+Each C-suite role has a dedicated findings directory within the session output:
+
+```
+{session}/findings/{role}/
+```
+
+Example: `{session}/findings/cfo/`
+
+### File Path
+
+Each team lead writes a single findings file upon completing analysis:
+
+```
+{session}/findings/{role}/{agent-name}.md
+```
+
+Example: `{session}/findings/cfo/controller.md`
+
+### Content
+
+The findings file contains the team lead's complete output -- the same content they SendMessage to their C-suite parent. The file is the durable record; the SendMessage is the fast notification.
+
+### Write Order
+
+Team leads write the findings file FIRST, then SendMessage. This guarantees the file exists when the C-suite agent checks.
+
+### Convention
+
+One findings file per dispatched team lead. File presence = analysis complete. The absence of a findings file means the team lead has not yet completed (or failed).
+
 ## Receiving Team Lead Findings
 
-You are a teammate in a CEO-created division team. Team lead findings arrive via SendMessage automatically -- team leads will SendMessage their findings to you by name within the division team. If a team lead fails or times out, note the gap and proceed with available findings.
+You are a teammate in a CEO-created division team. Team lead findings arrive via SendMessage automatically -- team leads will SendMessage their findings to you by name within the division team. Team leads also write their findings to `{session}/findings/{role}/` as durable files.
+
+**Fallback completion check:** If you have dispatched team leads and are waiting for findings, periodically check `{session}/findings/{role}/` using Glob to see which findings files have been written. Compare against the sub-question files you wrote to `{session}/sub-questions/{role}/` to determine which team leads have completed. If a findings file exists but you have not yet received the corresponding SendMessage, read the file directly — it contains the same output. Proceed on whichever signal arrives first: a SendMessage or the findings file appearing.
+
+If a team lead fails or times out (neither signal arrives), note the gap and proceed with available findings.
 
 ## Failure Handling
 
