@@ -27,6 +27,7 @@ try:
     from reportlab.lib.units import inch
     from reportlab.platypus import (
         BaseDocTemplate,
+        Flowable,
         Frame,
         Image,
         KeepTogether,
@@ -683,26 +684,102 @@ def embed_image(image_path: str, max_width: float = 5.5 * inch) -> Image | None:
         return None
 
 
-def callout_box(text: str, styles: dict, palette: dict, border_color=None) -> Table:
-    """A styled callout box with left accent border."""
-    if border_color is None:
-        border_color = palette["accent"]
-    para = Paragraph(md_to_para(text), styles["callout"])
-    t = Table(
-        [[para]],
-        colWidths=[6.0 * inch],
-    )
-    t.setStyle(TableStyle([
-        ("BACKGROUND", (0, 0), (-1, -1), palette["light_bg"]),
-        ("LINEBEFORESTYLE", (0, 0), (0, -1), "solid"),
-        ("LINEBEFOREWIDTH", (0, 0), (0, -1), 3),
-        ("LINEBEFORECOLOR", (0, 0), (0, -1), border_color),
-        ("LEFTPADDING", (0, 0), (-1, -1), 12),
-        ("RIGHTPADDING", (0, 0), (-1, -1), 12),
-        ("TOPPADDING", (0, 0), (-1, -1), 8),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
-    ]))
-    return t
+class CalloutBox(Flowable):
+    """A splittable callout box with left accent border and background."""
+
+    def __init__(self, text, styles, palette, border_color=None):
+        super().__init__()
+        if border_color is None:
+            border_color = palette["accent"]
+        self.border_color = border_color
+        self.bg_color = palette["light_bg"]
+        self.padding_left = 12
+        self.padding_right = 12
+        self.padding_top = 8
+        self.padding_bottom = 8
+        self.border_width = 3
+        self.box_width = 6.0 * inch
+        self._content_width = self.box_width - self.padding_left - self.padding_right
+        self.para = Paragraph(md_to_para(text), styles["callout"])
+        self.para.wrapOn(None, self._content_width, 100000)
+
+    def wrap(self, availWidth, availHeight):
+        self.width = self.box_width
+        pw, ph = self.para.wrap(self._content_width, availHeight - self.padding_top - self.padding_bottom)
+        self.height = ph + self.padding_top + self.padding_bottom
+        return self.width, self.height
+
+    def split(self, availWidth, availHeight):
+        """Split content across pages, each fragment gets the full visual treatment."""
+        content_avail = availHeight - self.padding_top - self.padding_bottom
+        if content_avail <= 0:
+            return []
+        frags = self.para.split(self._content_width, content_avail)
+        if len(frags) <= 1:
+            return []
+        return [
+            _CalloutBoxFragment(frags[0], self),
+            _CalloutBoxFragment(frags[1], self),
+        ]
+
+    def draw(self):
+        """Draw background, left border, then content."""
+        canvas = self.canv
+        canvas.setFillColor(self.bg_color)
+        canvas.rect(0, 0, self.width, self.height, fill=1, stroke=0)
+        canvas.setStrokeColor(self.border_color)
+        canvas.setLineWidth(self.border_width)
+        canvas.line(self.border_width / 2, 0, self.border_width / 2, self.height)
+        self.para.drawOn(canvas, self.padding_left, self.padding_bottom)
+
+
+class _CalloutBoxFragment(Flowable):
+    """A fragment of a split CalloutBox — preserves visual styling."""
+
+    def __init__(self, para_fragment, parent):
+        super().__init__()
+        self.para = para_fragment
+        self.border_color = parent.border_color
+        self.bg_color = parent.bg_color
+        self.padding_left = parent.padding_left
+        self.padding_right = parent.padding_right
+        self.padding_top = parent.padding_top
+        self.padding_bottom = parent.padding_bottom
+        self.border_width = parent.border_width
+        self.box_width = parent.box_width
+        self._content_width = parent._content_width
+
+    def wrap(self, availWidth, availHeight):
+        self.width = self.box_width
+        pw, ph = self.para.wrap(self._content_width, availHeight - self.padding_top - self.padding_bottom)
+        self.height = ph + self.padding_top + self.padding_bottom
+        return self.width, self.height
+
+    def split(self, availWidth, availHeight):
+        content_avail = availHeight - self.padding_top - self.padding_bottom
+        if content_avail <= 0:
+            return []
+        frags = self.para.split(self._content_width, content_avail)
+        if len(frags) <= 1:
+            return []
+        return [
+            _CalloutBoxFragment(frags[0], self),
+            _CalloutBoxFragment(frags[1], self),
+        ]
+
+    def draw(self):
+        canvas = self.canv
+        canvas.setFillColor(self.bg_color)
+        canvas.rect(0, 0, self.width, self.height, fill=1, stroke=0)
+        canvas.setStrokeColor(self.border_color)
+        canvas.setLineWidth(self.border_width)
+        canvas.line(self.border_width / 2, 0, self.border_width / 2, self.height)
+        self.para.drawOn(canvas, self.padding_left, self.padding_bottom)
+
+
+def callout_box(text: str, styles: dict, palette: dict, border_color=None):
+    """A styled callout box with left accent border — splittable across pages."""
+    return CalloutBox(text, styles, palette, border_color=border_color)
 
 
 def make_data_table(headers: list, rows: list, styles: dict, col_widths=None) -> Table:
