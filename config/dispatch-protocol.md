@@ -133,6 +133,20 @@ If a team lead fails or times out (neither signal arrives), note the gap and pro
 
 If a team lead teammate times out or fails to return a response, note the gap in your domain recommendation and proceed with the findings you have. A partial analysis with an explicit gap note is more valuable than blocking the entire cascade waiting for a response that may never arrive.
 
+### Phase 1.5 Exception: CEO-Monitored Findings Collection
+
+For the CSO during Phase 1.5 research, the standard "periodically check
+findings" fallback is replaced by a CEO-monitored pattern. The CSO does not
+poll for findings files. Instead, the CEO monitors `{session}/findings/cso/`
+and sends the CSO a "FINDINGS COMPLETE -- SYNTHESIZE NOW" signal when team
+lead findings are ready. The CSO waits for this signal before beginning
+synthesis.
+
+This exception exists because the CSO goes idle after writing sub-question
+files and cannot autonomously execute Glob checks while idle. Phase 2
+C-suite agents still use the standard dual-signal pattern because they
+remain active with analytical work while team leads execute.
+
 ## Logging Context
 
 If agent logging is active, the CEO will include logging context in your dispatch prompt. Forward logging context to your sub-question files by adding a Logging Context section:

@@ -152,6 +152,34 @@ The CEO creates a CSO division team (`TeamCreate("cdp-cso-{slug}")`), dispatches
 
 **Sequential timing:** CSO Phase 1.5 completes fully before Phase 2 begins. The CEO waits for `{session}/deliberation/_DOSSIER_cso.md` to be written, reads the dossier, and incorporates it into the Phase 0 broadcast before dispatching Phase 2 C-suite agents.
 
+### CEO-Monitored Findings Collection
+
+After dispatching research team leads into the CSO division team, the CEO
+actively monitors team lead completion. This is necessary because the CSO
+is a teammate that goes idle after writing sub-questions -- it cannot
+autonomously poll the filesystem for findings while idle.
+
+**CEO monitoring loop:**
+1. Glob `{session}/findings/cso/` and compare against dispatched sub-question
+   files from `{session}/sub-questions/cso/`.
+2. If all expected findings files are present, proceed to the synthesis
+   signal immediately.
+3. If some findings files are present but others are not, continue checking.
+   After several check cycles with no new files appearing, proceed with
+   partial results.
+4. SendMessage the CSO within `cdp-cso-{slug}` with a structured
+   "FINDINGS COMPLETE -- SYNTHESIZE NOW" manifest listing received and
+   missing findings files.
+5. The CSO reads the findings files, synthesizes the Research Dossier, and
+   writes `{session}/deliberation/_DOSSIER_cso.md`.
+6. The CEO detects the dossier file (via Glob fallback or CSO SendMessage)
+   and proceeds to Phase 0 broadcast.
+
+This pattern mirrors the CEO-managed CCO production wave dispatch: the CEO
+owns the monitoring loop and sends explicit signals to the working agent,
+rather than relying on the working agent to autonomously poll for state
+changes.
+
 ### Research Directive Structure
 
 Your directive to the CSO must include:
@@ -187,7 +215,13 @@ Every agent that reports completion uses two signals: a durable file write (guar
 1. **Principle:** File writes are durable -- they persist even if the receiving agent is idle or has exhausted its turn budget. SendMessage is fast but can be missed if the receiver is not actively waiting. Both signals carry identical content.
 2. **Write order:** File first, then SendMessage. This guarantees the file exists when the orchestrating agent checks.
 3. **Fallback check:** Orchestrating agents periodically verify file presence when waiting for SendMessage, and proceed on whichever signal arrives first.
-4. **File conventions:**
+4. **CEO-monitored completion (Phase 1.5):** When the findings writer
+   (team lead) sends to a teammate (CSO) rather than to the orchestrator
+   (CEO), the dual-signal pattern is extended: the CEO monitors the file
+   signal directly and sends an explicit "synthesize now" message to the
+   teammate, ensuring the teammate is not left idle waiting for signals
+   it cannot process.
+5. **File conventions:**
 
 | Signal | Writer | File Path | Reader |
 |--------|--------|-----------|--------|

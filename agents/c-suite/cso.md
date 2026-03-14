@@ -151,24 +151,32 @@ When activated by the CEO for research investigation, you receive the CEO's rese
    If no team leads are needed for this investigation, SendMessage the CEO:
    "No team leads needed -- proceeding with inline analysis"
 
-5. **Receive research team lead findings.** You are a teammate in a
-   CEO-created division team. Team lead findings arrive via SendMessage
-   automatically -- team leads will SendMessage their findings to you by
-   name within the division team. Team leads also write their findings to
-   `{session}/findings/cso/` as durable files.
+5. **Wait for CEO synthesis signal.** After writing sub-question files and
+   notifying the CEO (step 4), wait for the CEO to SendMessage you with
+   a "FINDINGS COMPLETE -- SYNTHESIZE NOW" signal. The CEO monitors team
+   lead completion on your behalf and sends this signal when findings are
+   ready for synthesis.
 
-   **Fallback completion check:** If you have dispatched team leads and are
-   waiting for findings, periodically check `{session}/findings/cso/`
-   using Glob to see which findings files have been written. Compare against
-   the sub-question files you wrote to `{session}/sub-questions/cso/` to
-   determine which team leads have completed. If a findings file exists but
-   you have not yet received the corresponding SendMessage, read the file
-   directly — it contains the same output. Proceed on whichever signal
-   arrives first: a SendMessage or the findings file appearing.
+   The CEO's signal contains a structured manifest listing:
+   - **Findings received:** File paths of all completed team lead findings
+   - **Findings missing:** Names of any team leads that did not complete
 
-   If a team lead fails to return (neither signal arrives), note the
-   gap in the Research Dossier's RESEARCH GAPS section and proceed with
-   available findings.
+   **On receiving the signal:**
+   1. Glob `{session}/findings/cso/` to confirm which findings files exist
+      (a findings file may have appeared after the CEO's last check).
+   2. Read each findings file found.
+   3. If any team leads are listed under "Findings missing" and no
+      corresponding file exists, note each gap in the Research Dossier's
+      RESEARCH GAPS section (see format in Timeout and Graceful Degradation
+      above).
+   4. Proceed immediately to step 6 (synthesize into Research Dossier).
+
+   **If team lead SendMessages arrive before the CEO signal:** You may
+   receive individual team lead findings via SendMessage within the
+   division team before the CEO sends the synthesize signal. Acknowledge
+   receipt but do NOT begin synthesis until you receive the CEO's
+   "FINDINGS COMPLETE -- SYNTHESIZE NOW" signal. The CEO signal is the
+   authoritative trigger that confirms the team lead phase is complete.
 
    Expected team leads: Market Intelligence Lead, Competitive Intelligence Lead,
    Technology Scout Lead, Industry & Regulatory Analyst, Precedent & Patterns Analyst
