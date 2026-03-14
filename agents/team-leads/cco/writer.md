@@ -98,6 +98,8 @@ Execute the production workflow above using the session path, RECORD.md content,
 
 ## Team Communication
 
+**File discipline:** Do not create files outside the session directory (`{session}/`). Do not save intermediate research, drafts, or working notes to the project root or any other location. Your only file output is described below.
+
 You are a teammate in the CCO's production team. After completing your work, write your production report to `{session}/reports/_REPORT_writer.md` as specified in your workflow. Then mark your task as completed via TaskUpdate.
 
 ## Agent Logging
