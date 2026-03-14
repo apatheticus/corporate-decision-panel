@@ -45,9 +45,46 @@ If the CSO is activated, execute the research phase before anything else:
 6. Dispatch research team leads as teammates in `cdp-cso-{slug}`:
    - For each sub-question file, one Agent call with `team_name="cdp-cso-{slug}"`
    - Paste the sub-question file content verbatim as the prompt -- do NOT re-summarize or add analytical overlay
-7. Wait for CSO to complete (`deliberation/_DOSSIER_cso.md` written).
-   **Fallback:** Periodically check for `{session}/deliberation/_DOSSIER_cso.md` using Glob. If the file exists, read it and proceed to Phase 0 broadcast regardless of whether the CSO sent a completion message.
-8. Read `deliberation/_DOSSIER_cso.md`, incorporate into Phase 0 broadcast
+7. Monitor team lead completion. After dispatching all research team leads
+   (step 6), actively monitor `{session}/findings/cso/` using Glob. Compare
+   found files against the sub-question files dispatched from
+   `{session}/sub-questions/cso/`. Track completion:
+   - After each Glob check, if new findings files have appeared, continue
+     monitoring for remaining files.
+   - **All findings present:** Proceed immediately to step 8.
+   - **Partial findings after reasonable wait:** If some findings files are
+     present but others have not appeared after monitoring through several
+     check cycles, proceed to step 8 with partial results. Do not wait
+     indefinitely -- a partial dossier is better than a blocked cascade.
+8. Signal the CSO to synthesize. SendMessage the CSO within the division
+   team (`cdp-cso-{slug}`) with a structured completion manifest:
+
+   "FINDINGS COMPLETE -- SYNTHESIZE NOW
+
+   Findings received:
+   - {session}/findings/cso/{agent-name-1}.md
+   - {session}/findings/cso/{agent-name-2}.md
+   [list all findings files found]
+
+   Findings missing:
+   - {agent-name-3} (no findings file written)
+   [list any dispatched team leads whose findings files are absent, or 'None' if all present]
+
+   Synthesize the Research Dossier now using available findings. Read each
+   findings file listed above, synthesize into the Research Dossier, and
+   write to {session}/deliberation/_DOSSIER_cso.md. Report any missing
+   findings in the RESEARCH GAPS section."
+
+9. Wait for dossier completion. After sending the synthesize signal, monitor
+   for `{session}/deliberation/_DOSSIER_cso.md` using Glob. If it exists,
+   read it and proceed regardless of whether the CSO sent a completion
+   SendMessage.
+   **Terminal fallback:** If the dossier file does not appear after several
+   check cycles following the synthesize signal, read the team lead findings
+   files from `{session}/findings/cso/` directly and construct a minimal
+   evidence summary for the Phase 0 broadcast. Note: "RESEARCH STATUS:
+   CSO SYNTHESIS UNAVAILABLE -- raw team lead findings included."
+10. Read `deliberation/_DOSSIER_cso.md`, incorporate into Phase 0 broadcast
 
 CSO Phase 1.5 completes FULLY before Phase 2 begins. The Research Dossier must be available for the Phase 0 broadcast.
 
